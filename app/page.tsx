@@ -6,6 +6,7 @@ import { PromotionalBanner } from "@/components/promotional-banner"
 import { ProductCategories } from "@/components/product-categories"
 import { BestDeals } from "@/components/best-deals"
 import { TrendyProducts } from "@/components/trendy-products"
+import { CategoryTabs } from "@/components/category-tabs"
 
 export default function HomePage() {
   return (
@@ -15,6 +16,7 @@ export default function HomePage() {
         <HeroSection />
         {/* <PromotionalBanner /> */}
         <ProductCategories />
+        <CategoryTabs />
         <BestDeals />
         <TrendyProducts />
         <FeaturedProducts />

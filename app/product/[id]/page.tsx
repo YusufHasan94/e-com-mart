@@ -1,19 +1,20 @@
+import { MultivendorProductPage } from "@/components/multivendor-product-page"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { ProductDetail } from "@/components/product-detail"
 
 interface ProductPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
-export default function ProductPage({ params }: ProductPageProps) {
+export default async function ProductPage({ params }: ProductPageProps) {
+  const { id } = await params
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        <ProductDetail productId={params.id} />
+        <MultivendorProductPage productId={id} />
       </main>
       <Footer />
     </div>

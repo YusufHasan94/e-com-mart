@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { Play, Star, TrendingUp, Users, Award } from "lucide-react"
+import { Play, Star, TrendingUp, Users, Award, Percent, Users2 } from "lucide-react"
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { EffectCube, Autoplay, Pagination } from 'swiper/modules'
 import 'swiper/css'
@@ -82,7 +82,7 @@ export function HeroSection() {
                     clickable: true,
                   }}
                   modules={[EffectCube, Autoplay, Pagination]}
-                  className="w-full h-[500px]"
+                  className="w-full h-[400px]"
                 >
                   {featuredContent.map((item) => (
                     <SwiperSlide key={item.id}>
@@ -120,30 +120,48 @@ export function HeroSection() {
           </div>
 
           <div className="lg:col-span-2 space-y-4">
-            <Card className="bg-gradient-to-br from-primary/10 to-secondary/20 border-primary/20">
-              <CardContent className="p-6 text-center">
-                <div className="flex items-center justify-center mb-4">
-                  <TrendingUp className="h-8 w-8 text-primary" />
+            {/* Top Offer Card */}
+            <Card className="relative overflow-hidden bg-gradient-to-r from-purple-600 to-purple-400 dark:card-hover group h-48 shadow-lg rounded-xl">
+              <div className="flex h-full">
+                {/* Left side - Text content */}
+                <div className="flex-1 p-6 flex flex-col justify-center">
+                  <div className="text-white text-sm font-normal mb-2">Top Offer</div>
+                  <div className="text-yellow-400 text-2xl font-bold mb-2">Steam Gift Cards</div>
+                  <div className="text-white text-sm font-normal">Discount 20% On Products</div>
                 </div>
-                <h3 className="text-xl font-bold text-primary mb-2">50K+</h3>
-                <p className="text-sm text-muted-foreground">Games Available</p>
-                <div className="mt-3 text-xs text-primary/80">
-                  Updated daily
+                
+                {/* Right side - Product image */}
+                <div className="w-48 h-full relative">
+                  <img 
+                    src="/steam-gift-card-gaming.jpg" 
+                    alt="Steam Gift Cards" 
+                    className="w-full h-full object-cover object-right" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-l from-transparent to-purple-600/20"></div>
                 </div>
-              </CardContent>
+              </div>
             </Card>
 
-            <Card className="bg-gradient-to-br from-secondary/10 to-muted/20 border-secondary/20">
-              <CardContent className="p-6 text-center">
-                <div className="flex items-center justify-center mb-4">
-                  <Users className="h-8 w-8 text-secondary-foreground" />
+            {/* Gaming Controller Card */}
+            <Card className="relative overflow-hidden bg-gradient-to-r from-red-600 to-red-500 dark:card-hover group h-48 shadow-lg rounded-xl">
+              <div className="flex h-full">
+                {/* Left side - Text content */}
+                <div className="flex-1 p-6 flex flex-col justify-center">
+                  <div className="text-white text-sm font-normal mb-2">Gamepad</div>
+                  <div className="text-yellow-400 text-2xl font-bold mb-2">Gaming Edition 2024</div>
+                  <div className="text-white text-sm font-normal">Best Choice Of The Year</div>
                 </div>
-                <h3 className="text-xl font-bold text-secondary-foreground mb-2">2M+</h3>
-                <p className="text-sm text-muted-foreground">Happy Customers</p>
-                <div className="mt-3 text-xs text-secondary-foreground/80">
-                  Join the community
+                
+                {/* Right side - Product image */}
+                <div className="w-48 h-full relative">
+                  <img 
+                    src="/epic-gaming-scene-with-futuristic-elements.jpg" 
+                    alt="Gaming Controller" 
+                    className="w-full h-full object-cover object-right" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-l from-transparent to-red-600/20"></div>
                 </div>
-              </CardContent>
+              </div>
             </Card>
 
           </div>

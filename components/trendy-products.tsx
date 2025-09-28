@@ -5,10 +5,25 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Star, ShoppingCart, TrendingUp, Flame } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
+import Link from "next/link"
 
 const trendyProducts = [
   {
-    id: 11,
+    id: "netflix-gift-card",
+    title: "Netflix Gift Card",
+    category: "Gift Cards",
+    originalPrice: 25.99,
+    salePrice: 23.38,
+    discount: 10,
+    rating: 4.8,
+    reviews: 25000,
+    image: "/placeholder.jpg",
+    isNew: false,
+    isTrending: true,
+    trendingRank: 1,
+  },
+  {
+    id: "baldurs-gate-3",
     title: "Baldur's Gate 3",
     category: "RPG",
     originalPrice: 59.99,
@@ -19,10 +34,10 @@ const trendyProducts = [
     image: "/baldurs-gate-3-fantasy-rpg-game.jpg",
     isNew: true,
     isTrending: true,
-    trendingRank: 1,
+    trendingRank: 2,
   },
   {
-    id: 12,
+    id: "chatgpt-plus",
     title: "ChatGPT Plus",
     category: "AI Software",
     originalPrice: 20.0,
@@ -33,10 +48,10 @@ const trendyProducts = [
     image: "/chatgpt-ai-assistant-software.jpg",
     isNew: false,
     isTrending: true,
-    trendingRank: 2,
+    trendingRank: 3,
   },
   {
-    id: 13,
+    id: "spider-man-2",
     title: "Spider-Man 2",
     category: "Action",
     originalPrice: 69.99,
@@ -47,10 +62,10 @@ const trendyProducts = [
     image: "/spider-man-2-superhero-action-game.jpg",
     isNew: true,
     isTrending: true,
-    trendingRank: 3,
+    trendingRank: 4,
   },
   {
-    id: 14,
+    id: "notion-pro",
     title: "Notion Pro",
     category: "Productivity",
     originalPrice: 96.0,
@@ -61,10 +76,10 @@ const trendyProducts = [
     image: "/notion-productivity-workspace-software.jpg",
     isNew: false,
     isTrending: true,
-    trendingRank: 4,
+    trendingRank: 5,
   },
   {
-    id: 15,
+    id: "starfield",
     title: "Starfield",
     category: "Sci-Fi RPG",
     originalPrice: 69.99,
@@ -74,20 +89,6 @@ const trendyProducts = [
     reviews: 3600,
     image: "/starfield-space-exploration-rpg-game.jpg",
     isNew: true,
-    isTrending: true,
-    trendingRank: 5,
-  },
-  {
-    id: 16,
-    title: "Figma Pro",
-    category: "Design",
-    originalPrice: 144.0,
-    salePrice: 144.0,
-    discount: 0,
-    rating: 4.8,
-    reviews: 5400,
-    image: "/figma-design-collaboration-software.jpg",
-    isNew: false,
     isTrending: true,
     trendingRank: 6,
   },
@@ -152,7 +153,9 @@ export function TrendyProducts() {
               <CardContent className="p-4 space-y-3">
                 <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">{product.category}</p>
-                  <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">{product.title}</h3>
+                  <Link href={`/product/${product.id}`}>
+                    <h3 className="font-semibold text-lg group-hover:text-primary transition-colors cursor-pointer">{product.title}</h3>
+                  </Link>
                 </div>
 
                 <div className="flex items-center gap-2">

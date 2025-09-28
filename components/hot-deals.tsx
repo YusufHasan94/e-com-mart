@@ -7,10 +7,6 @@ import { Star, ShoppingCart, Clock, ChevronRight, Sparkles } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import Link from "next/link"
 import { useState, useEffect } from "react"
-import { Swiper, SwiperSlide } from 'swiper/react'
-import { Navigation, Autoplay } from 'swiper/modules'
-import 'swiper/css'
-import 'swiper/css/navigation'
 
 const hotDealsProducts = [
   {
@@ -190,121 +186,80 @@ export function BestDeals() {
           {/* Product Cards */}
           <div className="lg:col-span-2">
             <div className="relative">
-              <Swiper
-                modules={[Navigation, Autoplay]}
-                spaceBetween={16}
-                slidesPerView={1}
-                navigation={{
-                  nextEl: '.swiper-button-next-custom',
-                  prevEl: '.swiper-button-prev-custom',
-                }}
-                autoplay={{
-                  delay: 3000,
-                  disableOnInteraction: false,
-                }}
-                breakpoints={{
-                  640: {
-                    slidesPerView: 1.5,
-                    spaceBetween: 16,
-                  },
-                  768: {
-                    slidesPerView: 2,
-                    spaceBetween: 16,
-                  },
-                  1024: {
-                    slidesPerView: 2.5,
-                    spaceBetween: 16,
-                  },
-                  1280: {
-                    slidesPerView: 3,
-                    spaceBetween: 16,
-                  },
-                }}
-                className="hot-deals-swiper"
-              >
+              <div className="flex gap-4 overflow-x-auto pb-4">
                 {hotDealsProducts.map((product) => (
-                  <SwiperSlide key={product.id}>
-                    <Link href={`/product/${product.id}`}>
-                      <Card className="dark:glass-effect dark:card-hover cursor-pointer h-full">
-                        <CardContent className="p-4 h-full flex flex-col">
-                          <div className="relative mb-4">
-                            <img
-                              src={product.image || "/placeholder.svg"}
-                              alt={product.title}
-                              className="w-full h-48 object-cover rounded-lg"
-                            />
-                            <Badge className="absolute top-2 left-2 bg-red-600 hover:bg-red-700 text-white">
-                              ON SALE
-                            </Badge>
+                  <Link key={product.id} href={`/product/${product.id}`}>
+                    <Card className="w-80 dark:glass-effect dark:card-hover cursor-pointer flex-shrink-0">
+                      <CardContent className="p-4">
+                        <div className="relative mb-4">
+                          <img
+                            src={product.image || "/placeholder.svg"}
+                            alt={product.title}
+                            className="w-full h-48 object-cover rounded-lg"
+                          />
+                          <Badge className="absolute top-2 left-2 bg-red-600 hover:bg-red-700 text-white">
+                            ON SALE
+                          </Badge>
+                        </div>
+
+                        <div className="space-y-3">
+                          <div>
+                            <h3 className="font-semibold text-lg mb-1">{product.title}</h3>
+                            <p className="text-sm text-muted-foreground">{product.category}</p>
                           </div>
 
-                          <div className="space-y-3 flex-1 flex flex-col">
-                            <div>
-                              <h3 className="font-semibold text-lg mb-1">{product.title}</h3>
-                              <p className="text-sm text-muted-foreground">{product.category}</p>
-                            </div>
-
-                            <div className="flex items-center gap-1">
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <span className="text-sm text-muted-foreground ml-1">({product.reviews} reviews)</span>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              <span className="text-2xl font-bold text-primary">${product.salePrice.toFixed(2)}</span>
-                              <span className="text-lg text-muted-foreground line-through">${product.originalPrice.toFixed(2)}</span>
-                            </div>
-
-                            <div className="space-y-2 mt-auto">
-                              <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">Sold: {product.sold}/{product.total} Products</span>
-                              </div>
-                              <div className="w-full bg-gray-200 rounded-full h-2">
-                                <div 
-                                  className="bg-red-500 h-2 rounded-full transition-all duration-300"
-                                  style={{ width: `${(product.sold / product.total) * 100}%` }}
-                                ></div>
-                              </div>
-                            </div>
-
-                            <Button
-                              size="sm"
-                              className="w-full gap-2 hover:animate-pulse-glow mt-2"
-                              onClick={(e) => {
-                                e.preventDefault()
-                                e.stopPropagation()
-                                handleAddToCart(product)
-                              }}
-                            >
-                              <ShoppingCart className="h-4 w-4" />
-                              Add to Cart
-                            </Button>
+                          <div className="flex items-center gap-1">
+                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            <span className="text-sm text-muted-foreground ml-1">({product.reviews} reviews)</span>
                           </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  </SwiperSlide>
+
+                          <div className="flex items-center gap-2">
+                            <span className="text-2xl font-bold text-primary">${product.salePrice.toFixed(2)}</span>
+                            <span className="text-lg text-muted-foreground line-through">${product.originalPrice.toFixed(2)}</span>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Sold: {product.sold}/{product.total} Products</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div 
+                                className="bg-red-500 h-2 rounded-full transition-all duration-300"
+                                style={{ width: `${(product.sold / product.total) * 100}%` }}
+                              ></div>
+                            </div>
+                          </div>
+
+                          <Button
+                            size="sm"
+                            className="w-full gap-2 hover:animate-pulse-glow"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              handleAddToCart(product)
+                            }}
+                          >
+                            <ShoppingCart className="h-4 w-4" />
+                            Add to Cart
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 ))}
-              </Swiper>
+              </div>
               
-              {/* Custom Navigation Buttons */}
+              {/* Carousel Navigation */}
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="swiper-button-next-custom absolute right-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-white/90 hover:bg-white z-10"
+                className="absolute right-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-white/90 hover:bg-white"
               >
                 <ChevronRight className="h-4 w-4" />
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                size="icon" 
-                className="swiper-button-prev-custom absolute left-0 top-1/2 -translate-y-1/2 translate-x-2 bg-white/90 hover:bg-white z-10"
-              >
-                <ChevronRight className="h-4 w-4 rotate-180" />
               </Button>
             </div>
           </div>

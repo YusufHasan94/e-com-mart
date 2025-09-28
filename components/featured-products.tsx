@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Star, ShoppingCart } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
+import Link from "next/link"
 
 const featuredProducts = [
   {
-    id: 1,
+    id: "cyberpunk-2077",
     title: "Cyberpunk 2077",
     category: "RPG",
     originalPrice: 59.99,
@@ -21,7 +22,7 @@ const featuredProducts = [
     isBestseller: true,
   },
   {
-    id: 2,
+    id: "elden-ring",
     title: "Elden Ring",
     category: "Action RPG",
     originalPrice: 59.99,
@@ -34,7 +35,7 @@ const featuredProducts = [
     isBestseller: false,
   },
   {
-    id: 3,
+    id: "microsoft-office-365",
     title: "Microsoft Office 365",
     category: "Software",
     originalPrice: 149.99,
@@ -47,7 +48,7 @@ const featuredProducts = [
     isBestseller: false,
   },
   {
-    id: 4,
+    id: "steam-gift-card",
     title: "Steam Gift Card",
     category: "Gift Card",
     originalPrice: 50.0,
@@ -60,7 +61,7 @@ const featuredProducts = [
     isBestseller: true,
   },
   {
-    id: 5,
+    id: "adobe-creative-suite",
     title: "Adobe Creative Suite",
     category: "Software",
     originalPrice: 299.99,
@@ -73,7 +74,7 @@ const featuredProducts = [
     isBestseller: false,
   },
   {
-    id: 6,
+    id: "call-of-duty-mw3",
     title: "Call of Duty: MW3",
     category: "FPS",
     originalPrice: 69.99,
@@ -92,13 +93,13 @@ export function FeaturedProducts() {
 
   const handleAddToCart = (product: any) => {
     addItem({
-      id: product.id,
+      id: parseInt(product.id.replace(/\D/g, '')) || Math.random() * 1000, // Convert string ID to number
       title: product.title,
       price: product.salePrice,
       originalPrice: product.originalPrice,
       image: product.image,
       category: product.category,
-      platform: "steam", // Default platform
+      platform: "Digital", // Default platform
       discount: product.discount,
     })
   }
@@ -116,50 +117,60 @@ export function FeaturedProducts() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {featuredProducts.map((product) => (
-            <Card key={product.id} className="group hover:shadow-xl transition-all duration-300 overflow-hidden">
-              <div className="relative">
-                <img
-                  src={product.image || "/placeholder.svg"}
-                  alt={product.title}
-                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute top-3 left-3 flex gap-2">
-                  {product.isNew && <Badge className="bg-green-600 hover:bg-green-700">New</Badge>}
-                  {product.isBestseller && <Badge className="bg-orange-600 hover:bg-orange-700">Bestseller</Badge>}
-                  {product.discount > 0 && <Badge variant="destructive">-{product.discount}%</Badge>}
-                </div>
-              </div>
-
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">{product.category}</p>
-                  <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">{product.title}</h3>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-medium">{product.rating}</span>
+            <Link key={product.id} href={`/product/${product.id}`}>
+              <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden dark:card-hover cursor-pointer">
+                <div className="relative">
+                  <img
+                    src={product.image || "/placeholder.svg"}
+                    alt={product.title}
+                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-3 left-3 flex gap-2">
+                    {product.isNew && <Badge className="bg-green-600 hover:bg-green-700">New</Badge>}
+                    {product.isBestseller && <Badge className="bg-orange-600 hover:bg-orange-700">Bestseller</Badge>}
+                    {product.discount > 0 && <Badge variant="destructive">-{product.discount}%</Badge>}
                   </div>
-                  <span className="text-sm text-muted-foreground">({product.reviews} reviews)</span>
                 </div>
 
-                <div className="flex items-center justify-between">
+                <CardContent className="p-4 space-y-3">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      {product.discount > 0 && (
-                        <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>
-                      )}
-                      <span className="text-xl font-bold text-primary">${product.salePrice}</span>
-                    </div>
+                    <p className="text-sm text-muted-foreground">{product.category}</p>
+                    <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">{product.title}</h3>
                   </div>
-                  <Button size="sm" className="gap-2" onClick={() => handleAddToCart(product)}>
-                    <ShoppingCart className="h-4 w-4" />
-                    Add to Cart
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <span className="text-sm font-medium">{product.rating}</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">({product.reviews} reviews)</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        {product.discount > 0 && (
+                          <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>
+                        )}
+                        <span className="text-xl font-bold text-primary">${product.salePrice}</span>
+                      </div>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      className="gap-2 hover:animate-pulse-glow" 
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleAddToCart(product)
+                      }}
+                    >
+                      <ShoppingCart className="h-4 w-4" />
+                      Add to Cart
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       </div>
