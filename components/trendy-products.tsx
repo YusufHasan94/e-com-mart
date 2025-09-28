@@ -115,24 +115,22 @@ export function TrendyProducts() {
         <div className="flex items-center justify-between mb-12">
           <div className="space-y-2">
             <h2 className="text-3xl lg:text-4xl font-bold flex items-center gap-3">
-              <TrendingUp className="h-8 w-8 text-purple-600" />
               Trendy Products
             </h2>
             <p className="text-muted-foreground">What everyone's talking about right now</p>
           </div>
           <Button
             variant="outline"
-            className="border-purple-200 text-purple-600 hover:bg-purple-50 dark:border-purple-800 dark:text-purple-400 bg-transparent"
           >
             View All Trending
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {trendyProducts.map((product) => (
             <Card
               key={product.id}
-              className="group hover:shadow-xl transition-all duration-300 overflow-hidden border-purple-100 dark:border-purple-900/50"
+              className="group hover:shadow-xl transition-all duration-300 overflow-hidden"
             >
               <div className="relative">
                 <img
@@ -176,7 +174,7 @@ export function TrendyProducts() {
                   </div>
                   <Button
                     size="sm"
-                    className="gap-2 bg-purple-600 hover:bg-purple-700"
+                    className="gap-2 "
                     onClick={() => handleAddToCart(product)}
                   >
                     <ShoppingCart className="h-4 w-4" />

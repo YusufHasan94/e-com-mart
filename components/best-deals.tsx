@@ -74,16 +74,15 @@ export function BestDeals() {
   }
 
   return (
-    <section className="py-16 bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20">
+    <section className="py-16 bg-gradient-to-br from-background via-muted/20 to-secondary/30">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between mb-12">
           <div className="space-y-2">
-            <h2 className="text-3xl lg:text-4xl font-bold text-red-600 dark:text-red-400">🔥 Best Deals</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold">Best Deals</h2>
             <p className="text-muted-foreground">Limited time offers - grab them before they're gone!</p>
           </div>
           <Button
             variant="outline"
-            className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 bg-transparent"
           >
             View All Deals
           </Button>
@@ -93,7 +92,7 @@ export function BestDeals() {
           {bestDealsProducts.map((product) => (
             <Card
               key={product.id}
-              className="group hover:shadow-xl transition-all duration-300 overflow-hidden border-red-100 dark:border-red-900/50"
+              className="group hover:shadow-xl transition-all duration-300 overflow-hidden "
             >
               <div className="relative">
                 <img
@@ -131,11 +130,11 @@ export function BestDeals() {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>
-                    <span className="text-xl font-bold text-red-600 dark:text-red-400">${product.salePrice}</span>
+                    <span className="text-xl font-bold">${product.salePrice}</span>
                   </div>
                   <Button
                     size="sm"
-                    className="w-full gap-2 bg-red-600 hover:bg-red-700"
+                    className="w-full gap-2"
                     onClick={() => handleAddToCart(product)}
                   >
                     <ShoppingCart className="h-4 w-4" />
