@@ -58,7 +58,7 @@ export function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-background via-muted/20 to-secondary/30">
       <div className="container mx-auto px-4 py-16 lg:py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-6 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 items-start">
           
           <div className="lg:col-span-4">
             <div className="space-y-6">
@@ -86,7 +86,7 @@ export function HeroSection() {
                 >
                   {featuredContent.map((item) => (
                     <SwiperSlide key={item.id}>
-                      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-secondary to-muted shadow-2xl h-full">
+                      <div className="relative overflow-hidden bg-gradient-to-br from-secondary to-muted shadow-2xl h-full">
                         <img 
                           src={item.image} 
                           alt={item.title} 
@@ -94,18 +94,12 @@ export function HeroSection() {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                         <div className="absolute bottom-6 left-6 right-6">
-                          <div className="space-y-3">
-                            <Badge className="bg-primary text-primary-foreground">{item.badge}</Badge>
+                          <div className="space-y-0">
+                            <Badge className="bg-transparent text-white">{item.badge}</Badge>
                             <h3 className="text-2xl lg:text-3xl font-bold text-white">{item.title}</h3>
-                            <p className="text-white/80 text-lg">{item.description}</p>
-                            <div className="flex items-center justify-between pt-3">
-                              <div className="flex items-center gap-3">
-                                <span className="text-white/60 line-through text-lg">${item.originalPrice}</span>
-                                <span className="text-3xl font-bold text-white">${item.price}</span>
-                                <Badge variant="destructive" className="text-sm">-{item.discount}%</Badge>
-                              </div>
+                            <div className="pt-12">
                               <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg px-6">
-                                Add to Cart
+                                Get Offer
                               </Button>
                             </div>
                           </div>
@@ -121,45 +115,37 @@ export function HeroSection() {
 
           <div className="lg:col-span-2 space-y-4">
             {/* Top Offer Card */}
-            <Card className="relative overflow-hidden bg-gradient-to-r from-purple-600 to-purple-400 dark:card-hover group h-48 shadow-lg rounded-xl">
-              <div className="flex h-full">
-                {/* Left side - Text content */}
-                <div className="flex-1 p-6 flex flex-col justify-center">
-                  <div className="text-white text-sm font-normal mb-2">Top Offer</div>
+            <Card className="relative overflow-hidden dark:card-hover group h-48 shadow-lg" 
+                  style={{
+                    backgroundImage: 'url(/steam-gift-card-gaming.jpg)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat'
+                  }}>
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600/80 to-purple-400/60"></div>
+              <div className="relative z-10 h-full flex items-center p-6">
+                <div className="text-white">
+                  <div className="text-sm font-normal mb-2">Top Offer</div>
                   <div className="text-yellow-400 text-2xl font-bold mb-2">Steam Gift Cards</div>
                   <div className="text-white text-sm font-normal">Discount 20% On Products</div>
-                </div>
-                
-                {/* Right side - Product image */}
-                <div className="w-48 h-full relative">
-                  <img 
-                    src="/steam-gift-card-gaming.jpg" 
-                    alt="Steam Gift Cards" 
-                    className="w-full h-full object-cover object-right" 
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-l from-transparent to-purple-600/20"></div>
                 </div>
               </div>
             </Card>
 
             {/* Gaming Controller Card */}
-            <Card className="relative overflow-hidden bg-gradient-to-r from-red-600 to-red-500 dark:card-hover group h-48 shadow-lg rounded-xl">
-              <div className="flex h-full">
-                {/* Left side - Text content */}
-                <div className="flex-1 p-6 flex flex-col justify-center">
-                  <div className="text-white text-sm font-normal mb-2">Gamepad</div>
+            <Card className="relative overflow-hidden dark:card-hover group h-48 shadow-lg"
+                  style={{
+                    backgroundImage: 'url(/epic-gaming-scene-with-futuristic-elements.jpg)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat'
+                  }}>
+              <div className="absolute inset-0 bg-gradient-to-r from-red-600/80 to-red-500/60"></div>
+              <div className="relative z-10 h-full flex items-center p-6">
+                <div className="text-white">
+                  <div className="text-sm font-normal mb-2">Gamepad</div>
                   <div className="text-yellow-400 text-2xl font-bold mb-2">Gaming Edition 2024</div>
                   <div className="text-white text-sm font-normal">Best Choice Of The Year</div>
-                </div>
-                
-                {/* Right side - Product image */}
-                <div className="w-48 h-full relative">
-                  <img 
-                    src="/epic-gaming-scene-with-futuristic-elements.jpg" 
-                    alt="Gaming Controller" 
-                    className="w-full h-full object-cover object-right" 
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-l from-transparent to-red-600/20"></div>
                 </div>
               </div>
             </Card>

@@ -226,19 +226,19 @@ export function BestDeals() {
                   <SwiperSlide key={product.id}>
                     <Link href={`/product/${product.id}`}>
                       <Card className="dark:glass-effect dark:card-hover cursor-pointer h-full">
-                        <CardContent className="p-4 h-full flex flex-col">
+                        <CardContent className="h-full flex flex-col">
                           <div className="relative mb-4">
                             <img
                               src={product.image || "/placeholder.svg"}
                               alt={product.title}
-                              className="w-full h-48 object-cover rounded-lg"
+                              className="w-full h-48 object-cover"
                             />
                             <Badge className="absolute top-2 left-2 bg-red-600 hover:bg-red-700 text-white">
                               ON SALE
                             </Badge>
                           </div>
 
-                          <div className="space-y-3 flex-1 flex flex-col">
+                          <div className="space-y-3 flex-1 flex flex-col p-4">
                             <div>
                               <h3 className="font-semibold text-lg mb-1">{product.title}</h3>
                               <p className="text-sm text-muted-foreground">{product.category}</p>

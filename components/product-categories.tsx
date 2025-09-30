@@ -54,14 +54,8 @@ const categories = [
 
 export function ProductCategories() {
   return (
-    <section className="py-16 bg-muted/30">
+    <section className="py-4 bg-transparent">
       <div className="container mx-auto px-4">
-        <div className="text-center space-y-4 mb-12">
-          <h2 className="text-3xl lg:text-4xl font-bold text-balance">Browse by Category</h2>
-          <p className="text-lg text-muted-foreground text-pretty max-w-2xl mx-auto">
-            Find exactly what you're looking for in our carefully curated categories
-          </p>
-        </div>
 
         {/* Marquee Container */}
         <div className="relative overflow-hidden">

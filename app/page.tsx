@@ -14,11 +14,9 @@ export default function HomePage() {
       <Header />
       <main className="flex-1">
         <HeroSection />
-        {/* <PromotionalBanner /> */}
         <ProductCategories />
-        <CategoryTabs />
         <BestDeals />
-        <TrendyProducts />
+        <CategoryTabs />
         <FeaturedProducts />
       </main>
       <Footer />

@@ -385,7 +385,7 @@ export function CategoryTabs() {
       <SwiperSlide key={`${product.id}-${swiperKey}`}>
         <Link href={`/product/${product.id}`}>
           <Card 
-            className={`group hover:shadow-xl transition-all duration-500 overflow-hidden dark:card-hover cursor-pointer h-full ${
+            className={`group hover:shadow-xl transition-all duration-500 overflow-hidden dark:card-hover cursor-pointer min-h-[440px] h-full ${
               isAnimating ? 'animate-fade-in-up' : ''
             }`}
             style={{
@@ -393,12 +393,12 @@ export function CategoryTabs() {
               animationFillMode: 'both'
             }}
           >
-            <CardContent className="p-4 h-full flex flex-col">
+            <CardContent className="h-full flex flex-col">
               <div className="relative mb-4">
                 <img
                   src={product.image || "/placeholder.svg"}
                   alt={product.title}
-                  className="w-full h-48 object-cover rounded-lg transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 {product.onSale && (
                   <Badge className="absolute top-2 left-2 bg-red-600 hover:bg-red-700 text-white animate-pulse">
@@ -407,7 +407,7 @@ export function CategoryTabs() {
                 )}
               </div>
 
-              <div className="space-y-3 flex-1 flex flex-col">
+              <div className="space-y-3 flex-1 flex flex-col p-4">
                 <div>
                   <h3 className="font-semibold text-sm mb-1 line-clamp-2">{product.title}</h3>
                 </div>
@@ -475,10 +475,8 @@ export function CategoryTabs() {
                 <button
                   key={category.id}
                   onClick={() => handleCategoryChange(category.id)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
-                    category.featured
-                      ? 'bg-primary text-primary-foreground'
-                      : activeCategory === category.id
+                  className={`px-4 py-2 text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
+                      activeCategory === category.id
                       ? 'bg-muted text-foreground'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}

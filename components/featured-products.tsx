@@ -115,7 +115,7 @@ export function FeaturedProducts() {
           <Button variant="outline">View All</Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           {featuredProducts.map((product) => (
             <Link key={product.id} href={`/product/${product.id}`}>
               <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden dark:card-hover cursor-pointer">
