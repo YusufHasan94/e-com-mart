@@ -133,8 +133,10 @@ export function BestDeals() {
   }
 
   return (
-    <section className="py-16 bg-gradient-to-br from-background via-muted/20 to-secondary/30">
-      <div className="container mx-auto px-4">
+    <section className="py-16 bg-gradient-to-b from-[#050C11] via-[#050C11]/80 to-background relative">
+      {/* Gradient overlay to melt with top section */}
+      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#050C11] via-[#050C11]/60 to-transparent" />
+      <div className="container mx-auto px-4 relative z-10">
         {/* Header Section */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">

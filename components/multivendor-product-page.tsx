@@ -144,11 +144,11 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
             {/* Product Image & Details */}
             <div className="lg:col-span-2">
               <div className="flex gap-6">
-                <div className="w-64 h-64 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center relative group">
+                <div className="w-64 h-64 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center relative group">
                   <img
                     src={product.image}
                     alt={product.title}
-                    className="w-full h-full object-cover rounded-xl"
+                    className="w-full h-full object-cover rounded-lg"
                   />
                   <Button 
                     size="sm" 

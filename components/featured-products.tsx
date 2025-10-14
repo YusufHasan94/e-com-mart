@@ -1,11 +1,16 @@
 "use client"
 
+import { useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Star, ShoppingCart } from "lucide-react"
+import { Star, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import Link from "next/link"
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Navigation, Autoplay } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/navigation'
 
 const featuredProducts = [
   {
@@ -86,10 +91,38 @@ const featuredProducts = [
     isNew: true,
     isBestseller: false,
   },
+  {
+    id: "call-of-duty-mw3",
+    title: "Call of Duty: MW3",
+    category: "FPS",
+    originalPrice: 69.99,
+    salePrice: 55.99,
+    discount: 20,
+    rating: 4.3,
+    reviews: 1800,
+    image: "/military-shooter.png",
+    isNew: true,
+    isBestseller: false,
+  },
+  {
+    id: "call-of-duty-mw3",
+    title: "Call of Duty: MW3",
+    category: "FPS",
+    originalPrice: 69.99,
+    salePrice: 55.99,
+    discount: 20,
+    rating: 4.3,
+    reviews: 1800,
+    image: "/military-shooter.png",
+    isNew: true,
+    isBestseller: false,
+  },
 ]
 
 export function FeaturedProducts() {
   const { addItem } = useCart()
+  const prevRef = useRef<HTMLButtonElement>(null)
+  const nextRef = useRef<HTMLButtonElement>(null)
 
   const handleAddToCart = (product: any) => {
     addItem({
@@ -115,63 +148,112 @@ export function FeaturedProducts() {
           <Button variant="outline">View All</Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          {featuredProducts.map((product) => (
-            <Link key={product.id} href={`/product/${product.id}`}>
-              <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden dark:card-hover cursor-pointer">
-                <div className="relative">
-                  <img
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.title}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute top-3 left-3 flex gap-2">
-                    {product.isNew && <Badge className="bg-green-600 hover:bg-green-700">New</Badge>}
-                    {product.isBestseller && <Badge className="bg-orange-600 hover:bg-orange-700">Bestseller</Badge>}
-                    {product.discount > 0 && <Badge variant="destructive">-{product.discount}%</Badge>}
-                  </div>
-                </div>
-
-                <CardContent className="p-4 space-y-3">
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">{product.category}</p>
-                    <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">{product.title}</h3>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-medium">{product.rating}</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">({product.reviews} reviews)</span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        {product.discount > 0 && (
-                          <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>
-                        )}
-                        <span className="text-xl font-bold text-primary">${product.salePrice}</span>
+        <div className="relative">
+          <Swiper
+            spaceBetween={16}
+            slidesPerView={1}
+            breakpoints={{
+              640: {
+                slidesPerView: 2,
+                spaceBetween: 16,
+              },
+              768: {
+                slidesPerView: 3,
+                spaceBetween: 16,
+              },
+              1024: {
+                slidesPerView: 4,
+                spaceBetween: 16,
+              },
+              1280: {
+                slidesPerView: 5,
+                spaceBetween: 16,
+              },
+            }}
+            navigation={{
+              nextEl: nextRef.current,
+              prevEl: prevRef.current,
+            }}
+            autoplay={{
+              delay: 4000,
+              disableOnInteraction: false,
+            }}
+            modules={[Navigation, Autoplay]}
+            className="featured-products-swiper"
+          >
+            {featuredProducts.map((product) => (
+              <SwiperSlide key={product.id}>
+                <Link href={`/product/${product.id}`}>
+                  <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden dark:card-hover cursor-pointer h-full">
+                    <div className="relative">
+                      <img
+                        src={product.image || "/placeholder.svg"}
+                        alt={product.title}
+                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute top-3 left-3 flex gap-2">
+                        {product.isNew && <Badge className="bg-green-600 hover:bg-green-700">New</Badge>}
+                        {product.isBestseller && <Badge className="bg-orange-600 hover:bg-orange-700">Bestseller</Badge>}
+                        {product.discount > 0 && <Badge variant="destructive">-{product.discount}%</Badge>}
                       </div>
                     </div>
-                    <Button 
-                      size="sm" 
-                      className="gap-2 hover:animate-pulse-glow" 
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        handleAddToCart(product)
-                      }}
-                    >
-                      <ShoppingCart className="h-4 w-4" />
-                      Add to Cart
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+
+                    <CardContent className="p-4 space-y-3">
+                      <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">{product.category}</p>
+                        <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">{product.title}</h3>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                          <span className="text-sm font-medium">{product.rating}</span>
+                        </div>
+                        <span className="text-sm text-muted-foreground">({product.reviews} reviews)</span>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            {product.discount > 0 && (
+                              <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>
+                            )}
+                            <span className="text-xl font-bold text-primary">${product.salePrice}</span>
+                          </div>
+                        </div>
+                        <Button 
+                          size="sm" 
+                          className="gap-2 hover:animate-pulse-glow" 
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            handleAddToCart(product)
+                          }}
+                        >
+                          <ShoppingCart className="h-4 w-4" />
+                          Add to Cart
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+
+          {/* Custom Navigation Buttons */}
+          <button 
+            ref={prevRef}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 backdrop-blur-sm rounded-lg p-2 shadow-lg transition-all duration-200 group -ml-4 cursor-pointer"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-700 dark:text-gray-300 group-hover:scale-110 transition-transform" />
+          </button>
+          <button 
+            ref={nextRef}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 backdrop-blur-sm rounded-lg p-2 shadow-lg transition-all duration-200 group -mr-4 cursor-pointer"
+          >
+            <ChevronRight className="w-5 h-5 text-gray-700 dark:text-gray-300 group-hover:scale-110 transition-transform" />
+          </button>
         </div>
       </div>
     </section>

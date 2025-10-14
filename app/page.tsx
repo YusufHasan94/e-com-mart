@@ -1,9 +1,8 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { HeroSection } from "@/components/hero-section"
+import { HeroCategoriesWrapper } from "@/components/hero-categories-wrapper"
 import { FeaturedProducts } from "@/components/featured-products"
 import { PromotionalBanner } from "@/components/promotional-banner"
-import { ProductCategories } from "@/components/product-categories"
 import { BestDeals } from "@/components/best-deals"
 import { TrendyProducts } from "@/components/trendy-products"
 import { CategoryTabs } from "@/components/category-tabs"
@@ -13,8 +12,7 @@ export default function HomePage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        <HeroSection />
-        <ProductCategories />
+        <HeroCategoriesWrapper />
         <BestDeals />
         <CategoryTabs />
         <FeaturedProducts />
