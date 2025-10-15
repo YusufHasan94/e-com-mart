@@ -6,6 +6,9 @@ import { PromotionalBanner } from "@/components/promotional-banner"
 import { BestDeals } from "@/components/best-deals"
 import { TrendyProducts } from "@/components/trendy-products"
 import { CategoryTabs } from "@/components/category-tabs"
+import { SubscriberSection } from "@/components/subscriber-section"
+import { BannerSection } from "@/components/banner-section"
+import { CategoryMarquee } from "@/components/category-marquee"
 
 export default function HomePage() {
   return (
@@ -13,9 +16,12 @@ export default function HomePage() {
       <Header />
       <main className="flex-1">
         <HeroCategoriesWrapper />
-        <BestDeals />
-        <CategoryTabs />
         <FeaturedProducts />
+        <BannerSection />
+        <CategoryTabs />
+        <CategoryMarquee />
+        <BestDeals />
+        <SubscriberSection />
       </main>
       <Footer />
     </div>

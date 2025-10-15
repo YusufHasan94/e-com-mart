@@ -119,32 +119,32 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4 sm:py-6 lg:py-8">
         {/* Product Header */}
-        <div className="mb-8">
-          <div className="flex items-start gap-2 mb-4">
-            <Badge className="bg-green-600 hover:bg-green-700">{product.category}</Badge>
-            <Badge variant="outline">{product.type === 'gift-card' ? 'Digital Key' : 'Digital Product'}</Badge>
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-wrap items-start gap-2 mb-3 sm:mb-4">
+            <Badge className="bg-green-600 hover:bg-green-700 text-xs sm:text-sm">{product.category}</Badge>
+            <Badge variant="outline" className="text-xs sm:text-sm">{product.type === 'gift-card' ? 'Digital Key' : 'Digital Product'}</Badge>
           </div>
           
-          <h1 className="text-3xl font-bold mb-4">{product.title} {selectedVariation.value}</h1>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4">{product.title} {selectedVariation.value}</h1>
           
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
             <div className="flex items-center gap-1">
-              <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-              <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-              <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-              <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-              <Star className="h-5 w-5 text-muted-foreground" />
-              <span className="ml-2 text-sm text-muted-foreground">({product.reviews} reviews)</span>
+              <Star className="h-4 w-4 sm:h-5 sm:w-5 fill-yellow-400 text-yellow-400" />
+              <Star className="h-4 w-4 sm:h-5 sm:w-5 fill-yellow-400 text-yellow-400" />
+              <Star className="h-4 w-4 sm:h-5 sm:w-5 fill-yellow-400 text-yellow-400" />
+              <Star className="h-4 w-4 sm:h-5 sm:w-5 fill-yellow-400 text-yellow-400" />
+              <Star className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+              <span className="ml-1 sm:ml-2 text-xs sm:text-sm text-muted-foreground">({product.reviews} reviews)</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {/* Product Image & Details */}
             <div className="lg:col-span-2">
-              <div className="flex gap-6">
-                <div className="w-64 h-64 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center relative group">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                <div className="w-full sm:w-48 lg:w-64 h-48 sm:h-48 lg:h-64 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center relative group mx-auto sm:mx-0">
                   <img
                     src={product.image}
                     alt={product.title}
@@ -161,44 +161,50 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                 </div>
                 
                 <div className="flex-1">
-                  <div className="space-y-4 mb-6">
-                    <div className="flex items-center gap-2 text-sm">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span>Can be activated in Global</span>
-                      <Button variant="link" size="sm" className="p-0 h-auto">Check Restrictions</Button>
+                  <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
+                        <span>Can be activated in Global</span>
+                      </div>
+                      <Button variant="link" size="sm" className="p-0 h-auto text-xs sm:text-sm">Check Restrictions</Button>
                     </div>
                     
-                    <div className="flex items-center gap-2 text-sm">
-                      <Globe className="h-4 w-4" />
+                    <div className="flex items-center gap-2 text-xs sm:text-sm">
+                      <Globe className="h-3 w-3 sm:h-4 sm:w-4" />
                       <span>Region: {selectedVariation.region || 'Global'}</span>
-                      <ChevronDown className="h-4 w-4" />
+                      <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4" />
                     </div>
                     
-                    <div className="flex items-center gap-2 text-sm">
-                      <Monitor className="h-4 w-4" />
-                      <span>Platform: {product.platform || 'Digital'}</span>
-                      <Button variant="link" size="sm" className="p-0 h-auto">Activation Guide</Button>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+                      <div className="flex items-center gap-2">
+                        <Monitor className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <span>Platform: {product.platform || 'Digital'}</span>
+                      </div>
+                      <Button variant="link" size="sm" className="p-0 h-auto text-xs sm:text-sm">Activation Guide</Button>
                     </div>
                     
-                    <div className="flex items-center gap-2 text-sm">
-                      <Cpu className="h-4 w-4" />
-                      <span>Works on: Windows</span>
-                      <Button variant="link" size="sm" className="p-0 h-auto">System Requirements</Button>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+                      <div className="flex items-center gap-2">
+                        <Cpu className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <span>Works on: Windows</span>
+                      </div>
+                      <Button variant="link" size="sm" className="p-0 h-auto text-xs sm:text-sm">System Requirements</Button>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 mb-6">
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
                     <div className="flex items-center gap-2">
-                      <Truck className="h-4 w-4 text-green-500" />
-                      <span className="text-sm">Instant Delivery</span>
+                      <Truck className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
+                      <span className="text-xs sm:text-sm">Instant Delivery</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <MessageCircle className="h-4 w-4 text-blue-500" />
-                      <span className="text-sm">24/7 Support</span>
+                      <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500" />
+                      <span className="text-xs sm:text-sm">24/7 Support</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <ShieldCheck className="h-4 w-4 text-purple-500" />
-                      <span className="text-sm">Verified Sellers</span>
+                      <ShieldCheck className="h-3 w-3 sm:h-4 sm:w-4 text-purple-500" />
+                      <span className="text-xs sm:text-sm">Verified Sellers</span>
                     </div>
                   </div>
                 </div>
@@ -207,42 +213,42 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
 
             {/* Featured Offer & Purchase Box */}
             <div className="lg:col-span-1">
-              <Card className="dark:glass-effect p-6 sticky top-4">
-                <div className="mb-4">
-                  <Badge className="bg-blue-600 hover:bg-blue-700 mb-2">FEATURED OFFER</Badge>
-                  <div className="text-3xl font-bold text-primary mb-1">${featuredVendor.price}</div>
+              <Card className="dark:glass-effect p-4 sm:p-6 sticky top-4">
+                <div className="mb-3 sm:mb-4">
+                  <Badge className="bg-blue-600 hover:bg-blue-700 mb-2 text-xs sm:text-sm">FEATURED OFFER</Badge>
+                  <div className="text-2xl sm:text-3xl font-bold text-primary mb-1">${featuredVendor.price}</div>
                   {featuredVendor.originalPrice && (
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-lg text-muted-foreground line-through">${featuredVendor.originalPrice}</span>
+                      <span className="text-sm sm:text-lg text-muted-foreground line-through">${featuredVendor.originalPrice}</span>
                       <Badge variant="destructive" className="text-xs">
                         {Math.round(((featuredVendor.originalPrice - featuredVendor.price) / featuredVendor.originalPrice) * 100)}% off
                       </Badge>
                     </div>
                   )}
-                  <div className="text-sm text-muted-foreground mb-4">PRICE NOT FINAL</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">PRICE NOT FINAL</div>
                 </div>
                 
-                <div className="space-y-3 mb-6">
-                  <Button size="lg" className="w-full gap-2">
+                <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
+                  <Button size="lg" className="w-full gap-2 text-sm sm:text-base">
                     <ShoppingCart className="h-4 w-4" />
                     Buy now
                   </Button>
                   
                   <div className="flex items-center gap-2">
-                    <Truck className="h-4 w-4 text-green-500" />
-                    <span className="text-sm">Instant Delivery</span>
+                    <Truck className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
+                    <span className="text-xs sm:text-sm">Instant Delivery</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <MessageCircle className="h-4 w-4 text-blue-500" />
-                    <span className="text-sm">24/7 Support</span>
+                    <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500" />
+                    <span className="text-xs sm:text-sm">24/7 Support</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <ShieldCheck className="h-4 w-4 text-purple-500" />
-                    <span className="text-sm">Verified Sellers</span>
+                    <ShieldCheck className="h-3 w-3 sm:h-4 sm:w-4 text-purple-500" />
+                    <span className="text-xs sm:text-sm">Verified Sellers</span>
                   </div>
                 </div>
                 
-                <div className="text-sm text-muted-foreground">
+                <div className="text-xs sm:text-sm text-muted-foreground">
                   +{otherVendors.length} offers starting at ${Math.min(...otherVendors.map(v => v.price))}
                 </div>
               </Card>
@@ -251,9 +257,9 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
         </div>
 
         {/* Offers Section */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">Offers</h2>
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-4">
+            <h2 className="text-xl sm:text-2xl font-bold">Offers</h2>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="gap-2">

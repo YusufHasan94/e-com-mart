@@ -138,35 +138,39 @@ export function FeaturedProducts() {
   }
 
   return (
-    <section className="py-16">
+    <section className="py-8 sm:py-12 lg:py-16">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between mb-12">
-          <div className="space-y-2">
-            <h2 className="text-3xl lg:text-4xl font-bold">Featured Products</h2>
-            <p className="text-muted-foreground">Handpicked deals and trending items</p>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 sm:mb-12 gap-4">
+          <div className="space-y-1 sm:space-y-2">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold">Featured Products</h2>
+            <p className="text-muted-foreground text-sm sm:text-base">Handpicked deals and trending items</p>
           </div>
-          <Button variant="outline">View All</Button>
+          <Button variant="outline" className="w-full sm:w-auto">View All</Button>
         </div>
 
         <div className="relative">
           <Swiper
-            spaceBetween={16}
-            slidesPerView={1}
+            spaceBetween={12}
+            slidesPerView={1.2}
             breakpoints={{
+              480: {
+                slidesPerView: 1.5,
+                spaceBetween: 12,
+              },
               640: {
                 slidesPerView: 2,
                 spaceBetween: 16,
               },
               768: {
-                slidesPerView: 3,
+                slidesPerView: 2.5,
                 spaceBetween: 16,
               },
               1024: {
-                slidesPerView: 4,
+                slidesPerView: 3.5,
                 spaceBetween: 16,
               },
               1280: {
-                slidesPerView: 5,
+                slidesPerView: 4,
                 spaceBetween: 16,
               },
             }}
@@ -184,7 +188,7 @@ export function FeaturedProducts() {
             {featuredProducts.map((product) => (
               <SwiperSlide key={product.id}>
                 <Link href={`/product/${product.id}`}>
-                  <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden dark:card-hover cursor-pointer h-full">
+                  <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden dark:card-hover cursor-pointer h-full rounded-lg">
                     <div className="relative">
                       <img
                         src={product.image || "/placeholder.svg"}
@@ -192,9 +196,9 @@ export function FeaturedProducts() {
                         className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       <div className="absolute top-3 left-3 flex gap-2">
-                        {product.isNew && <Badge className="bg-green-600 hover:bg-green-700">New</Badge>}
-                        {product.isBestseller && <Badge className="bg-orange-600 hover:bg-orange-700">Bestseller</Badge>}
-                        {product.discount > 0 && <Badge variant="destructive">-{product.discount}%</Badge>}
+                        {product.isNew && <Badge className="bg-green-600 hover:bg-green-700 rounded-lg">New</Badge>}
+                        {product.isBestseller && <Badge className="bg-orange-600 hover:bg-orange-700 rounded-lg">Bestseller</Badge>}
+                        {product.discount > 0 && <Badge variant="destructive" className="rounded-lg">-{product.discount}%</Badge>}
                       </div>
                     </div>
 
@@ -223,7 +227,7 @@ export function FeaturedProducts() {
                         </div>
                         <Button 
                           size="sm" 
-                          className="gap-2 hover:animate-pulse-glow" 
+                          className="gap-2 hover:animate-pulse-glow rounded-lg" 
                           onClick={(e) => {
                             e.preventDefault()
                             e.stopPropagation()
@@ -244,15 +248,15 @@ export function FeaturedProducts() {
           {/* Custom Navigation Buttons */}
           <button 
             ref={prevRef}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 backdrop-blur-sm rounded-lg p-2 shadow-lg transition-all duration-200 group -ml-4 cursor-pointer"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 backdrop-blur-sm rounded-lg p-1.5 sm:p-2 shadow-lg transition-all duration-200 group -ml-2 sm:-ml-4 cursor-pointer"
           >
-            <ChevronLeft className="w-5 h-5 text-gray-700 dark:text-gray-300 group-hover:scale-110 transition-transform" />
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-300 group-hover:scale-110 transition-transform" />
           </button>
           <button 
             ref={nextRef}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 backdrop-blur-sm rounded-lg p-2 shadow-lg transition-all duration-200 group -mr-4 cursor-pointer"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 backdrop-blur-sm rounded-lg p-1.5 sm:p-2 shadow-lg transition-all duration-200 group -mr-2 sm:-mr-4 cursor-pointer"
           >
-            <ChevronRight className="w-5 h-5 text-gray-700 dark:text-gray-300 group-hover:scale-110 transition-transform" />
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-300 group-hover:scale-110 transition-transform" />
           </button>
         </div>
       </div>

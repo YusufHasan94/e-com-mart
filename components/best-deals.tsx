@@ -133,53 +133,53 @@ export function BestDeals() {
   }
 
   return (
-    <section className="py-16 bg-gradient-to-b from-[#050C11] via-[#050C11]/80 to-background relative">
+    <section className="py-8 sm:py-12 lg:py-16 bg-gradient-to-b from-background via-background/80 to-background relative">
       {/* Gradient overlay to melt with top section */}
-      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#050C11] via-[#050C11]/60 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-background via-background/60 to-transparent" />
       <div className="container mx-auto px-4 relative z-10">
         {/* Header Section */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
             <div className="flex items-center gap-2">
-              <Clock className="h-6 w-6 text-red-500" />
-              <h2 className="text-3xl font-bold text-red-500">HOT DEALS!</h2>
+              <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-red-500" />
+              <h2 className="text-2xl sm:text-3xl font-bold text-red-500">HOT DEALS!</h2>
             </div>
-            <span className="text-muted-foreground text-lg">GET OUR BEST PRICES</span>
+            <span className="text-muted-foreground text-sm sm:text-lg">GET OUR BEST PRICES</span>
           </div>
           <CountdownTimer />
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Promotional Banner */}
           <div className="lg:col-span-1">
-            <Card className="relative overflow-hidden bg-gradient-to-br from-blue-900 to-blue-700 h-full">
-              <CardContent className="p-8 h-full flex flex-col justify-between relative">
+            <Card className="relative overflow-hidden bg-gradient-to-br from-primary to-primary/80 h-[200px] sm:h-[250px] lg:h-full rounded-lg">
+              <CardContent className="p-4 sm:p-6 lg:p-8 h-full flex flex-col justify-between relative">
                 {/* Sparkle Effects */}
                 <div className="absolute inset-0 overflow-hidden">
-                  <Sparkles className="absolute top-4 left-8 h-4 w-4 text-blue-300 opacity-60" />
-                  <Sparkles className="absolute top-12 right-12 h-3 w-3 text-blue-200 opacity-40" />
-                  <Sparkles className="absolute bottom-16 left-16 h-5 w-5 text-blue-300 opacity-50" />
-                  <Sparkles className="absolute bottom-8 right-8 h-4 w-4 text-blue-200 opacity-60" />
-                  <Sparkles className="absolute top-1/2 left-4 h-3 w-3 text-blue-300 opacity-30" />
+                  <Sparkles className="absolute top-4 left-8 h-4 w-4 text-primary-foreground/60 opacity-60" />
+                  <Sparkles className="absolute top-12 right-12 h-3 w-3 text-primary-foreground/40 opacity-40" />
+                  <Sparkles className="absolute bottom-16 left-16 h-5 w-5 text-primary-foreground/50 opacity-50" />
+                  <Sparkles className="absolute bottom-8 right-8 h-4 w-4 text-primary-foreground/60 opacity-60" />
+                  <Sparkles className="absolute top-1/2 left-4 h-3 w-3 text-primary-foreground/30 opacity-30" />
                 </div>
                 
                 <div className="relative z-10">
-                  <div className="text-white text-2xl font-bold mb-4">HURRY UP</div>
+                  <div className="text-primary-foreground text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-4">HURRY UP</div>
                   
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="text-white text-lg font-semibold writing-mode-vertical transform rotate-180">
+                  <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
+                    <div className="text-primary-foreground text-sm sm:text-lg font-semibold writing-mode-vertical transform rotate-180 hidden sm:block">
                       SAVE UP TO
                     </div>
-                    <div className="text-white text-8xl font-black">80%</div>
+                    <div className="text-primary-foreground text-4xl sm:text-6xl lg:text-8xl font-black">80%</div>
                   </div>
                   
-                  <div className="text-white text-lg mb-8">THIS WEEK ONLY SHOPPING DAYS</div>
+                  <div className="text-primary-foreground text-sm sm:text-lg mb-4 sm:mb-8">THIS WEEK ONLY SHOPPING DAYS</div>
                 </div>
                 
                 <div className="relative z-10">
-                  <div className="text-white text-6xl font-black tracking-wider" style={{
-                    textShadow: '2px 2px 0px #1e40af, -2px -2px 0px #1e40af, 2px -2px 0px #1e40af, -2px 2px 0px #1e40af',
+                  <div className="text-primary-foreground text-3xl sm:text-4xl lg:text-6xl font-black tracking-wider" style={{
+                    textShadow: '2px 2px 0px var(--primary), -2px -2px 0px var(--primary), 2px -2px 0px var(--primary), -2px 2px 0px var(--primary)',
                     filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.3))'
                   }}>
                     12.12
@@ -227,7 +227,7 @@ export function BestDeals() {
                 {hotDealsProducts.map((product) => (
                   <SwiperSlide key={product.id}>
                     <Link href={`/product/${product.id}`}>
-                      <Card className="dark:glass-effect dark:card-hover cursor-pointer h-full">
+                      <Card className="dark:glass-effect dark:card-hover cursor-pointer h-full rounded-lg">
                         <CardContent className="h-full flex flex-col">
                           <div className="relative mb-4">
                             <img
@@ -296,17 +296,17 @@ export function BestDeals() {
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="swiper-button-next-custom absolute right-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-white/90 hover:bg-white z-10"
+                className="swiper-button-next-custom absolute right-0 top-1/2 -translate-y-1/2 -translate-x-1 sm:-translate-x-2 bg-white/90 hover:bg-white z-10"
               >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
               
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="swiper-button-prev-custom absolute left-0 top-1/2 -translate-y-1/2 translate-x-2 bg-white/90 hover:bg-white z-10"
+                className="swiper-button-prev-custom absolute left-0 top-1/2 -translate-y-1/2 translate-x-1 sm:translate-x-2 bg-white/90 hover:bg-white z-10"
               >
-                <ChevronRight className="h-4 w-4 rotate-180" />
+                <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 rotate-180" />
               </Button>
             </div>
           </div>

@@ -385,7 +385,7 @@ export function CategoryTabs() {
       <SwiperSlide key={`${product.id}-${swiperKey}`}>
         <Link href={`/product/${product.id}`}>
           <Card 
-            className={`group hover:shadow-xl transition-all duration-500 overflow-hidden dark:card-hover cursor-pointer min-h-[440px] h-full ${
+            className={`group hover:shadow-xl transition-all duration-500 overflow-hidden dark:card-hover cursor-pointer min-h-[280px] sm:min-h-[380px] lg:min-h-[440px] h-full rounded-lg ${
               isAnimating ? 'animate-fade-in-up' : ''
             }`}
             style={{
@@ -393,66 +393,70 @@ export function CategoryTabs() {
               animationFillMode: 'both'
             }}
           >
-            <CardContent className="h-full flex flex-col">
-              <div className="relative mb-4">
+            <CardContent className="h-full flex flex-col p-0">
+              <div className="relative mb-3 sm:mb-4 p-3 sm:p-4 pb-0">
                 <img
                   src={product.image || "/placeholder.svg"}
                   alt={product.title}
-                  className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-32 sm:h-36 lg:h-40 xl:h-48 object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 {product.onSale && (
-                  <Badge className="absolute top-2 left-2 bg-red-600 hover:bg-red-700 text-white animate-pulse">
+                  <Badge className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-red-600 hover:bg-red-700 text-white animate-pulse text-xs sm:text-sm">
                     ON SALE
                   </Badge>
                 )}
               </div>
 
-              <div className="space-y-3 flex-1 flex flex-col p-4">
-                <div>
-                  <h3 className="font-semibold text-sm mb-1 line-clamp-2">{product.title}</h3>
+              <div className="flex-1 flex flex-col p-3 sm:p-4 pt-0">
+                <div className="space-y-2 sm:space-y-3 flex-1">
+                  <div>
+                    <h3 className="font-semibold text-xs sm:text-sm mb-1 line-clamp-2">{product.title}</h3>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400" />
+                    <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400" />
+                    <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400" />
+                    <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400" />
+                    <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400" />
+                    <span className="text-xs sm:text-sm text-muted-foreground ml-1">({product.reviews} reviews)</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {(product as any).priceRange ? (
+                      <span className="text-sm sm:text-lg font-bold text-primary">
+                        ${(product as any).priceRange.min.toFixed(2)} - ${(product as any).priceRange.max.toFixed(2)}
+                      </span>
+                    ) : (
+                      <span className="text-sm sm:text-lg font-bold text-primary">${product.price.toFixed(2)}</span>
+                    )}
+                    {product.originalPrice && (
+                      <span className="text-xs sm:text-sm text-muted-foreground line-through">
+                        ${product.originalPrice.toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
+                    <span className="text-xs sm:text-sm text-foreground">In Stock</span>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="text-sm text-muted-foreground ml-1">({product.reviews} reviews)</span>
+                <div className="mt-auto pt-3">
+                  <Button
+                    size="sm"
+                    className="w-full h-[32px] gap-2 hover:animate-pulse-glow transition-all duration-300 hover:scale-105 text-xs sm:text-sm"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      handleAddToCart(product)
+                    }}
+                  >
+                    <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4" />
+                    Add to Cart
+                  </Button>
                 </div>
-
-                <div className="flex items-center gap-2">
-                  {(product as any).priceRange ? (
-                    <span className="text-lg font-bold text-primary">
-                      ${(product as any).priceRange.min.toFixed(2)} - ${(product as any).priceRange.max.toFixed(2)}
-                    </span>
-                  ) : (
-                    <span className="text-lg font-bold text-primary">${product.price.toFixed(2)}</span>
-                  )}
-                  {product.originalPrice && (
-                    <span className="text-sm text-muted-foreground line-through">
-                      ${product.originalPrice.toFixed(2)}
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2 mt-auto">
-                  <Check className="h-4 w-4 text-green-500" />
-                  <span className="text-sm text-foreground">In Stock</span>
-                </div>
-
-                <Button
-                  size="sm"
-                  className="w-full gap-2 hover:animate-pulse-glow mt-2 transition-all duration-300 hover:scale-105"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    handleAddToCart(product)
-                  }}
-                >
-                  <ShoppingCart className="h-4 w-4" />
-                  Add to Cart
-                </Button>
               </div>
             </CardContent>
           </Card>
@@ -462,20 +466,20 @@ export function CategoryTabs() {
   }
 
   return (
-    <section className="py-16 bg-gradient-to-br from-background via-muted/20 to-secondary/30">
+    <section className="py-8 sm:py-12 lg:py-16 bg-gradient-to-br from-background via-muted/20 to-secondary/30">
       <div className="container mx-auto px-4">
         {/* Category Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-8">
-            <h2 className="text-3xl font-bold uppercase">Electronic & Digital</h2>
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 sm:mb-8 gap-4 lg:gap-8">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 lg:gap-8">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold uppercase">Electronic & Digital</h2>
             
             {/* Category Tabs */}
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-2 sm:gap-3 lg:gap-4">
               {categories.map((category) => (
                 <button
                   key={category.id}
                   onClick={() => handleCategoryChange(category.id)}
-                  className={`px-4 py-2 text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
+                  className={`px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium transition-all duration-300 transform hover:scale-105 rounded-lg ${
                       activeCategory === category.id
                       ? 'bg-muted text-foreground'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
@@ -493,19 +497,23 @@ export function CategoryTabs() {
           <Swiper
             key={swiperKey}
             modules={[Navigation]}
-            spaceBetween={16}
-            slidesPerView={1}
+            spaceBetween={12}
+            slidesPerView={1.2}
             navigation={{
               nextEl: '.category-swiper-button-next',
               prevEl: '.category-swiper-button-prev',
             }}
             breakpoints={{
+              480: {
+                slidesPerView: 1.5,
+                spaceBetween: 12,
+              },
               640: {
-                slidesPerView: 3,
+                slidesPerView: 2.5,
                 spaceBetween: 16,
               },
               768: {
-                slidesPerView: 4,
+                slidesPerView: 3.5,
                 spaceBetween: 16,
               },
               1024: {
@@ -526,17 +534,17 @@ export function CategoryTabs() {
           <Button 
             variant="outline" 
             size="icon" 
-            className="category-swiper-button-next absolute right-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-white/90 hover:bg-white z-10"
+            className="category-swiper-button-next absolute right-0 top-1/2 -translate-y-1/2 -translate-x-1 sm:-translate-x-2 bg-white/90 hover:bg-white z-10"
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
           
           <Button 
             variant="outline" 
             size="icon" 
-            className="category-swiper-button-prev absolute left-0 top-1/2 -translate-y-1/2 translate-x-2 bg-white/90 hover:bg-white z-10"
+            className="category-swiper-button-prev absolute left-0 top-1/2 -translate-y-1/2 translate-x-1 sm:translate-x-2 bg-white/90 hover:bg-white z-10"
           >
-            <ChevronRight className="h-4 w-4 rotate-180" />
+            <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 rotate-180" />
           </Button>
         </div>
       </div>

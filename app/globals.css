@@ -123,6 +123,50 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Mobile-first responsive improvements */
+  html {
+    font-size: 13px; /* Base font size for mobile */
+  }
+  
+  @media (min-width: 640px) {
+    html {
+      font-size: 14px;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    html {
+      font-size: 15px;
+    }
+  }
+  
+  @media (min-width: 1280px) {
+    html {
+      font-size: 16px;
+    }
+  }
+  
+  /* Improve touch targets on mobile */
+  @media (max-width: 768px) {
+    button, 
+    [role="button"], 
+    input[type="button"], 
+    input[type="submit"] {
+      min-height: 44px; /* iOS recommended touch target */
+      min-width: 44px;
+    }
+  }
+  
+  /* Better mobile scrolling */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Prevent horizontal scroll on mobile */
+  body {
+    overflow-x: hidden;
+  }
 }
 
 @layer utilities {
@@ -171,7 +215,13 @@
 
   /* Swiper Custom Styles */
   .hot-deals-swiper {
-    padding: 0 20px;
+    padding: 0 10px;
+  }
+  
+  @media (min-width: 640px) {
+    .hot-deals-swiper {
+      padding: 0 20px;
+    }
   }
 
   .hot-deals-swiper .swiper-slide {
@@ -188,12 +238,20 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.9);
     border: 1px solid rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+  }
+  
+  @media (min-width: 640px) {
+    .hot-deals-swiper .swiper-button-next-custom,
+    .hot-deals-swiper .swiper-button-prev-custom {
+      width: 40px;
+      height: 40px;
+    }
   }
 
   .hot-deals-swiper .swiper-button-next-custom:hover,
@@ -210,7 +268,13 @@
 
   /* Category Swiper Custom Styles */
   .category-swiper {
-    padding: 0 20px;
+    padding: 0 10px;
+  }
+  
+  @media (min-width: 640px) {
+    .category-swiper {
+      padding: 0 20px;
+    }
   }
 
   .category-swiper .swiper-slide {
@@ -228,12 +292,20 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.9);
     border: 1px solid rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+  }
+  
+  @media (min-width: 640px) {
+    .category-swiper .swiper-button-next,
+    .category-swiper .swiper-button-prev {
+      width: 40px;
+      height: 40px;
+    }
   }
 
   .category-swiper .swiper-button-next:hover,
@@ -246,13 +318,6 @@
   .category-swiper .swiper-button-prev.swiper-button-disabled {
     opacity: 0.3;
     cursor: not-allowed;
-  }
-
-  /* Responsive adjustments for more slides */
-  @media (max-width: 640px) {
-    .category-swiper {
-      padding: 0 10px;
-    }
   }
 
   @media (min-width: 1280px) {
@@ -337,5 +402,48 @@
 
   .tab-transition-exit {
     animation: fade-out-down 0.3s ease-in forwards;
+  }
+
+  /* Swiper Pagination Custom Styles */
+  .swiper-pagination-bullet {
+    background: var(--muted-foreground) !important; /* Darker for light mode, visible */
+    opacity: 0.6 !important; /* Slightly transparent */
+    width: 8px !important;
+    height: 8px !important;
+    margin: 0 4px !important;
+  }
+
+  .swiper-pagination-bullet-active {
+    background: var(--primary) !important; /* Primary color for active in light mode */
+    opacity: 1 !important;
+    transform: scale(1.2) !important;
+  }
+
+  .dark .swiper-pagination-bullet {
+    background: rgba(255, 255, 255, 0.5) !important; /* White for dark mode */
+    opacity: 0.8 !important;
+  }
+
+  .dark .swiper-pagination-bullet-active {
+    background: rgba(255, 255, 255, 0.9) !important; /* Brighter white for active in dark mode */
+    opacity: 1 !important;
+  }
+
+  /* Marquee Animation */
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+  
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+  
+  .animate-pause {
+    animation-play-state: paused;
   }
 }

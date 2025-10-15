@@ -34,17 +34,17 @@ const categories = [
 
 export function ProductCategories() {
   return (
-    <section className="py-16 relative">
-      <div className="container mx-auto px-4">
+    <section className="py-6 sm:py-8 lg:py-12 relative">
+      <div className="container mx-auto px-3 sm:px-4">
         
         {/* Static Grid Layout */}
-        <div className="grid grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
           {categories.map((category, index) => {
             const Icon = category.icon
             return (
               <Card
                 key={index}
-                className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 relative overflow-hidden bg-card/50 backdrop-blur-sm hover:bg-card/80 h-[125px]"
+                className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 relative overflow-hidden bg-card/50 backdrop-blur-sm hover:bg-card/80 h-[90px] sm:h-[100px] lg:h-[110px] rounded-lg"
               >
                 <div 
                   className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-300"
@@ -56,18 +56,18 @@ export function ProductCategories() {
                   }}
                 />
                 
-                <CardContent className="p-4 relative z-10 h-full flex items-center space-x-4">
+                <CardContent className="p-1.5 sm:p-2 lg:p-3 relative z-10 h-full flex items-center space-x-1.5 sm:space-x-2 lg:space-x-3">
                   {/* Icon */}
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors flex items-center justify-center flex-shrink-0">
-                    <Icon className="h-5 w-5 text-primary" />
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors flex items-center justify-center flex-shrink-0">
+                    <Icon className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 text-primary" />
                   </div>
                   
                   {/* Content */}
-                  <div className="space-y-1 flex-1">
-                    <h3 className="font-semibold text-base text-foreground group-hover:text-primary transition-colors">
+                  <div className="space-y-0.5 flex-1">
+                    <h3 className="font-semibold text-xs sm:text-sm lg:text-base text-foreground group-hover:text-primary transition-colors">
                       {category.title}
                     </h3>
-                    <p className="text-muted-foreground text-xs leading-relaxed">
+                    <p className="text-muted-foreground text-xs leading-relaxed hidden sm:block">
                       {category.description}
                     </p>
                   </div>
