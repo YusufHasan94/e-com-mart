@@ -4,7 +4,7 @@ import { ProductCatalog } from "@/components/product-catalog"
 
 export default function ProductsPage() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
       <Header />
       <main className="flex-1">
         <ProductCatalog />
