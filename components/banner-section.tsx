@@ -7,16 +7,16 @@ import Link from "next/link"
 export function BannerSection() {
   const bannerData = {
     id: 1,
-    title: "Black Friday Mega Sale",
+    title: "Digital Marketplace Mega Sale",
     subtitle: "Up to 80% Off",
-    description: "Don't miss the biggest gaming sale of the year! Get your favorite games, software, and gift cards at incredible prices.",
+    description: "Don't miss the biggest digital sale of the year! Get your favorite game keys, software licenses, gift cards, and digital services at incredible prices.",
     cta: "Shop Now",
-    href: "/deals/black-friday",
+    href: "/deals/mega-sale",
     badge: "Limited Time",
     badgeColor: "bg-primary/10 text-primary border-primary/20 dark:bg-primary/20 dark:text-primary-foreground dark:border-primary/30",
     background: "bg-gradient-to-br from-primary/10 via-primary/5 to-primary/20",
     icon: Zap,
-    stats: "2M+ Items Sold"
+    stats: "2M+ Digital Items Sold"
   }
 
   const Icon = bannerData.icon

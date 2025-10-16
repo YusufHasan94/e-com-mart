@@ -15,11 +15,10 @@ export function PromotionalBanner() {
             <Zap className="h-6 w-6" />
           </div>
 
-          <h2 className="text-3xl lg:text-4xl font-bold text-balance">Extra 25% Off with Daily SMART Discount</h2>
+          <h2 className="text-3xl lg:text-4xl font-bold text-balance">Extra 25% Off Digital Products & Services</h2>
 
           <p className="text-lg text-primary-foreground/80 max-w-2xl mx-auto text-pretty">
-            Limited time offer! Get exclusive discounts on top games and software. Don't miss out on these incredible
-            deals.
+            Limited time offer! Get exclusive discounts on game keys, software licenses, gift cards, VPNs, and more digital services. Don't miss out on these incredible deals.
           </p>
 
           <div className="flex items-center justify-center gap-4 text-sm">

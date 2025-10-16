@@ -23,11 +23,16 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
   const { theme } = useTheme()
   
   const categories = [
-    { id: "games", label: "Games", count: 15420 },
-    { id: "software", label: "Software", count: 5230 },
-    { id: "gift-cards", label: "Gift Cards", count: 45 },
-    { id: "dlc", label: "DLC & Add-ons", count: 2100 },
-    { id: "hardware", label: "Hardware", count: 850 },
+    { id: "game-keys", label: "Game Keys", count: 15420 },
+    { id: "in-game-currency", label: "In-Game Currency / Points", count: 8230 },
+    { id: "dlcs-addons", label: "DLCs & Add-Ons", count: 2100 },
+    { id: "gift-cards", label: "Gift Cards", count: 450 },
+    { id: "subscriptions", label: "Subscriptions", count: 1200 },
+    { id: "software-licenses", label: "Software Licenses", count: 5230 },
+    { id: "vpn-security", label: "VPNs & Security Tools", count: 850 },
+    { id: "mobile-topups", label: "Mobile Top-Ups", count: 3200 },
+    { id: "esims", label: "eSIMs", count: 180 },
+    { id: "digital-wallet", label: "Digital Wallet Vouchers", count: 950 },
   ]
 
   const platforms = [

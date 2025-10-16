@@ -1,34 +1,78 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { Gamepad2, Monitor, Gift, Smartphone, Headphones, Keyboard, Cpu, Zap, Music, Camera, Shield, Star } from "lucide-react"
+import { Gamepad2, Coins, Plus, Gift, CreditCard, Monitor, Shield, Smartphone, Wifi, Wallet } from "lucide-react"
 
 const categories = [
   {
     icon: Gamepad2,
-    title: "PC Games",
+    title: "Game Keys",
     description: "Latest releases and classics",
     count: "15,000+",
-    backgroundImage: "/epic-gaming-scene-with-futuristic-elements.jpg",
+    color: "bg-gradient-to-br from-blue-500/20 to-blue-600/10",
+    iconColor: "text-blue-600 dark:text-blue-400",
+    iconBg: "bg-blue-100 dark:bg-blue-900/30",
   },
   {
-    icon: Monitor,
-    title: "Software",
-    description: "Professional tools & utilities",
-    count: "5,000+",
-    backgroundImage: "/office-productivity-software.jpg",
+    icon: Coins,
+    title: "In-Game Currency",
+    description: "Virtual points and credits",
+    count: "8,000+",
+    color: "bg-gradient-to-br from-yellow-500/20 to-yellow-600/10",
+    iconColor: "text-yellow-600 dark:text-yellow-400",
+    iconBg: "bg-yellow-100 dark:bg-yellow-900/30",
+  },
+  {
+    icon: Plus,
+    title: "DLCs & Add-Ons",
+    description: "Game extensions and content",
+    count: "2,000+",
+    color: "bg-gradient-to-br from-green-500/20 to-green-600/10",
+    iconColor: "text-green-600 dark:text-green-400",
+    iconBg: "bg-green-100 dark:bg-green-900/30",
   },
   {
     icon: Gift,
     title: "Gift Cards",
     description: "Steam, PlayStation, Xbox",
-    count: "50+",
-    backgroundImage: "/steam-gift-card-gaming.jpg",
+    count: "450+",
+    color: "bg-gradient-to-br from-purple-500/20 to-purple-600/10",
+    iconColor: "text-purple-600 dark:text-purple-400",
+    iconBg: "bg-purple-100 dark:bg-purple-900/30",
+  },
+  {
+    icon: CreditCard,
+    title: "Subscriptions",
+    description: "Monthly plans and services",
+    count: "1,200+",
+    color: "bg-gradient-to-br from-orange-500/20 to-orange-600/10",
+    iconColor: "text-orange-600 dark:text-orange-400",
+    iconBg: "bg-orange-100 dark:bg-orange-900/30",
+  },
+  {
+    icon: Monitor,
+    title: "Software Licenses",
+    description: "Professional tools & utilities",
+    count: "5,000+",
+    color: "bg-gradient-to-br from-indigo-500/20 to-indigo-600/10",
+    iconColor: "text-indigo-600 dark:text-indigo-400",
+    iconBg: "bg-indigo-100 dark:bg-indigo-900/30",
+  },
+  {
+    icon: Shield,
+    title: "VPNs & Security",
+    description: "Privacy and security tools",
+    count: "850+",
+    color: "bg-gradient-to-br from-red-500/20 to-red-600/10",
+    iconColor: "text-red-600 dark:text-red-400",
+    iconBg: "bg-red-100 dark:bg-red-900/30",
   },
   {
     icon: Smartphone,
-    title: "Mobile Games",
-    description: "iOS & Android premium games",
-    count: "2,000+",
-    backgroundImage: "/fifa-24-soccer-game.jpg",
+    title: "Mobile Top-Ups",
+    description: "Phone credits and data",
+    count: "3,000+",
+    color: "bg-gradient-to-br from-pink-500/20 to-pink-600/10",
+    iconColor: "text-pink-600 dark:text-pink-400",
+    iconBg: "bg-pink-100 dark:bg-pink-900/30",
   }
 ]
 
@@ -44,27 +88,17 @@ export function ProductCategories() {
             return (
               <Card
                 key={index}
-                className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 relative overflow-hidden bg-card/50 backdrop-blur-sm hover:bg-card/80 h-[90px] sm:h-[100px] lg:h-[110px] rounded-lg"
+                className={`group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 relative overflow-hidden backdrop-blur-sm hover:scale-105 h-[90px] sm:h-[100px] lg:h-[110px] rounded-lg ${category.color}`}
               >
-                <div 
-                  className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-300"
-                  style={{
-                    backgroundImage: `url(${category.backgroundImage})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat'
-                  }}
-                />
-                
                 <CardContent className="p-1.5 sm:p-2 lg:p-3 relative z-10 h-full flex items-center space-x-1.5 sm:space-x-2 lg:space-x-3">
                   {/* Icon */}
-                  <div className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors flex items-center justify-center flex-shrink-0">
-                    <Icon className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 text-primary" />
+                  <div className={`w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 rounded-lg ${category.iconBg} group-hover:scale-110 transition-all duration-300 flex items-center justify-center flex-shrink-0`}>
+                    <Icon className={`h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 ${category.iconColor}`} />
                   </div>
                   
                   {/* Content */}
                   <div className="space-y-0.5 flex-1">
-                    <h3 className="font-semibold text-xs sm:text-sm lg:text-base text-foreground group-hover:text-primary transition-colors">
+                    <h3 className="font-semibold text-xs sm:text-sm lg:text-base text-foreground group-hover:text-foreground/80 transition-colors">
                       {category.title}
                     </h3>
                     <p className="text-muted-foreground text-xs leading-relaxed hidden sm:block">
