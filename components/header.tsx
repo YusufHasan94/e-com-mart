@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search, ShoppingCart, User, Menu, X, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,14 +21,30 @@ import { ThemeToggle } from "@/components/theme-toggle"
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
   const { state } = useCart()
   const { user, logout } = useAuth()
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   console.log("Header - User state:", user)
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header 
+        className={`sticky top-0 z-50 w-full border-b transition-all duration-300 ${
+          isScrolled 
+            ? 'bg-[#2A2A2A]/95 backdrop-blur-md supports-[backdrop-filter]:bg-[#2A2A2A]/40' 
+            : 'bg-[#2A2A2A]/95 backdrop-blur supports-[backdrop-filter]:bg-[#2A2A2A]/60'
+        }`}
+      >
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex h-14 sm:h-16 items-center justify-between">
             {/* Logo */}

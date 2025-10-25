@@ -133,9 +133,9 @@ export function BestDeals() {
   }
 
   return (
-    <section className="py-8 sm:py-12 lg:py-16 bg-gradient-to-b from-background via-background/80 to-background relative">
+    <section className="py-8 sm:py-12 lg:py-16 bg-background relative">
       {/* Gradient overlay to melt with top section */}
-      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-background via-background/60 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-32 bg-background" />
       <div className="container mx-auto px-4 relative z-10">
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
@@ -153,7 +153,7 @@ export function BestDeals() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Promotional Banner */}
           <div className="lg:col-span-1">
-            <Card className="relative overflow-hidden bg-gradient-to-br from-primary to-primary/80 h-[200px] sm:h-[250px] lg:h-full rounded-lg">
+            <Card className="relative overflow-hidden bg-primary h-[200px] sm:h-[250px] lg:h-full rounded-lg">
               <CardContent className="p-4 sm:p-6 lg:p-8 h-full flex flex-col justify-between relative">
                 {/* Sparkle Effects */}
                 <div className="absolute inset-0 overflow-hidden">

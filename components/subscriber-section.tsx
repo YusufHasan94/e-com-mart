@@ -40,7 +40,7 @@ export function SubscriberSection() {
   ]
 
   return (
-    <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-primary/5 via-background to-primary/5 relative overflow-hidden">
+    <section className="py-12 sm:py-16 lg:py-20 bg-background relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
       
@@ -61,7 +61,7 @@ export function SubscriberSection() {
           </div>
 
           {/* Subscription Form */}
-          <Card className="mb-8 sm:mb-12 p-6 sm:p-8 bg-background/90 backdrop-blur-sm border-border/50 shadow-xl rounded-lg">
+          <Card className="mb-8 sm:mb-12 p-6 sm:p-8 bg-background/80 backdrop-blur-sm border-border/80 shadow-xl rounded-lg">
             <CardContent className="p-0">
               {!isSubscribed ? (
                 <div className="space-y-6">

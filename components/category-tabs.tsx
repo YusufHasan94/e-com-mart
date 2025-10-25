@@ -452,7 +452,7 @@ export function CategoryTabs() {
                 <div className="mt-auto pt-4 pb-2">
                   <Button
                     size="sm"
-                    className="w-full h-[36px] gap-2 hover:animate-pulse-glow transition-all duration-300 hover:scale-105 text-xs sm:text-sm"
+                    className="w-full h-[36px] gap-2 hover:animate-pulse-glow transition-all duration-300 hover:scale-105 text-xs sm:text-sm bg-[#802CEC]"
                     onClick={(e) => {
                       e.preventDefault()
                       e.stopPropagation()
@@ -472,7 +472,7 @@ export function CategoryTabs() {
   }
 
   return (
-    <section className="py-8 sm:py-12 lg:py-16 bg-gradient-to-br from-background via-muted/20 to-secondary/30">
+    <section className="py-8 sm:py-12 lg:py-16 bg-background">
       <div className="container mx-auto px-4">
         {/* Category Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 sm:mb-8 gap-4 lg:gap-8">

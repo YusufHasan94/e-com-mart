@@ -28,7 +28,7 @@ export function CategoryMarquee() {
       count: "15K+",
       description: "Latest Releases",
       color: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800",
-      bgColor: "bg-gradient-to-br from-blue-500/10 to-blue-600/5"
+      bgColor: "bg-blue-500/10"
     },
     {
       id: "in-game-currency",
@@ -37,7 +37,7 @@ export function CategoryMarquee() {
       count: "8K+",
       description: "Virtual Points",
       color: "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-300 dark:border-yellow-800",
-      bgColor: "bg-gradient-to-br from-yellow-500/10 to-yellow-600/5"
+      bgColor: "bg-yellow-500/10"
     },
     {
       id: "dlcs-addons",
@@ -46,7 +46,7 @@ export function CategoryMarquee() {
       count: "2K+",
       description: "Game Extensions",
       color: "bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-800",
-      bgColor: "bg-gradient-to-br from-green-500/10 to-green-600/5"
+      bgColor: "bg-green-500/10"
     },
     {
       id: "gift-cards",
@@ -55,7 +55,7 @@ export function CategoryMarquee() {
       count: "450+",
       description: "Digital Credits",
       color: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-800",
-      bgColor: "bg-gradient-to-br from-purple-500/10 to-purple-600/5"
+      bgColor: "bg-purple-500/10"
     },
     {
       id: "subscriptions",
@@ -64,7 +64,7 @@ export function CategoryMarquee() {
       count: "1.2K+",
       description: "Monthly Plans",
       color: "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950 dark:text-orange-300 dark:border-orange-800",
-      bgColor: "bg-gradient-to-br from-orange-500/10 to-orange-600/5"
+      bgColor: "bg-orange-500/10"
     },
     {
       id: "software-licenses",
@@ -73,7 +73,7 @@ export function CategoryMarquee() {
       count: "5K+",
       description: "Professional Tools",
       color: "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950 dark:text-indigo-300 dark:border-indigo-800",
-      bgColor: "bg-gradient-to-br from-indigo-500/10 to-indigo-600/5"
+      bgColor: "bg-indigo-500/10"
     },
     {
       id: "vpn-security",
@@ -82,7 +82,7 @@ export function CategoryMarquee() {
       count: "850+",
       description: "Privacy Tools",
       color: "bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800",
-      bgColor: "bg-gradient-to-br from-red-500/10 to-red-600/5"
+      bgColor: "bg-red-500/10"
     },
     {
       id: "mobile-topups",
@@ -91,7 +91,7 @@ export function CategoryMarquee() {
       count: "3K+",
       description: "Phone Credits",
       color: "bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950 dark:text-pink-300 dark:border-pink-800",
-      bgColor: "bg-gradient-to-br from-pink-500/10 to-pink-600/5"
+      bgColor: "bg-pink-500/10"
     },
     {
       id: "esims",
@@ -100,7 +100,7 @@ export function CategoryMarquee() {
       count: "180+",
       description: "Data Plans",
       color: "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950 dark:text-teal-300 dark:border-teal-800",
-      bgColor: "bg-gradient-to-br from-teal-500/10 to-teal-600/5"
+      bgColor: "bg-teal-500/10"
     },
     {
       id: "digital-wallet",
@@ -109,7 +109,7 @@ export function CategoryMarquee() {
       count: "950+",
       description: "Payment Vouchers",
       color: "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950 dark:text-violet-300 dark:border-violet-800",
-      bgColor: "bg-gradient-to-br from-violet-500/10 to-violet-600/5"
+      bgColor: "bg-violet-500/10"
     }
   ]
 
@@ -117,7 +117,7 @@ export function CategoryMarquee() {
   const duplicatedCategories = [...categories, ...categories]
 
   return (
-    <section className="py-8 sm:py-12 lg:py-16 bg-gradient-to-r from-muted/10 via-background to-muted/10">
+    <section className="py-8 sm:py-12 lg:py-16 bg-background">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
@@ -140,8 +140,8 @@ export function CategoryMarquee() {
           onMouseLeave={() => setIsHovered(false)}
         >
           {/* Gradient Overlays */}
-          <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none"></div>
-          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none"></div>
+          <div className="absolute left-0 top-0 bottom-0 w-20 bg-background z-10 pointer-events-none"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-20 bg-background z-10 pointer-events-none"></div>
 
           {/* Marquee */}
           <div 
@@ -184,7 +184,7 @@ export function CategoryMarquee() {
                       </div>
 
                       {/* Hover Effect */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></div>
+                      <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></div>
                     </div>
                   </CardContent>
                 </Card>

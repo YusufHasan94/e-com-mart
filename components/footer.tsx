@@ -2,13 +2,13 @@ import { Facebook, Twitter, Instagram, Youtube } from "lucide-react"
 
 export function Footer() {
   return (
-    <footer className="bg-secondary text-secondary-foreground">
+    <footer className="bg-[#2A2A2A] text-white">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="space-y-4">
             <div className="text-2xl font-bold text-primary">GameHub</div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-gray-300">
               Your trusted gaming marketplace for digital games, software, and gift cards at the best prices.
             </p>
             <div className="flex space-x-4">
@@ -111,7 +111,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
+        <div className="border-t border-gray-600 mt-8 pt-8 text-center text-sm text-gray-300">
           <p>&copy; 2025 GameHub. All rights reserved. Built with Next.js and Tailwind CSS.</p>
         </div>
       </div>

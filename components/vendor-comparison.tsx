@@ -70,7 +70,7 @@ export function VendorComparison({ vendors, onAddToCart }: VendorComparisonProps
                     checked={selectedVendors.includes(vendor.id)}
                     onChange={() => toggleVendor(vendor.id)}
                   />
-                  <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold">
                       {vendor.name.charAt(0)}
                     </span>
