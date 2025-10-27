@@ -145,7 +145,7 @@ export function FeaturedProducts() {
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold">Featured Products</h2>
             <p className="text-muted-foreground text-sm sm:text-base">Handpicked deals and trending items</p>
           </div>
-          <Button variant="outline" className="w-full sm:w-auto">View All</Button>
+          <Button variant="outline" className="w-full sm:w-auto rounded-[4px]">View All</Button>
         </div>
 
         <div className="relative">
@@ -170,7 +170,7 @@ export function FeaturedProducts() {
                 spaceBetween: 16,
               },
               1280: {
-                slidesPerView: 4,
+                slidesPerView: 5,
                 spaceBetween: 16,
               },
             }}
@@ -227,7 +227,7 @@ export function FeaturedProducts() {
                         </div>
                         <Button 
                           size="sm" 
-                          className="gap-2 hover:animate-pulse-glow rounded-lg" 
+                          className="gap-2 hover:animate-pulse-glow rounded-[4px]" 
                           onClick={(e) => {
                             e.preventDefault()
                             e.stopPropagation()
@@ -248,13 +248,13 @@ export function FeaturedProducts() {
           {/* Custom Navigation Buttons */}
           <button 
             ref={prevRef}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 backdrop-blur-sm rounded-lg p-1.5 sm:p-2 shadow-lg transition-all duration-200 group -ml-2 sm:-ml-4 cursor-pointer"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 backdrop-blur-sm rounded-full p-1.5 sm:p-2 shadow-lg transition-all duration-200 group -ml-2 sm:-ml-4 cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-300 group-hover:scale-110 transition-transform" />
           </button>
           <button 
             ref={nextRef}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 backdrop-blur-sm rounded-lg p-1.5 sm:p-2 shadow-lg transition-all duration-200 group -mr-2 sm:-mr-4 cursor-pointer"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 backdrop-blur-sm rounded-full p-1.5 sm:p-2 shadow-lg transition-all duration-200 group -mr-2 sm:-mr-4 cursor-pointer"
           >
             <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-300 group-hover:scale-110 transition-transform" />
           </button>

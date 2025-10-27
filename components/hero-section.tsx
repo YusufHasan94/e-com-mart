@@ -93,11 +93,11 @@ export function HeroSection() {
                           alt={item.title} 
                           className="w-full h-full object-cover" 
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                        <div className="absolute inset-0 bg-black/80" />
                         <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 lg:bottom-6 lg:left-6 lg:right-6">
                           <div className="space-y-1 sm:space-y-2 text-center">
                             <h3 className="text-base sm:text-xl lg:text-2xl font-bold text-white drop-shadow-lg">{item.title}</h3>
-                            <Button className="mt-2 sm:mt-3 bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30 text-sm sm:text-sm rounded-lg">
+                            <Button className="mt-2 sm:mt-3 bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30 text-sm sm:text-sm rounded-[4px] hover:animate-pulse-glow">
                               Shop Now
                             </Button>
                           </div>
@@ -134,7 +134,7 @@ export function HeroSection() {
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat'
                   }}>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="absolute bottom-3 left-3 right-3 lg:bottom-4 lg:left-4 lg:right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <h3 className="text-white font-semibold text-base lg:text-lg drop-shadow-lg">Steam Gift Cards</h3>
                 <p className="text-white/90 text-xs lg:text-sm drop-shadow-lg">Digital Gaming Credits</p>
@@ -149,7 +149,7 @@ export function HeroSection() {
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat'
                   }}>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="absolute bottom-3 left-3 right-3 lg:bottom-4 lg:left-4 lg:right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <h3 className="text-white font-semibold text-base lg:text-lg drop-shadow-lg">Gaming Accessories</h3>
                 <p className="text-white/90 text-xs lg:text-sm drop-shadow-lg">Premium Gaming Gear</p>

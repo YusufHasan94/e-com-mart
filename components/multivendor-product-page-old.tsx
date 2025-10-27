@@ -97,7 +97,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
             {/* Product Info */}
             <div className="lg:col-span-2">
               <div className="flex items-start gap-6">
-                <div className="w-32 h-32 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center">
+                <div className="w-32 h-32 bg-primary rounded-xl flex items-center justify-center">
                   <img 
                     src={product.image} 
                     alt={product.title}
@@ -238,7 +238,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-4 mb-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+                        <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
                           <span className="text-white font-bold text-lg">
                             {vendor.name.charAt(0)}
                           </span>
@@ -417,7 +417,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                   {product.vendors.map((vendor) => (
                     <div key={vendor.id} className="border border-border rounded-lg p-4">
                       <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+                        <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
                           <span className="text-white font-bold">
                             {vendor.name.charAt(0)}
                           </span>

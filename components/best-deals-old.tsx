@@ -75,7 +75,7 @@ export function BestDeals() {
   }
 
   return (
-    <section className="py-16 bg-gradient-to-br from-background via-muted/20 to-secondary/30">
+    <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between mb-12">
           <div className="space-y-2">

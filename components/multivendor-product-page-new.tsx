@@ -144,7 +144,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
             {/* Product Image & Details */}
             <div className="lg:col-span-2">
               <div className="flex gap-6">
-                <div className="w-64 h-64 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center relative group">
+                <div className="w-64 h-64 bg-primary rounded-xl flex items-center justify-center relative group">
                   <img
                     src={product.image}
                     alt={product.title}
@@ -358,7 +358,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
             <CardContent className="p-6">
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+                  <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center">
                     <img src={product.image} alt={product.title} className="w-full h-full object-cover rounded-lg" />
                   </div>
                   <div>
@@ -370,7 +370,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                 <Plus className="h-6 w-6 text-muted-foreground" />
                 
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-accent to-primary rounded-lg flex items-center justify-center">
+                  <div className="w-16 h-16 bg-accent rounded-lg flex items-center justify-center">
                     <img src="/placeholder.jpg" alt="Bundle Item" className="w-full h-full object-cover rounded-lg" />
                   </div>
                   <div>
@@ -547,7 +547,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                 <Link key={item.id} href={`/product/${item.id}`}>
                   <Card className="w-64 dark:glass-effect dark:card-hover cursor-pointer">
                     <CardContent className="p-4">
-                      <div className="w-full h-32 bg-gradient-to-br from-primary to-accent rounded-lg mb-3 flex items-center justify-center">
+                      <div className="w-full h-32 bg-primary rounded-lg mb-3 flex items-center justify-center">
                         <img src="/placeholder.jpg" alt={item.title} className="w-full h-full object-cover rounded-lg" />
                       </div>
                       <h3 className="font-semibold text-sm mb-2 line-clamp-2">{item.title}</h3>

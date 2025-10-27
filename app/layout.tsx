@@ -6,6 +6,7 @@ import { Suspense } from "react"
 import { CartProvider } from "@/contexts/cart-context"
 import { AuthProvider } from "@/contexts/auth-context"
 import { ThemeProvider } from "@/contexts/theme-context"
+import { TopLoader } from "@/components/top-loader"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -22,6 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}>
+        <TopLoader />
         <ThemeProvider>
           <AuthProvider>
             <CartProvider>

@@ -23,17 +23,27 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isHydrated, setIsHydrated] = useState(false)
 
   useEffect(() => {
     // Check for stored user session
-    const storedUser = localStorage.getItem("user")
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
+    if (typeof window !== "undefined") {
+      const storedUser = localStorage.getItem("user")
+      if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser))
+        } catch (error) {
+          console.error("Error parsing stored user:", error)
+          localStorage.removeItem("user")
+        }
+      }
+      setIsHydrated(true)
     }
     setIsLoading(false)
   }, [])
 
   const login = async (email: string, password: string): Promise<boolean> => {
+    console.log("Login attempt:", { email, password: "***" })
     setIsLoading(true)
 
     // Mock authentication - in a real app, this would call an API
@@ -48,12 +58,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         createdAt: new Date().toISOString(),
       }
 
+      console.log("Login successful, setting user:", mockUser)
       setUser(mockUser)
-      localStorage.setItem("user", JSON.stringify(mockUser))
+      if (typeof window !== "undefined") {
+        localStorage.setItem("user", JSON.stringify(mockUser))
+        console.log("User saved to localStorage")
+      }
       setIsLoading(false)
       return true
     }
 
+    console.log("Login failed - invalid credentials")
     setIsLoading(false)
     return false
   }
@@ -74,7 +89,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       setUser(mockUser)
-      localStorage.setItem("user", JSON.stringify(mockUser))
+      if (typeof window !== "undefined") {
+        localStorage.setItem("user", JSON.stringify(mockUser))
+      }
       setIsLoading(false)
       return true
     }
@@ -84,8 +101,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = () => {
+    console.log("Logout called")
     setUser(null)
-    localStorage.removeItem("user")
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("user")
+      console.log("User removed from localStorage")
+    }
   }
 
   return <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>{children}</AuthContext.Provider>

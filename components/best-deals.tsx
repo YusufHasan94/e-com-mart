@@ -133,16 +133,16 @@ export function BestDeals() {
   }
 
   return (
-    <section className="py-8 sm:py-12 lg:py-16 bg-gradient-to-b from-background via-background/80 to-background relative">
+    <section className="py-8 sm:py-12 lg:py-16 bg-background relative">
       {/* Gradient overlay to melt with top section */}
-      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-background via-background/60 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-32 bg-background" />
       <div className="container mx-auto px-4 relative z-10">
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
             <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-red-500" />
-              <h2 className="text-2xl sm:text-3xl font-bold text-red-500">HOT DEALS!</h2>
+              <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+              <h2 className="text-2xl sm:text-3xl font-bold text-primary">HOT DEALS!</h2>
             </div>
             <span className="text-muted-foreground text-sm sm:text-lg">GET OUR BEST PRICES</span>
           </div>
@@ -153,7 +153,7 @@ export function BestDeals() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Promotional Banner */}
           <div className="lg:col-span-1">
-            <Card className="relative overflow-hidden bg-gradient-to-br from-primary to-primary/80 h-[200px] sm:h-[250px] lg:h-full rounded-lg">
+            <Card className="relative overflow-hidden bg-primary h-[200px] sm:h-[250px] lg:h-full rounded-lg">
               <CardContent className="p-4 sm:p-6 lg:p-8 h-full flex flex-col justify-between relative">
                 {/* Sparkle Effects */}
                 <div className="absolute inset-0 overflow-hidden">
@@ -296,7 +296,7 @@ export function BestDeals() {
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="swiper-button-next-custom absolute right-0 top-1/2 -translate-y-1/2 -translate-x-1 sm:-translate-x-2 bg-white/90 hover:bg-white z-10"
+                className="swiper-button-next-custom absolute right-0 top-1/2 -translate-y-1/2 -translate-x-1 sm:-translate-x-2 bg-white/90 hover:bg-white z-10 rounded-full"
               >
                 <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
@@ -304,7 +304,7 @@ export function BestDeals() {
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="swiper-button-prev-custom absolute left-0 top-1/2 -translate-y-1/2 translate-x-1 sm:translate-x-2 bg-white/90 hover:bg-white z-10"
+                className="swiper-button-prev-custom absolute left-0 top-1/2 -translate-y-1/2 translate-x-1 sm:translate-x-2 bg-white/90 hover:bg-white z-10 rounded-full"
               >
                 <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 rotate-180" />
               </Button>

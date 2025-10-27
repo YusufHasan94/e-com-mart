@@ -14,7 +14,7 @@ export function BannerSection() {
     href: "/deals/mega-sale",
     badge: "Limited Time",
     badgeColor: "bg-primary/10 text-primary border-primary/20 dark:bg-primary/20 dark:text-primary-foreground dark:border-primary/30",
-    background: "bg-gradient-to-br from-primary/10 via-primary/5 to-primary/20",
+    background: "bg-primary/10",
     icon: Zap,
     stats: "2M+ Digital Items Sold"
   }
@@ -22,7 +22,7 @@ export function BannerSection() {
   const Icon = bannerData.icon
 
   return (
-    <section className="py-6 sm:py-8 lg:py-12 overflow-hidden bg-gradient-to-b from-background to-muted/20">
+    <section className="py-6 sm:py-8 lg:py-12 overflow-hidden">
       <div className="container mx-auto px-3 sm:px-4">
         <div className="relative">
           {/* Main Banner */}
@@ -32,7 +32,7 @@ export function BannerSection() {
                 {/* Content */}
                 <div className="space-y-4 sm:space-y-6">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                    <Badge className={`${bannerData.badgeColor} text-xs px-2 sm:px-3 py-1 font-medium w-fit`}>
+                    <Badge className={`${bannerData.badgeColor} text-xs px-2 sm:px-3 py-1 font-medium w-fit rounded-[4px]`}>
                       {bannerData.badge}
                     </Badge>
                     <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
@@ -54,22 +54,23 @@ export function BannerSection() {
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                    <Button asChild className="h-10 sm:h-12 px-6 sm:px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base">
+                    <Button asChild className="h-8 sm:h-10 px-4 sm:px-6 bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base rounded-[4px]">
                       <Link href={bannerData.href}>
                         {bannerData.cta}
                         <ArrowRight className="ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                       </Link>
                     </Button>
-                    <Button variant="outline" className="h-10 sm:h-12 px-6 sm:px-8 border-border/50 hover:border-border hover:bg-muted/50 transition-all duration-300 text-sm sm:text-base">
-                      Learn More
+                      <Button variant="outline" className="h-8 sm:h-10 px-4 sm:px-6 border-border/50 hover:border-border hover:bg-muted/50 transition-all duration-300 text-sm sm:text-base rounded-[4px]">
+                        <Link href={bannerData.href}>
+                          <span className="ml-2">Learn More</span>
+                        </Link>
                     </Button>
                   </div>
                 </div>
 
                 {/* Visual */}
                 <div className="relative">
-                  <div className="w-full h-48 sm:h-64 lg:h-80 xl:h-96 bg-gradient-to-br from-primary/20 to-primary/5 rounded-xl sm:rounded-2xl flex items-center justify-center relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-transparent via-primary/5 to-primary/10"></div>
+                  <div className="w-full h-48 sm:h-64 lg:h-80 xl:h-96 bg-primary/20 rounded-xl sm:rounded-2xl flex items-center justify-center relative overflow-hidden">
                     <div className="relative z-10 text-center">
                       <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 sm:mb-4 bg-primary/20 rounded-full flex items-center justify-center shadow-lg">
                         <Icon className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />

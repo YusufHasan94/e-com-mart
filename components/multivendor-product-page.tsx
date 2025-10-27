@@ -146,7 +146,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
 
               {/* Product Image & Details */}
               <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-                <div className="w-full sm:w-48 lg:w-64 h-48 sm:h-48 lg:h-64 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center relative group mx-auto sm:mx-0">
+                <div className="w-full sm:w-48 lg:w-64 h-48 sm:h-48 lg:h-64 bg-primary rounded-lg flex items-center justify-center relative group mx-auto sm:mx-0">
                   <img
                     src={product.image}
                     alt={product.title}
@@ -308,7 +308,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                 <CardContent className="p-6">
                   <div className="flex items-center gap-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+                      <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center">
                         <img src={product.image} alt={product.title} className="w-full h-full object-cover rounded-lg" />
                       </div>
                       <div>
@@ -320,7 +320,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                     <Plus className="h-6 w-6 text-muted-foreground" />
                     
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-gradient-to-br from-accent to-primary rounded-lg flex items-center justify-center">
+                      <div className="w-16 h-16 bg-accent rounded-lg flex items-center justify-center">
                         <img src="/placeholder.jpg" alt="Bundle Item" className="w-full h-full object-cover rounded-lg" />
                       </div>
                       <div>

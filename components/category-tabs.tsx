@@ -23,7 +23,7 @@ const categoryProducts = {
   "bags-accessories": [
     {
       id: "leather-backpack",
-      title: "Premium Leather Backpack",
+      title: "Premium Genuine Leather Backpack with Laptop Compartment",
       category: "Bags",
       price: 89.99,
       originalPrice: 129.99,
@@ -36,7 +36,7 @@ const categoryProducts = {
     },
     {
       id: "wireless-headphones",
-      title: "Noise Cancelling Headphones",
+      title: "Sony WH-1000XM5 Noise Cancelling Wireless Headphones",
       category: "Accessories",
       price: 199.99,
       originalPrice: null,
@@ -49,7 +49,7 @@ const categoryProducts = {
     },
     {
       id: "smart-watch-band",
-      title: "Silicone Watch Band",
+      title: "Apple Watch Sport Band Silicone Replacement Strap",
       category: "Accessories",
       price: 29.99,
       originalPrice: 39.99,
@@ -62,7 +62,7 @@ const categoryProducts = {
     },
     {
       id: "laptop-sleeve",
-      title: "Protective Laptop Sleeve",
+      title: "Protective Neoprene Laptop Sleeve 15.6 Inch",
       category: "Bags",
       price: 45.99,
       originalPrice: null,
@@ -75,7 +75,7 @@ const categoryProducts = {
     },
     {
       id: "phone-case",
-      title: "Clear Phone Case",
+      title: "Clear Crystal Clear Phone Case iPhone 15 Pro Max",
       category: "Accessories",
       price: 19.99,
       originalPrice: 29.99,
@@ -88,7 +88,7 @@ const categoryProducts = {
     },
     {
       id: "camera-bag",
-      title: "Professional Camera Bag",
+      title: "Professional DSLR Camera Bag Waterproof",
       category: "Bags",
       price: 79.99,
       originalPrice: 99.99,
@@ -103,20 +103,20 @@ const categoryProducts = {
   "electronic-digital": [
     {
       id: "red-smartphone",
-      title: "vulputate velit esse molestie consequat",
+      title: "iPhone 15 Pro Max 256GB Deep Purple",
       category: "Smartphones",
       price: 699.00,
       originalPrice: null,
       discount: 0,
       rating: 4.5,
       reviews: 2,
-      image: "/placeholder.jpg",
+      image: "/windows-11-operating-system.jpg",
       inStock: true,
       onSale: false,
     },
     {
       id: "white-smartwatch",
-      title: "Lorem ipsum diam nonumy eirmod tempor ut labore",
+      title: "Apple Watch Series 9 GPS 45mm Midnight",
       category: "Smartwatches",
       price: 550.00,
       priceRange: { min: 550.00, max: 650.00 },
@@ -124,13 +124,13 @@ const categoryProducts = {
       discount: 0,
       rating: 4.5,
       reviews: 2,
-      image: "/placeholder.jpg",
+      image: "/notion-productivity-workspace-software.jpg",
       inStock: true,
       onSale: false,
     },
     {
       id: "rose-gold-smartwatch",
-      title: "Invidunt sed diam nonumy eirmod tempor ut labore",
+      title: "Samsung Galaxy Watch 6 Classic 47mm Rose Gold",
       category: "Smartwatches",
       price: 550.00,
       priceRange: { min: 550.00, max: 650.00 },
@@ -144,20 +144,20 @@ const categoryProducts = {
     },
     {
       id: "silver-desktop",
-      title: "Stet clita kasd gubergren Consetetur sadipscing elitr",
+      title: "MacBook Pro 16-inch M3 Pro 512GB Silver",
       category: "Desktop Computers",
       price: 850.00,
       originalPrice: 1119.00,
       discount: 24,
       rating: 4.5,
       reviews: 2,
-      image: "/placeholder.jpg",
+      image: "/office-productivity-software.jpg",
       inStock: true,
       onSale: true,
     },
     {
       id: "dual-smartphones",
-      title: "Duis autem vel eum iriure dolor in hendrerit",
+      title: "Samsung Galaxy S24 Ultra 256GB Titanium Black",
       category: "Smartphones",
       price: 464.00,
       originalPrice: 774.00,
@@ -170,14 +170,14 @@ const categoryProducts = {
     },
     {
       id: "pink-tablet",
-      title: "Lorem ipsum dolor sit amet consetetur",
+      title: "iPad Air 5th Gen 64GB WiFi Rose Gold",
       category: "Tablets",
       price: 750.00,
       originalPrice: 1204.00,
       discount: 38,
       rating: 4.5,
       reviews: 2,
-      image: "/placeholder.jpg",
+      image: "/figma-design-collaboration-software.jpg",
       inStock: true,
       onSale: true,
     },
@@ -185,20 +185,20 @@ const categoryProducts = {
   "garden-kitchen": [
     {
       id: "smart-garden-kit",
-      title: "Smart Garden Growing Kit",
+      title: "Smart Garden Growing Kit with LED Grow Lights",
       category: "Garden",
       price: 149.99,
       originalPrice: 199.99,
       discount: 25,
       rating: 4.5,
       reviews: 2,
-      image: "/placeholder.jpg",
+      image: "/creative-design-software.jpg",
       inStock: true,
       onSale: true,
     },
     {
       id: "bluetooth-speaker",
-      title: "Waterproof Bluetooth Speaker",
+      title: "JBL Charge 5 Waterproof Bluetooth Speaker",
       category: "Kitchen",
       price: 79.99,
       originalPrice: null,
@@ -211,7 +211,7 @@ const categoryProducts = {
     },
     {
       id: "smart-thermometer",
-      title: "Digital Meat Thermometer",
+      title: "Digital Meat Thermometer with Bluetooth",
       category: "Kitchen",
       price: 39.99,
       originalPrice: 59.99,
@@ -224,7 +224,7 @@ const categoryProducts = {
     },
     {
       id: "plant-monitor",
-      title: "Smart Plant Monitor",
+      title: "Smart Plant Monitor with Soil Sensor",
       category: "Garden",
       price: 89.99,
       originalPrice: null,
@@ -237,20 +237,20 @@ const categoryProducts = {
     },
     {
       id: "coffee-grinder",
-      title: "Electric Coffee Grinder",
+      title: "Electric Burr Coffee Grinder Professional",
       category: "Kitchen",
       price: 129.99,
       originalPrice: 179.99,
       discount: 28,
       rating: 4.5,
       reviews: 2,
-      image: "/placeholder.jpg",
+      image: "/adobe-photoshop-software.jpg",
       inStock: true,
       onSale: true,
     },
     {
       id: "garden-tools",
-      title: "Professional Garden Tool Set",
+      title: "Professional Garden Tool Set 12 Piece",
       category: "Garden",
       price: 199.99,
       originalPrice: 249.99,
@@ -265,20 +265,20 @@ const categoryProducts = {
   "home-kitchen": [
     {
       id: "smart-home-hub",
-      title: "Smart Home Control Hub",
+      title: "Smart Home Control Hub with Voice Assistant",
       category: "Home",
       price: 299.99,
       originalPrice: 399.99,
       discount: 25,
       rating: 4.5,
       reviews: 2,
-      image: "/placeholder.jpg",
+      image: "/chatgpt-ai-assistant-software.jpg",
       inStock: true,
       onSale: true,
     },
     {
       id: "air-fryer",
-      title: "Digital Air Fryer",
+      title: "Digital Air Fryer 6 Quart Capacity",
       category: "Kitchen",
       price: 159.99,
       originalPrice: null,
@@ -291,20 +291,20 @@ const categoryProducts = {
     },
     {
       id: "robot-vacuum",
-      title: "Smart Robot Vacuum",
+      title: "Smart Robot Vacuum with Mapping Technology",
       category: "Home",
       price: 399.99,
       originalPrice: 499.99,
       discount: 20,
       rating: 4.5,
       reviews: 2,
-      image: "/placeholder.jpg",
+      image: "/steam-gift-card-gaming.jpg",
       inStock: true,
       onSale: true,
     },
     {
       id: "smart-thermostat",
-      title: "WiFi Smart Thermostat",
+      title: "WiFi Smart Thermostat Programmable",
       category: "Home",
       price: 249.99,
       originalPrice: null,
@@ -317,7 +317,7 @@ const categoryProducts = {
     },
     {
       id: "instant-pot",
-      title: "Multi-Function Pressure Cooker",
+      title: "Multi-Function Pressure Cooker 8 Quart",
       category: "Kitchen",
       price: 179.99,
       originalPrice: 229.99,
@@ -330,7 +330,7 @@ const categoryProducts = {
     },
     {
       id: "smart-lighting",
-      title: "Smart LED Light Strip",
+      title: "Smart LED Light Strip RGB Color Changing",
       category: "Home",
       price: 49.99,
       originalPrice: 79.99,
@@ -385,7 +385,7 @@ export function CategoryTabs() {
       <SwiperSlide key={`${product.id}-${swiperKey}`}>
         <Link href={`/product/${product.id}`}>
           <Card 
-            className={`group hover:shadow-xl transition-all duration-500 overflow-hidden dark:card-hover cursor-pointer min-h-[280px] sm:min-h-[380px] lg:min-h-[440px] h-full rounded-lg ${
+            className={`group hover:shadow-xl transition-all duration-500 overflow-hidden dark:card-hover cursor-pointer min-h-[420px] rounded-lg ${
               isAnimating ? 'animate-fade-in-up' : ''
             }`}
             style={{
@@ -394,11 +394,11 @@ export function CategoryTabs() {
             }}
           >
             <CardContent className="h-full flex flex-col p-0">
-              <div className="relative mb-3 sm:mb-4 p-3 sm:p-4 pb-0">
+              <div className="relative mb-3 sm:mb-4 p-0 pb-0">
                 <img
                   src={product.image || "/placeholder.svg"}
                   alt={product.title}
-                  className="w-full h-32 sm:h-36 lg:h-40 xl:h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-32 sm:h-36 lg:h-40 xl:h-48 object-cover transition-transform duration-300"
                 />
                 {product.onSale && (
                   <Badge className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-red-600 hover:bg-red-700 text-white animate-pulse text-xs sm:text-sm">
@@ -408,9 +408,15 @@ export function CategoryTabs() {
               </div>
 
               <div className="flex-1 flex flex-col p-3 sm:p-4 pt-0">
-                <div className="space-y-2 sm:space-y-3 flex-1">
-                  <div>
-                    <h3 className="font-semibold text-xs sm:text-sm mb-1 line-clamp-2">{product.title}</h3>
+                <div className="space-y-2 sm:space-y-3 flex-1 flex flex-col">
+                  <div className="min-h-[2.4em]">
+                    <h3 className="font-semibold text-xs sm:text-sm mb-1 overflow-hidden" style={{
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      lineHeight: '1.2em',
+                      maxHeight: '2.4em'
+                    }}>{product.title}</h3>
                   </div>
 
                   <div className="flex items-center gap-1">
@@ -443,10 +449,10 @@ export function CategoryTabs() {
                   </div>
                 </div>
 
-                <div className="mt-auto pt-3">
+                <div className="mt-auto pt-4 pb-2">
                   <Button
                     size="sm"
-                    className="w-full h-[32px] gap-2 hover:animate-pulse-glow transition-all duration-300 hover:scale-105 text-xs sm:text-sm"
+                    className="w-full h-[36px] gap-2 hover:animate-pulse-glow transition-all duration-300 hover:scale-105 text-xs sm:text-sm bg-primary rounded-[4px]"
                     onClick={(e) => {
                       e.preventDefault()
                       e.stopPropagation()
@@ -466,7 +472,7 @@ export function CategoryTabs() {
   }
 
   return (
-    <section className="py-8 sm:py-12 lg:py-16 bg-gradient-to-br from-background via-muted/20 to-secondary/30">
+    <section className="py-8 sm:py-12 lg:py-16 bg-background">
       <div className="container mx-auto px-4">
         {/* Category Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 sm:mb-8 gap-4 lg:gap-8">
@@ -479,7 +485,7 @@ export function CategoryTabs() {
                 <button
                   key={category.id}
                   onClick={() => handleCategoryChange(category.id)}
-                  className={`px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium transition-all duration-300 transform hover:scale-105 rounded-lg ${
+                  className={`px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium transition-all duration-300 transform hover:scale-105 rounded-[4px] ${
                       activeCategory === category.id
                       ? 'bg-muted text-foreground'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
@@ -534,7 +540,7 @@ export function CategoryTabs() {
           <Button 
             variant="outline" 
             size="icon" 
-            className="category-swiper-button-next absolute right-0 top-1/2 -translate-y-1/2 -translate-x-1 sm:-translate-x-2 bg-white/90 hover:bg-white z-10"
+            className="category-swiper-button-next absolute right-0 top-1/2 -translate-y-1/2 -translate-x-1 sm:-translate-x-2 bg-white/90 hover:bg-white z-10 rounded-full"
           >
             <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
@@ -542,7 +548,7 @@ export function CategoryTabs() {
           <Button 
             variant="outline" 
             size="icon" 
-            className="category-swiper-button-prev absolute left-0 top-1/2 -translate-y-1/2 translate-x-1 sm:translate-x-2 bg-white/90 hover:bg-white z-10"
+            className="category-swiper-button-prev absolute left-0 top-1/2 -translate-y-1/2 translate-x-1 sm:translate-x-2 bg-white/90 hover:bg-white z-10 rounded-full"
           >
             <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 rotate-180" />
           </Button>

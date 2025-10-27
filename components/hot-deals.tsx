@@ -129,7 +129,7 @@ export function BestDeals() {
   }
 
   return (
-    <section className="py-16 bg-gradient-to-br from-background via-muted/20 to-secondary/30">
+    <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
         {/* Header Section */}
         <div className="flex items-center justify-between mb-8">
@@ -147,7 +147,7 @@ export function BestDeals() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Promotional Banner */}
           <div className="lg:col-span-1">
-            <Card className="relative overflow-hidden bg-gradient-to-br from-blue-900 to-blue-700 h-full">
+            <Card className="relative overflow-hidden bg-blue-900 h-full">
               <CardContent className="p-8 h-full flex flex-col justify-between relative">
                 {/* Sparkle Effects */}
                 <div className="absolute inset-0 overflow-hidden">
@@ -173,7 +173,7 @@ export function BestDeals() {
                 
                 <div className="relative z-10">
                   <div className="text-white text-6xl font-black tracking-wider" style={{
-                    textShadow: '2px 2px 0px #1e40af, -2px -2px 0px #1e40af, 2px -2px 0px #1e40af, -2px 2px 0px #1e40af',
+                    textShadow: '2px 2px 0px var(--primary), -2px -2px 0px var(--primary), 2px -2px 0px var(--primary), -2px 2px 0px var(--primary)',
                     filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.3))'
                   }}>
                     12.12
