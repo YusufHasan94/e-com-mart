@@ -394,11 +394,11 @@ export function CategoryTabs() {
             }}
           >
             <CardContent className="h-full flex flex-col p-0">
-              <div className="relative mb-3 sm:mb-4 p-3 sm:p-4 pb-0">
+              <div className="relative mb-3 sm:mb-4 p-0 pb-0">
                 <img
                   src={product.image || "/placeholder.svg"}
                   alt={product.title}
-                  className="w-full h-32 sm:h-36 lg:h-40 xl:h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-32 sm:h-36 lg:h-40 xl:h-48 object-cover transition-transform duration-300"
                 />
                 {product.onSale && (
                   <Badge className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-red-600 hover:bg-red-700 text-white animate-pulse text-xs sm:text-sm">
@@ -452,7 +452,7 @@ export function CategoryTabs() {
                 <div className="mt-auto pt-4 pb-2">
                   <Button
                     size="sm"
-                    className="w-full h-[36px] gap-2 hover:animate-pulse-glow transition-all duration-300 hover:scale-105 text-xs sm:text-sm bg-[#802CEC]"
+                    className="w-full h-[36px] gap-2 hover:animate-pulse-glow transition-all duration-300 hover:scale-105 text-xs sm:text-sm bg-primary rounded-[4px]"
                     onClick={(e) => {
                       e.preventDefault()
                       e.stopPropagation()
@@ -485,7 +485,7 @@ export function CategoryTabs() {
                 <button
                   key={category.id}
                   onClick={() => handleCategoryChange(category.id)}
-                  className={`px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium transition-all duration-300 transform hover:scale-105 rounded-lg ${
+                  className={`px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium transition-all duration-300 transform hover:scale-105 rounded-[4px] ${
                       activeCategory === category.id
                       ? 'bg-muted text-foreground'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
@@ -540,7 +540,7 @@ export function CategoryTabs() {
           <Button 
             variant="outline" 
             size="icon" 
-            className="category-swiper-button-next absolute right-0 top-1/2 -translate-y-1/2 -translate-x-1 sm:-translate-x-2 bg-white/90 hover:bg-white z-10"
+            className="category-swiper-button-next absolute right-0 top-1/2 -translate-y-1/2 -translate-x-1 sm:-translate-x-2 bg-white/90 hover:bg-white z-10 rounded-full"
           >
             <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
@@ -548,7 +548,7 @@ export function CategoryTabs() {
           <Button 
             variant="outline" 
             size="icon" 
-            className="category-swiper-button-prev absolute left-0 top-1/2 -translate-y-1/2 translate-x-1 sm:translate-x-2 bg-white/90 hover:bg-white z-10"
+            className="category-swiper-button-prev absolute left-0 top-1/2 -translate-y-1/2 translate-x-1 sm:translate-x-2 bg-white/90 hover:bg-white z-10 rounded-full"
           >
             <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 rotate-180" />
           </Button>

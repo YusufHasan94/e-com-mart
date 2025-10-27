@@ -32,7 +32,7 @@ export function BannerSection() {
                 {/* Content */}
                 <div className="space-y-4 sm:space-y-6">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                    <Badge className={`${bannerData.badgeColor} text-xs px-2 sm:px-3 py-1 font-medium w-fit`}>
+                    <Badge className={`${bannerData.badgeColor} text-xs px-2 sm:px-3 py-1 font-medium w-fit rounded-[4px]`}>
                       {bannerData.badge}
                     </Badge>
                     <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
@@ -54,14 +54,16 @@ export function BannerSection() {
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                    <Button asChild className="h-10 sm:h-12 px-6 sm:px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base">
+                    <Button asChild className="h-8 sm:h-10 px-4 sm:px-6 bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base rounded-[4px]">
                       <Link href={bannerData.href}>
                         {bannerData.cta}
                         <ArrowRight className="ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                       </Link>
                     </Button>
-                    <Button variant="outline" className="h-10 sm:h-12 px-6 sm:px-8 border-border/50 hover:border-border hover:bg-muted/50 transition-all duration-300 text-sm sm:text-base">
-                      Learn More
+                      <Button variant="outline" className="h-8 sm:h-10 px-4 sm:px-6 border-border/50 hover:border-border hover:bg-muted/50 transition-all duration-300 text-sm sm:text-base rounded-[4px]">
+                        <Link href={bannerData.href}>
+                          <span className="ml-2">Learn More</span>
+                        </Link>
                     </Button>
                   </div>
                 </div>

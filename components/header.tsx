@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, ShoppingCart, User, Menu, X, LogOut } from "lucide-react"
+import { Search, ShoppingCart, User, Menu, X, LogOut, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -15,6 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
 import { CartDrawer } from "@/components/cart-drawer"
+import { MegaMenu, MegaMenuCompact } from "@/components/megamenu"
 import Link from "next/link"
 import { ThemeToggle } from "@/components/theme-toggle"
 
@@ -22,6 +23,8 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false)
+  const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null)
   const { state } = useCart()
   const { user, logout } = useAuth()
 
@@ -33,6 +36,28 @@ export function Header() {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  const handleMegaMenuOpen = () => {
+    if (closeTimeout) {
+      clearTimeout(closeTimeout)
+      setCloseTimeout(null)
+    }
+    setIsMegaMenuOpen(true)
+  }
+
+  const handleMegaMenuClose = () => {
+    const timeout = setTimeout(() => {
+      setIsMegaMenuOpen(false)
+    }, 150) // Small delay to allow mouse movement
+    setCloseTimeout(timeout)
+  }
+
+  const handleMegaMenuEnter = () => {
+    if (closeTimeout) {
+      clearTimeout(closeTimeout)
+      setCloseTimeout(null)
+    }
+  }
 
   console.log("Header - User state:", user)
 
@@ -55,17 +80,18 @@ export function Header() {
             </div>
 
             {/* Navigation - Desktop */}
-            <nav className="hidden lg:flex items-center space-x-4 xl:space-x-6">
-              <Link href="/products" className="text-sm font-medium hover:text-primary transition-colors">
-                Games
+            <nav className="hidden lg:flex items-center space-x-4 xl:space-x-6 relative">
+              <button
+                onMouseEnter={handleMegaMenuOpen}
+                onMouseLeave={handleMegaMenuClose}
+                className="text-sm xl:text-base font-medium hover:text-primary transition-colors px-2 py-1 rounded-md hover:bg-muted/50"
+              >
+                Shop
+              </button>
+              <Link href="/products" className="text-sm xl:text-base font-medium hover:text-primary transition-colors px-2 py-1 rounded-md hover:bg-muted/50">
+                All Products
               </Link>
-              <Link href="/software" className="text-sm font-medium hover:text-primary transition-colors">
-                Software
-              </Link>
-              <Link href="/gift-cards" className="text-sm font-medium hover:text-primary transition-colors">
-                Gift Cards
-              </Link>
-              <Link href="/deals" className="text-sm font-medium hover:text-primary transition-colors">
+              <Link href="/deals" className="text-sm xl:text-base font-medium hover:text-primary transition-colors px-2 py-1 rounded-md hover:bg-muted/50">
                 Deals
               </Link>
             </nav>
@@ -154,14 +180,15 @@ export function Header() {
                   <Input placeholder="Search for games..." className="pl-10 bg-muted/50" />
                 </div>
                 <nav className="flex flex-col space-y-2">
+                  <button
+                    onClick={() => setIsMegaMenuOpen(!isMegaMenuOpen)}
+                    className="text-sm font-medium hover:text-primary transition-colors py-2 text-left flex items-center justify-between"
+                  >
+                    Shop
+                    <ChevronRight className={`h-4 w-4 transition-transform ${isMegaMenuOpen ? 'rotate-90' : ''}`} />
+                  </button>
                   <Link href="/products" className="text-sm font-medium hover:text-primary transition-colors py-2">
-                    Games
-                  </Link>
-                  <Link href="/software" className="text-sm font-medium hover:text-primary transition-colors py-2">
-                    Software
-                  </Link>
-                  <Link href="/gift-cards" className="text-sm font-medium hover:text-primary transition-colors py-2">
-                    Gift Cards
+                    All Products
                   </Link>
                   <Link href="/deals" className="text-sm font-medium hover:text-primary transition-colors py-2">
                     Deals
@@ -175,8 +202,14 @@ export function Header() {
               </div>
             </div>
           )}
+          
+          {/* Mega Menu Compact for Mobile */}
+          <MegaMenuCompact isOpen={isMegaMenuOpen && isMenuOpen} onClose={() => setIsMegaMenuOpen(false)} />
         </div>
       </header>
+
+      {/* Mega Menu for Desktop */}
+      <MegaMenu isOpen={isMegaMenuOpen} onClose={handleMegaMenuClose} />
 
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>

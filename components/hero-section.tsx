@@ -97,7 +97,7 @@ export function HeroSection() {
                         <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 lg:bottom-6 lg:left-6 lg:right-6">
                           <div className="space-y-1 sm:space-y-2 text-center">
                             <h3 className="text-base sm:text-xl lg:text-2xl font-bold text-white drop-shadow-lg">{item.title}</h3>
-                            <Button className="mt-2 sm:mt-3 bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30 text-sm sm:text-sm rounded-lg">
+                            <Button className="mt-2 sm:mt-3 bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30 text-sm sm:text-sm rounded-[4px] hover:animate-pulse-glow">
                               Shop Now
                             </Button>
                           </div>

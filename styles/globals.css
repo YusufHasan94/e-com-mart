@@ -4,39 +4,40 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: #802CEC;
+  /* Light mode palette - Neutral whites and grays */
+  --background: #FAFAFA; /* Soft neutral white background */
+  --foreground: #1A1A1A; /* Dark neutral gray text */
+  --card: #FFFFFF; /* Pure white cards */
+  --card-foreground: #1A1A1A; /* Dark neutral gray card text */
+  --popover: #FFFFFF; /* Pure white popover */
+  --popover-foreground: #1A1A1A; /* Dark neutral gray popover text */
+  --primary: #87A2FF;
   --primary-foreground: #FFFFFF;
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: #802CEC;
-  --chart-1: #802CEC;
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: #802CEC;
+  --secondary: #F5F5F5; /* Neutral light gray secondary */
+  --secondary-foreground: #262626; /* Dark neutral gray on secondary */
+  --muted: #F5F5F5; /* Neutral light gray muted */
+  --muted-foreground: #737373; /* Medium neutral gray muted text */
+  --accent: #F5F5F5; /* Neutral light gray accent */
+  --accent-foreground: #262626; /* Dark neutral gray on accent */
+  --destructive: #87A2FF;
+  --destructive-foreground: #FFFFFF;
+  --border: #E5E5E5; /* Neutral light gray borders */
+  --input: #E5E5E5; /* Neutral light gray inputs */
+  --ring: #87A2FF;
+  --chart-1: #87A2FF;
+  --chart-2: #94A3B8; /* Neutral slate gray chart color */
+  --chart-3: #CBD5E1; /* Neutral light slate chart color */
+  --chart-4: #E2E8F0; /* Neutral very light slate chart color */
+  --chart-5: #A3B1C6; /* Medium neutral slate chart color */
+  --radius: 8px;
+  --sidebar: #FAFAFA; /* Soft neutral white sidebar */
+  --sidebar-foreground: #1A1A1A; /* Dark neutral gray sidebar text */
+  --sidebar-primary: #87A2FF;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: #802CEC;
+  --sidebar-accent: #F5F5F5; /* Neutral light gray sidebar accent */
+  --sidebar-accent-foreground: #262626; /* Dark neutral gray on sidebar accent */
+  --sidebar-border: #E5E5E5; /* Neutral light gray sidebar border */
+  --sidebar-ring: #87A2FF;
 }
 
 .dark {
@@ -46,7 +47,7 @@
   --card-foreground: #FFFFFF;
   --popover: #161616;
   --popover-foreground: #FFFFFF;
-  --primary: #802CEC;
+  --primary: #87A2FF;
   --primary-foreground: #FFFFFF;
   --secondary: #2A2A2A;
   --secondary-foreground: #FFFFFF;
@@ -58,20 +59,20 @@
   --destructive-foreground: #FFFFFF;
   --border: #2A2A2A;
   --input: #2A2A2A;
-  --ring: #802CEC;
-  --chart-1: #802CEC;
+  --ring: #87A2FF;
+  --chart-1: #87A2FF;
   --chart-2: #2A2A2A;
   --chart-3: #161616;
   --chart-4: #404040;
   --chart-5: #A0AEC0;
   --sidebar: #161616;
   --sidebar-foreground: #FFFFFF;
-  --sidebar-primary: #802CEC;
+  --sidebar-primary: #87A2FF;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #2A2A2A;
   --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border: #2A2A2A;
-  --sidebar-ring: #802CEC;
+  --sidebar-ring: #87A2FF;
 }
 
 @theme inline {
@@ -101,10 +102,10 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xl: var(--radius);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);

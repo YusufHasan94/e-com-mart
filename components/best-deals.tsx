@@ -141,8 +141,8 @@ export function BestDeals() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
             <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-red-500" />
-              <h2 className="text-2xl sm:text-3xl font-bold text-red-500">HOT DEALS!</h2>
+              <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+              <h2 className="text-2xl sm:text-3xl font-bold text-primary">HOT DEALS!</h2>
             </div>
             <span className="text-muted-foreground text-sm sm:text-lg">GET OUR BEST PRICES</span>
           </div>
@@ -296,7 +296,7 @@ export function BestDeals() {
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="swiper-button-next-custom absolute right-0 top-1/2 -translate-y-1/2 -translate-x-1 sm:-translate-x-2 bg-white/90 hover:bg-white z-10"
+                className="swiper-button-next-custom absolute right-0 top-1/2 -translate-y-1/2 -translate-x-1 sm:-translate-x-2 bg-white/90 hover:bg-white z-10 rounded-full"
               >
                 <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
@@ -304,7 +304,7 @@ export function BestDeals() {
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="swiper-button-prev-custom absolute left-0 top-1/2 -translate-y-1/2 translate-x-1 sm:translate-x-2 bg-white/90 hover:bg-white z-10"
+                className="swiper-button-prev-custom absolute left-0 top-1/2 -translate-y-1/2 translate-x-1 sm:translate-x-2 bg-white/90 hover:bg-white z-10 rounded-full"
               >
                 <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 rotate-180" />
               </Button>
