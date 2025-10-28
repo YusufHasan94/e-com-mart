@@ -6,12 +6,12 @@
 :root {
   /* Light mode palette - Neutral whites and grays */
   --background: #FAFAFA; /* Soft neutral white background */
-  --foreground: #1A1A1A; /* Dark neutral gray text */
+  --foreground: #000000; /* Black text for light theme */
   --card: #FFFFFF; /* Pure white cards */
-  --card-foreground: #1A1A1A; /* Dark neutral gray card text */
+  --card-foreground: #000000; /* Black card text for light theme */
   --popover: #FFFFFF; /* Pure white popover */
-  --popover-foreground: #1A1A1A; /* Dark neutral gray popover text */
-  --primary: #87A2FF; /* #87A2FF - Blue primary */
+  --popover-foreground: #000000; /* Black popover text for light theme */
+  --primary: #4E61D3; /* #4E61D3 - Dark green primary */
   --primary-foreground: #FFFFFF; /* White text on primary */
   --secondary: #F5F5F5; /* Neutral light gray secondary */
   --secondary-foreground: #262626; /* Dark neutral gray on secondary */
@@ -19,25 +19,25 @@
   --muted-foreground: #737373; /* Medium neutral gray muted text */
   --accent: #F5F5F5; /* Neutral light gray accent */
   --accent-foreground: #262626; /* Dark neutral gray on accent */
-  --destructive: #87A2FF; /* #87A2FF - Blue for destructive actions */
+  --destructive: #4E61D3; /* #4E61D3 - Blue for destructive actions */
   --destructive-foreground: #FFFFFF; /* White text on destructive */
   --border: #E5E5E5; /* Neutral light gray borders */
   --input: #E5E5E5; /* Neutral light gray inputs */
-  --ring: #87A2FF; /* #87A2FF - Blue focus ring */
-  --chart-1: #87A2FF; /* #87A2FF - Blue chart color */
+  --ring: #4E61D3; /* #4E61D3 - Dark green focus ring */
+  --chart-1: #4E61D3; /* #4E61D3 - Dark green chart color */
   --chart-2: #94A3B8; /* Neutral slate gray chart color */
   --chart-3: #CBD5E1; /* Neutral light slate chart color */
   --chart-4: #E2E8F0; /* Neutral very light slate chart color */
   --chart-5: #A3B1C6; /* Medium neutral slate chart color */
   --radius: 8px;
   --sidebar: #FAFAFA; /* Soft neutral white sidebar */
-  --sidebar-foreground: #1A1A1A; /* Dark neutral gray sidebar text */
-  --sidebar-primary: #87A2FF; /* #87A2FF - Blue sidebar primary */
+  --sidebar-foreground: #000000; /* Black sidebar text for light theme */
+  --sidebar-primary: #4E61D3; /* #4E61D3 - Dark green sidebar primary */
   --sidebar-primary-foreground: #FFFFFF; /* White text on sidebar primary */
   --sidebar-accent: #F5F5F5; /* Neutral light gray sidebar accent */
   --sidebar-accent-foreground: #262626; /* Dark neutral gray on sidebar accent */
   --sidebar-border: #E5E5E5; /* Neutral light gray sidebar border */
-  --sidebar-ring: #87A2FF; /* #87A2FF - Blue sidebar ring */
+  --sidebar-ring: #4E61D3; /* #4E61D3 - Dark green sidebar ring */
 }
 
 .dark {
@@ -49,7 +49,7 @@
   --card-foreground: #FFFFFF; /* White card text */
   --popover: #161616; /* #161616 - Very dark gray popover */
   --popover-foreground: #FFFFFF; /* White popover text */
-  --primary: #87A2FF; /* #87A2FF - Blue primary */
+  --primary: #4E61D3; /* #4E61D3 - Dark green primary */
   --primary-foreground: #FFFFFF; /* White text on primary */
   --secondary: #2A2A2A; /* Slightly lighter gray for secondary */
   --secondary-foreground: #FFFFFF; /* White text on secondary */
@@ -61,20 +61,20 @@
   --destructive-foreground: #FFFFFF; /* White text on destructive */
   --border: #2A2A2A; /* Slightly lighter gray borders */
   --input: #2A2A2A; /* Slightly lighter gray inputs */
-  --ring: #87A2FF; /* #87A2FF - Blue focus ring */
-  --chart-1: #87A2FF; /* #87A2FF - Blue chart color */
+  --ring: #4E61D3; /* #4E61D3 - Dark green focus ring */
+  --chart-1: #4E61D3; /* #4E61D3 - Dark green chart color */
   --chart-2: #2A2A2A; /* Gray chart color */
   --chart-3: #161616; /* Very dark gray chart color */
   --chart-4: #404040; /* Medium gray chart color */
   --chart-5: #A0AEC0; /* Light gray chart color */
   --sidebar: #161616; /* #161616 - Very dark gray sidebar */
   --sidebar-foreground: #FFFFFF; /* White sidebar text */
-  --sidebar-primary: #87A2FF; /* #87A2FF - Blue sidebar primary */
+  --sidebar-primary: #4E61D3; /* #4E61D3 - Dark green sidebar primary */
   --sidebar-primary-foreground: #FFFFFF; /* White text on sidebar primary */
   --sidebar-accent: #2A2A2A; /* Gray sidebar accent */
   --sidebar-accent-foreground: #FFFFFF; /* White text on sidebar accent */
   --sidebar-border: #2A2A2A; /* Gray sidebar border */
-  --sidebar-ring: #87A2FF; /* #87A2FF - Blue sidebar ring */
+  --sidebar-ring: #4E61D3; /* #4E61D3 - Dark green sidebar ring */
 }
 
 @theme inline {
