@@ -78,7 +78,7 @@ export function ProductCatalog() {
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 xl:gap-8">
+        <div className="flex flex-col lg:flex-row gap-4">
           {/* Filters Sidebar */}
           <div className={`${
             showFilters ? "block" : "hidden"

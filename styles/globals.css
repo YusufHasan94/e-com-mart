@@ -6,12 +6,12 @@
 :root {
   /* Light mode palette - Neutral whites and grays */
   --background: #FAFAFA; /* Soft neutral white background */
-  --foreground: #1A1A1A; /* Dark neutral gray text */
+  --foreground: #000000; /* Black text for light theme */
   --card: #FFFFFF; /* Pure white cards */
-  --card-foreground: #1A1A1A; /* Dark neutral gray card text */
+  --card-foreground: #000000; /* Black card text for light theme */
   --popover: #FFFFFF; /* Pure white popover */
-  --popover-foreground: #1A1A1A; /* Dark neutral gray popover text */
-  --primary: #87A2FF;
+  --popover-foreground: #000000; /* Black popover text for light theme */
+  --primary: #4E61D3;
   --primary-foreground: #FFFFFF;
   --secondary: #F5F5F5; /* Neutral light gray secondary */
   --secondary-foreground: #262626; /* Dark neutral gray on secondary */
@@ -19,25 +19,25 @@
   --muted-foreground: #737373; /* Medium neutral gray muted text */
   --accent: #F5F5F5; /* Neutral light gray accent */
   --accent-foreground: #262626; /* Dark neutral gray on accent */
-  --destructive: #87A2FF;
+  --destructive: #4E61D3;
   --destructive-foreground: #FFFFFF;
   --border: #E5E5E5; /* Neutral light gray borders */
   --input: #E5E5E5; /* Neutral light gray inputs */
-  --ring: #87A2FF;
-  --chart-1: #87A2FF;
+  --ring: #4E61D3;
+  --chart-1: #4E61D3;
   --chart-2: #94A3B8; /* Neutral slate gray chart color */
   --chart-3: #CBD5E1; /* Neutral light slate chart color */
   --chart-4: #E2E8F0; /* Neutral very light slate chart color */
   --chart-5: #A3B1C6; /* Medium neutral slate chart color */
   --radius: 8px;
   --sidebar: #FAFAFA; /* Soft neutral white sidebar */
-  --sidebar-foreground: #1A1A1A; /* Dark neutral gray sidebar text */
-  --sidebar-primary: #87A2FF;
+  --sidebar-foreground: #000000; /* Black sidebar text for light theme */
+  --sidebar-primary: #4E61D3;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #F5F5F5; /* Neutral light gray sidebar accent */
   --sidebar-accent-foreground: #262626; /* Dark neutral gray on sidebar accent */
   --sidebar-border: #E5E5E5; /* Neutral light gray sidebar border */
-  --sidebar-ring: #87A2FF;
+  --sidebar-ring: #4E61D3;
 }
 
 .dark {
@@ -47,7 +47,7 @@
   --card-foreground: #FFFFFF;
   --popover: #161616;
   --popover-foreground: #FFFFFF;
-  --primary: #87A2FF;
+  --primary: #4E61D3;
   --primary-foreground: #FFFFFF;
   --secondary: #2A2A2A;
   --secondary-foreground: #FFFFFF;
@@ -59,20 +59,20 @@
   --destructive-foreground: #FFFFFF;
   --border: #2A2A2A;
   --input: #2A2A2A;
-  --ring: #87A2FF;
-  --chart-1: #87A2FF;
+  --ring: #4E61D3;
+  --chart-1: #4E61D3;
   --chart-2: #2A2A2A;
   --chart-3: #161616;
   --chart-4: #404040;
   --chart-5: #A0AEC0;
   --sidebar: #161616;
   --sidebar-foreground: #FFFFFF;
-  --sidebar-primary: #87A2FF;
+  --sidebar-primary: #4E61D3;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #2A2A2A;
   --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border: #2A2A2A;
-  --sidebar-ring: #87A2FF;
+  --sidebar-ring: #4E61D3;
 }
 
 @theme inline {
