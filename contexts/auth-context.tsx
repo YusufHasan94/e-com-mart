@@ -2,18 +2,20 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 
-interface User {
+export interface User {
   id: string
   email: string
   name: string
   avatar?: string
+  role: "user" | "seller"
   createdAt: string
 }
 
 interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<boolean>
-  register: (email: string, password: string, name: string) => Promise<boolean>
+  demoLogin: (role: "user" | "seller") => Promise<boolean>
+  register: (email: string, password: string, name: string, role?: "user" | "seller") => Promise<boolean>
   logout: () => void
   isLoading: boolean
 }
@@ -31,7 +33,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const storedUser = localStorage.getItem("user")
       if (storedUser) {
         try {
-          setUser(JSON.parse(storedUser))
+          const userData = JSON.parse(storedUser)
+          // Ensure existing users have a role (backward compatibility)
+          if (!userData.role) {
+            userData.role = "user"
+          }
+          setUser(userData)
         } catch (error) {
           console.error("Error parsing stored user:", error)
           localStorage.removeItem("user")
@@ -55,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email,
         name: email.split("@")[0],
         avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+        role: "user",
         createdAt: new Date().toISOString(),
       }
 
@@ -73,7 +81,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return false
   }
 
-  const register = async (email: string, password: string, name: string): Promise<boolean> => {
+  const demoLogin = async (role: "user" | "seller"): Promise<boolean> => {
+    setIsLoading(true)
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    const demoUsers = {
+      user: {
+        id: "demo-user-1",
+        email: "demo.user@gamehub.com",
+        name: "Demo User",
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=demouser`,
+        role: "user" as const,
+        createdAt: new Date().toISOString(),
+      },
+      seller: {
+        id: "demo-seller-1",
+        email: "demo.seller@gamehub.com",
+        name: "Demo Seller",
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=demoseller`,
+        role: "seller" as const,
+        createdAt: new Date().toISOString(),
+      },
+    }
+
+    const mockUser = demoUsers[role]
+    setUser(mockUser)
+    if (typeof window !== "undefined") {
+      localStorage.setItem("user", JSON.stringify(mockUser))
+    }
+    setIsLoading(false)
+    return true
+  }
+
+  const register = async (email: string, password: string, name: string, role: "user" | "seller" = "user"): Promise<boolean> => {
     setIsLoading(true)
 
     // Mock registration - in a real app, this would call an API
@@ -85,6 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email,
         name,
         avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+        role,
         createdAt: new Date().toISOString(),
       }
 
@@ -109,7 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  return <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ user, login, demoLogin, register, logout, isLoading }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

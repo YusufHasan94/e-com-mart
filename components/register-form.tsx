@@ -52,12 +52,12 @@ export function RegisterForm() {
 
   return (
     <Card className="w-full max-w-md">
-      <CardHeader className="space-y-1">
+      <CardHeader className="space-y-2 px-6 pt-6 pb-4">
         <CardTitle className="text-2xl font-bold text-center">Create account</CardTitle>
         <CardDescription className="text-center">Join GameHub and start gaming</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 px-6">
           {error && (
             <Alert variant="destructive">
               <AlertDescription>{error}</AlertDescription>
@@ -129,7 +129,7 @@ export function RegisterForm() {
           </div>
         </CardContent>
 
-        <CardFooter className="flex flex-col space-y-4">
+        <CardFooter className="flex flex-col space-y-4 px-6 pb-6 pt-4">
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? (
               <>
