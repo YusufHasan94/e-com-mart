@@ -4,13 +4,6 @@ import { useState, useEffect } from "react"
 import { Search, ShoppingCart, User, Menu, X, LogOut, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
@@ -24,9 +17,25 @@ export function Header() {
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false)
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null)
   const { state } = useCart()
   const { user, logout } = useAuth()
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (isUserMenuOpen && !target.closest('[data-user-menu]')) {
+        setIsUserMenuOpen(false)
+      }
+    }
+
+    if (isUserMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isUserMenuOpen])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,13 +55,15 @@ export function Header() {
   }
 
   const handleMegaMenuClose = () => {
+    // Add delay to allow mouse movement from trigger to menu
     const timeout = setTimeout(() => {
       setIsMegaMenuOpen(false)
-    }, 150) // Small delay to allow mouse movement
+    }, 200) // Increased delay to 200ms for better UX
     setCloseTimeout(timeout)
   }
 
   const handleMegaMenuEnter = () => {
+    // Cancel close timeout when mouse enters trigger area again
     if (closeTimeout) {
       clearTimeout(closeTimeout)
       setCloseTimeout(null)
@@ -81,13 +92,18 @@ export function Header() {
 
             {/* Navigation - Desktop */}
             <nav className="hidden lg:flex items-center space-x-4 xl:space-x-6 relative">
-              <button
+              <div
+                className="relative"
                 onMouseEnter={handleMegaMenuOpen}
                 onMouseLeave={handleMegaMenuClose}
-                className="text-sm xl:text-base font-medium hover:text-primary transition-colors px-2 py-1 rounded-md hover:bg-muted/50"
               >
-                Shop
-              </button>
+                <button
+                  className="text-sm xl:text-base font-medium hover:text-primary transition-colors px-2 py-1 rounded-md hover:bg-muted/50 flex items-center gap-1"
+                >
+                  Shop
+                  <ChevronRight className="h-3 w-3 rotate-90 opacity-70" />
+                </button>
+              </div>
               <Link href="/products" className="text-sm xl:text-base font-medium hover:text-primary transition-colors px-2 py-1 rounded-md hover:bg-muted/50">
                 All Products
               </Link>
@@ -118,51 +134,110 @@ export function Header() {
                 )}
               </Button>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="p-2 sm:p-2.5">
-                    {user ? (
-                      <Avatar className="h-6 w-6 sm:h-8 sm:w-8">
-                        <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
-                        <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
-                      </Avatar>
-                    ) : (
-                      <User className="h-4 w-4 sm:h-5 sm:w-5" />
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+              <div className="relative" data-user-menu>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="p-2 sm:p-2.5 cursor-pointer focus:outline-none hover:bg-muted/50"
+                  type="button"
+                  aria-label="User menu"
+                  aria-expanded={isUserMenuOpen}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setIsUserMenuOpen(!isUserMenuOpen)
+                  }}
+                >
                   {user ? (
-                    <>
-                      <div className="px-2 py-1.5 text-sm font-medium">{user.name}</div>
-                      <div className="px-2 py-1.5 text-xs text-muted-foreground">{user.email}</div>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link href="/account">My Account</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>My Orders</DropdownMenuItem>
-                      <DropdownMenuItem>Wishlist</DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={logout} className="text-red-600">
-                        <LogOut className="mr-2 h-4 w-4" />
-                        Sign Out
-                      </DropdownMenuItem>
-                    </>
+                    <Avatar className="h-6 w-6 sm:h-8 sm:w-8">
+                      <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                      <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
                   ) : (
-                    <>
-                      <DropdownMenuItem asChild>
-                        <Link href="/login">Sign In</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/register">Create Account</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem>My Orders</DropdownMenuItem>
-                      <DropdownMenuItem>Wishlist</DropdownMenuItem>
-                    </>
+                    <User className="h-4 w-4 sm:h-5 sm:w-5" />
                   )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                </Button>
+
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-56 rounded-md border bg-popover text-popover-foreground shadow-lg z-[9999] animate-in fade-in-0 zoom-in-95">
+                    {user ? (
+                      <>
+                        <div className="px-4 py-3 border-b">
+                          <div className="text-sm font-medium">{user.name}</div>
+                          <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+                        </div>
+                        <div className="p-1">
+                          <Link 
+                            href="/account" 
+                            className="flex items-center px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            My Account
+                          </Link>
+                          <Link 
+                            href="/account" 
+                            className="flex items-center px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            My Orders
+                          </Link>
+                          <Link 
+                            href="/account" 
+                            className="flex items-center px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            Wishlist
+                          </Link>
+                        </div>
+                        <div className="border-t p-1">
+                          <button
+                            onClick={() => {
+                              logout()
+                              setIsUserMenuOpen(false)
+                            }}
+                            className="flex w-full items-center px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer text-red-600"
+                          >
+                            <LogOut className="mr-2 h-4 w-4" />
+                            Sign Out
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="p-1">
+                          <Link 
+                            href="/login" 
+                            className="flex items-center px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            Sign In
+                          </Link>
+                          <Link 
+                            href="/register" 
+                            className="flex items-center px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            Create Account
+                          </Link>
+                        </div>
+                        <div className="border-t p-1">
+                          <button
+                            disabled
+                            className="flex w-full items-center px-2 py-1.5 text-sm rounded-sm opacity-50 cursor-not-allowed"
+                          >
+                            My Orders
+                          </button>
+                          <button
+                            disabled
+                            className="flex w-full items-center px-2 py-1.5 text-sm rounded-sm opacity-50 cursor-not-allowed"
+                          >
+                            Wishlist
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
 
               {/* Mobile Menu Button */}
               <Button variant="ghost" size="sm" className="lg:hidden p-2 sm:p-2.5" onClick={() => setIsMenuOpen(!isMenuOpen)}>
@@ -209,7 +284,12 @@ export function Header() {
       </header>
 
       {/* Mega Menu for Desktop */}
-      <MegaMenu isOpen={isMegaMenuOpen} onClose={handleMegaMenuClose} />
+      <div
+        onMouseEnter={handleMegaMenuEnter}
+        onMouseLeave={handleMegaMenuClose}
+      >
+        <MegaMenu isOpen={isMegaMenuOpen} onClose={handleMegaMenuClose} />
+      </div>
 
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
