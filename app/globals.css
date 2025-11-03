@@ -481,4 +481,52 @@
   .animate-pause {
     animation-play-state: paused;
   }
+
+  /* Custom Scrollbar Styles - Theme-based */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) var(--muted);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  @media (min-width: 640px) {
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 8px;
+    }
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--muted);
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 10px;
+    transition: background 0.2s ease;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--ring);
+  }
+
+  /* Dark mode scrollbar adjustments */
+  .dark .custom-scrollbar {
+    scrollbar-color: var(--primary) var(--secondary);
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--secondary);
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--primary);
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--ring);
+  }
 }

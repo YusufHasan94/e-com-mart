@@ -98,7 +98,7 @@ export function ProductCategories() {
                   
                   {/* Content */}
                   <div className="space-y-0.5 flex-1">
-                    <h3 className="font-semibold text-xs sm:text-sm lg:text-base text-foreground group-hover:text-foreground/80 transition-colors">
+                    <h3 className="font-semibold text-[14px] sm:text-sm lg:text-base text-foreground group-hover:text-foreground/80 transition-colors">
                       {category.title}
                     </h3>
                     <p className="text-muted-foreground text-xs leading-relaxed hidden sm:block">

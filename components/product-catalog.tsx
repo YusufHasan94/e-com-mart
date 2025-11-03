@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { ProductGrid } from "@/components/product-grid"
 import { ProductFilters } from "@/components/product-filters"
 import { ProductSort } from "@/components/product-sort"
@@ -10,9 +11,11 @@ import { useTheme } from "@/contexts/theme-context"
 
 export function ProductCatalog() {
   const { theme } = useTheme()
+  const searchParams = useSearchParams()
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [showFilters, setShowFilters] = useState(false)
   const [filters, setFilters] = useState({
+    search: searchParams.get("search") || "",
     category: "",
     priceRange: [0, 300],
     rating: 0,
@@ -20,6 +23,14 @@ export function ProductCatalog() {
     genre: "",
   })
   const [sortBy, setSortBy] = useState("featured")
+
+  // Update search filter when URL search param changes
+  useEffect(() => {
+    const searchQuery = searchParams.get("search") || ""
+    if (searchQuery !== filters.search) {
+      setFilters((prev) => ({ ...prev, search: searchQuery }))
+    }
+  }, [searchParams, filters.search])
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${

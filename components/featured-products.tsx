@@ -216,8 +216,8 @@ export function FeaturedProducts() {
                         <span className="text-sm text-muted-foreground">({product.reviews} reviews)</span>
                       </div>
 
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-1">
+                      <div className="flex flex-col gap-4 items-center justify-between">
+                        <div className="space-y-1 text-start w-full">
                           <div className="flex items-center gap-2">
                             {product.discount > 0 && (
                               <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>
@@ -227,7 +227,7 @@ export function FeaturedProducts() {
                         </div>
                         <Button 
                           size="sm" 
-                          className="gap-2 hover:animate-pulse-glow rounded-[4px]" 
+                          className="gap-2 hover:animate-pulse-glow rounded-[4px] w-full" 
                           onClick={(e) => {
                             e.preventDefault()
                             e.stopPropagation()

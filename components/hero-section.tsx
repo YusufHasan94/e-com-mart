@@ -69,6 +69,21 @@ export function HeroSection() {
 
               <div className="relative">
                 <Swiper
+                  spaceBetween={8}
+                  breakpoints={{
+                    360: {
+                      spaceBetween: 8,
+                    },
+                    640: {
+                      spaceBetween: 10,
+                    },
+                    1024: {
+                      spaceBetween: 12,
+                    },
+                    1280: {
+                      spaceBetween: 16,
+                    },
+                  }}
                   grabCursor={true}
                   autoplay={{
                     delay: 3000,
@@ -96,8 +111,8 @@ export function HeroSection() {
                         <div className="absolute inset-0 bg-black/80" />
                         <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 lg:bottom-6 lg:left-6 lg:right-6">
                           <div className="space-y-1 sm:space-y-2 text-center">
-                            <h3 className="text-base sm:text-xl lg:text-2xl font-bold text-white drop-shadow-lg">{item.title}</h3>
-                            <Button className="mt-2 sm:mt-3 bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30 text-sm sm:text-sm rounded-[4px] hover:animate-pulse-glow">
+                            <h3 className="text-[20px] sm:text-2xl lg:text-2xl font-bold text-white drop-shadow-lg">{item.title}</h3>
+                            <Button className="mt-2 sm:mt-3 bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white/30 text-sm sm:text-sm rounded-[4px] hover:animate-pulse-glow px-[14px] py-[6px]">
                               Shop Now
                             </Button>
                           </div>

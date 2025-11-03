@@ -5,11 +5,13 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Slider } from "@/components/ui/slider"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { Star } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Star, Search } from "lucide-react"
 import { useTheme } from "@/contexts/theme-context"
 
 interface ProductFiltersProps {
   filters: {
+    search: string
     category: string
     priceRange: number[]
     rating: number
@@ -62,8 +64,24 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
         ? 'bg-card/50 backdrop-blur-sm' 
         : 'bg-card/80 backdrop-blur-sm'
     } rounded-lg p-2 sm:p-3 lg:p-4`}>
-      {/* Categories */}
+      {/* Product Search */}
       <Card className="border-border/50 shadow-sm">
+        <CardContent className="p-3">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search by name..."
+              value={filters.search || ""}
+              onChange={(e) => updateFilters("search", e.target.value)}
+              className="pl-8 sm:pl-9 h-9 sm:h-10 text-xs sm:text-sm bg-background/50 border-input/50 focus-visible:border-ring focus-visible:ring-ring/30"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Categories */}
+      <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] overflow-y-auto custom-scrollbar">
         <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4">
           <CardTitle className="text-sm sm:text-base font-semibold text-card-foreground">
             Categories
@@ -95,7 +113,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
       </Card>
 
       {/* Price Range */}
-      <Card className="border-border/50 shadow-sm">
+      <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] overflow-y-auto custom-scrollbar">
         <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4">
           <CardTitle className="text-sm sm:text-base font-semibold text-card-foreground">
             Price Range
@@ -117,7 +135,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
       </Card>
 
       {/* Rating */}
-      <Card className="border-border/50 shadow-sm">
+      <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] overflow-y-auto custom-scrollbar">
         <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4">
           <CardTitle className="text-sm sm:text-base font-semibold text-card-foreground">
             Customer Rating
@@ -150,7 +168,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
       </Card>
 
       {/* Platform */}
-      <Card className="border-border/50 shadow-sm">
+      <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] overflow-y-auto custom-scrollbar">
         <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4">
           <CardTitle className="text-sm sm:text-base font-semibold text-card-foreground">
             Platform
@@ -182,7 +200,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
       </Card>
 
       {/* Genre */}
-      <Card className="border-border/50 shadow-sm">
+      <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] overflow-y-auto custom-scrollbar">
         <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4">
           <CardTitle className="text-sm sm:text-base font-semibold text-card-foreground">
             Genre
