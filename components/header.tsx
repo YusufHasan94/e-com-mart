@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import { Search, ShoppingCart, User, Menu, X, LogOut, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,7 +10,9 @@ import { useAuth } from "@/contexts/auth-context"
 import { CartDrawer } from "@/components/cart-drawer"
 import { MegaMenu, MegaMenuCompact } from "@/components/megamenu"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { products } from "@/lib/products"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -19,8 +21,58 @@ export function Header() {
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [selectedIndex, setSelectedIndex] = useState(-1)
+  const searchRef = useRef<HTMLDivElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+  const router = useRouter()
   const { state } = useCart()
   const { user, logout } = useAuth()
+
+  // Search suggestions
+  const searchSuggestions = useMemo(() => {
+    if (!searchQuery.trim() || searchQuery.length < 2) {
+      return []
+    }
+
+    const query = searchQuery.toLowerCase().trim()
+    return products
+      .filter((product) => {
+        const titleMatch = product.title.toLowerCase().includes(query)
+        const categoryMatch = product.category.toLowerCase().includes(query)
+        const platformMatch = product.platform?.toLowerCase().includes(query)
+        const descriptionMatch = product.description.toLowerCase().includes(query)
+        
+        return titleMatch || categoryMatch || platformMatch || descriptionMatch
+      })
+      .slice(0, 8) // Limit to 8 suggestions
+  }, [searchQuery])
+
+  // Update suggestions visibility when searchSuggestions change
+  useEffect(() => {
+    if (searchQuery.length >= 2) {
+      setShowSuggestions(searchSuggestions.length > 0)
+    } else {
+      setShowSuggestions(false)
+    }
+  }, [searchSuggestions, searchQuery])
+
+  // Close search suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (searchRef.current && !searchRef.current.contains(target)) {
+        setShowSuggestions(false)
+        setSelectedIndex(-1)
+      }
+    }
+
+    if (showSuggestions) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showSuggestions])
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -70,6 +122,61 @@ export function Header() {
     }
   }
 
+  // Handle search input change
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value)
+    setSelectedIndex(-1)
+  }
+
+  // Handle search submission
+  const handleSearchSubmit = (query?: string) => {
+    const searchTerm = query || searchQuery.trim()
+    if (searchTerm) {
+      router.push(`/products?search=${encodeURIComponent(searchTerm)}`)
+      setSearchQuery("")
+      setShowSuggestions(false)
+      setSelectedIndex(-1)
+      if (searchInputRef.current) {
+        searchInputRef.current.blur()
+      }
+    }
+  }
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showSuggestions || searchSuggestions.length === 0) {
+      if (e.key === "Enter") {
+        handleSearchSubmit()
+      }
+      return
+    }
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault()
+        setSelectedIndex((prev) => 
+          prev < searchSuggestions.length - 1 ? prev + 1 : prev
+        )
+        break
+      case "ArrowUp":
+        e.preventDefault()
+        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1))
+        break
+      case "Enter":
+        e.preventDefault()
+        if (selectedIndex >= 0 && selectedIndex < searchSuggestions.length) {
+          handleSearchSubmit(searchSuggestions[selectedIndex].title)
+        } else {
+          handleSearchSubmit()
+        }
+        break
+      case "Escape":
+        setShowSuggestions(false)
+        setSelectedIndex(-1)
+        break
+    }
+  }
+
   console.log("Header - User state:", user)
 
   return (
@@ -114,9 +221,78 @@ export function Header() {
 
             {/* Search Bar - Desktop */}
             <div className="hidden lg:flex flex-1 max-w-md mx-4 xl:mx-6">
-              <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input placeholder="Search for games..." className="pl-10 bg-muted/50 border-border/50 focus:border-primary" />
+              <div className="relative w-full" ref={searchRef}>
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 z-10" />
+                <Input 
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder="Search for games..." 
+                  value={searchQuery}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  onFocus={() => {
+                    if (searchQuery.length >= 2) {
+                      setShowSuggestions(true)
+                    }
+                  }}
+                  className="pl-10 bg-muted/50 border-border/50 focus:border-primary" 
+                />
+                
+                {/* Search Suggestions Dropdown */}
+                {showSuggestions && searchSuggestions.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg z-50 max-h-[400px] overflow-y-auto custom-scrollbar">
+                    <div className="py-1">
+                      {searchSuggestions.map((product, index) => (
+                        <Link
+                          key={product.id}
+                          href={`/products?search=${encodeURIComponent(product.title)}`}
+                          onClick={() => {
+                            setSearchQuery("")
+                            setShowSuggestions(false)
+                            setSelectedIndex(-1)
+                          }}
+                          className={`flex items-center gap-3 px-3 py-2 hover:bg-accent cursor-pointer transition-colors ${
+                            index === selectedIndex ? "bg-accent" : ""
+                          }`}
+                        >
+                          <div className="flex-shrink-0 w-10 h-10 rounded overflow-hidden bg-muted">
+                            <img 
+                              src={product.image} 
+                              alt={product.title}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = "/placeholder.jpg"
+                              }}
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium text-popover-foreground truncate">
+                              {product.title}
+                            </div>
+                            <div className="text-xs text-muted-foreground truncate">
+                              {product.category} {product.platform ? `• ${product.platform}` : ""}
+                            </div>
+                          </div>
+                          {product.salePrice && (
+                            <div className="flex-shrink-0 text-sm font-semibold text-primary">
+                              ${product.salePrice}
+                            </div>
+                          )}
+                        </Link>
+                      ))}
+                    </div>
+                    {searchQuery.length >= 2 && (
+                      <div className="border-t px-3 py-2">
+                        <button
+                          onClick={() => handleSearchSubmit()}
+                          className="text-sm text-primary hover:underline font-medium w-full text-left"
+                        >
+                          View all results for "{searchQuery}"
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -250,9 +426,81 @@ export function Header() {
           {isMenuOpen && (
             <div className="lg:hidden border-t py-4">
               <div className="flex flex-col space-y-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                  <Input placeholder="Search for games..." className="pl-10 bg-muted/50" />
+                <div className="relative" ref={searchRef}>
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 z-10" />
+                  <Input 
+                    type="text"
+                    placeholder="Search for games..." 
+                    value={searchQuery}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    onFocus={() => {
+                    if (searchQuery.length >= 2) {
+                      setShowSuggestions(true)
+                    }
+                  }}
+                    className="pl-10 bg-muted/50" 
+                  />
+                  
+                  {/* Mobile Search Suggestions Dropdown */}
+                  {showSuggestions && searchSuggestions.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg z-50 max-h-[300px] overflow-y-auto custom-scrollbar">
+                      <div className="py-1">
+                        {searchSuggestions.map((product, index) => (
+                          <Link
+                            key={product.id}
+                            href={`/products?search=${encodeURIComponent(product.title)}`}
+                            onClick={() => {
+                              setSearchQuery("")
+                              setShowSuggestions(false)
+                              setSelectedIndex(-1)
+                              setIsMenuOpen(false)
+                            }}
+                            className={`flex items-center gap-3 px-3 py-2 hover:bg-accent cursor-pointer transition-colors ${
+                              index === selectedIndex ? "bg-accent" : ""
+                            }`}
+                          >
+                            <div className="flex-shrink-0 w-10 h-10 rounded overflow-hidden bg-muted">
+                              <img 
+                                src={product.image} 
+                                alt={product.title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = "/placeholder.jpg"
+                                }}
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium text-popover-foreground truncate">
+                                {product.title}
+                              </div>
+                              <div className="text-xs text-muted-foreground truncate">
+                                {product.category} {product.platform ? `• ${product.platform}` : ""}
+                              </div>
+                            </div>
+                            {product.salePrice && (
+                              <div className="flex-shrink-0 text-sm font-semibold text-primary">
+                                ${product.salePrice}
+                              </div>
+                            )}
+                          </Link>
+                        ))}
+                      </div>
+                      {searchQuery.length >= 2 && (
+                        <div className="border-t px-3 py-2">
+                          <button
+                            onClick={() => {
+                              handleSearchSubmit()
+                              setIsMenuOpen(false)
+                            }}
+                            className="text-sm text-primary hover:underline font-medium w-full text-left"
+                          >
+                            View all results for "{searchQuery}"
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <nav className="flex flex-col space-y-2">
                   <button

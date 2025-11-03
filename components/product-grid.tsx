@@ -10,6 +10,7 @@ import { useCart } from "@/contexts/cart-context"
 interface ProductGridProps {
   viewMode: "grid" | "list"
   filters: {
+    search: string
     category: string
     priceRange: number[]
     rating: number
@@ -173,6 +174,13 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
   // Filter and sort products
   const filteredAndSortedProducts = useMemo(() => {
     const filtered = allProducts.filter((product) => {
+      // Search filter
+      if (filters.search && filters.search.trim() !== "") {
+        const searchTerm = filters.search.toLowerCase().trim()
+        const productTitle = product.title.toLowerCase()
+        if (!productTitle.includes(searchTerm)) return false
+      }
+
       // Category filter
       if (filters.category && product.category !== filters.category) return false
 
@@ -252,7 +260,7 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
       <CardContent className="p-4 space-y-3">
         <div className="space-y-1">
           <p className="text-sm text-muted-foreground capitalize">{product.category}</p>
-          <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">{product.title}</h3>
+          <h3 className="font-semibold text-lg group-hover:text-primary transition-colors min-h-[50px]">{product.title}</h3>
         </div>
 
         <div className="flex items-center gap-2">
@@ -263,8 +271,8 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
           <span className="text-sm text-muted-foreground">({product.reviews} reviews)</span>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
+        <div className="flex flex-col gap-4 items-center justify-between">
+          <div className="space-y-1 text-start w-full">
             <div className="flex items-center gap-2">
               {product.discount > 0 && (
                 <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>
@@ -272,7 +280,7 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
               <span className="text-xl font-bold text-primary">${product.salePrice}</span>
             </div>
           </div>
-          <Button size="sm" className="gap-2" onClick={() => handleAddToCart(product)}>
+          <Button size="sm" className="gap-2 w-full" onClick={() => handleAddToCart(product)}>
             <ShoppingCart className="h-4 w-4" />
             Add to Cart
           </Button>
