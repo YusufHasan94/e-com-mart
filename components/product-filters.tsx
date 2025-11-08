@@ -81,13 +81,13 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
       </Card>
 
       {/* Categories */}
-      <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] overflow-y-auto custom-scrollbar">
-        <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4">
+      <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] flex flex-col custom-scrollbar">
+        <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4 flex-shrink-0">
           <CardTitle className="text-sm sm:text-base font-semibold text-card-foreground">
             Categories
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-1.5 sm:space-y-2 pt-0 px-3 sm:px-4 pb-3 sm:pb-4">
+        <CardContent className="space-y-1.5 sm:space-y-2 pt-0 px-3 sm:px-4 pb-3 sm:pb-4 flex-1 overflow-y-auto">
           {categories.map((category) => (
             <div key={category.id} className="flex items-center justify-between py-0.5 sm:py-1">
               <div className="flex items-center space-x-2 sm:space-x-3">
@@ -113,13 +113,13 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
       </Card>
 
       {/* Price Range */}
-      <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] overflow-y-auto custom-scrollbar">
-        <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4">
+      <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] flex flex-col custom-scrollbar">
+        <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4 flex-shrink-0">
           <CardTitle className="text-sm sm:text-base font-semibold text-card-foreground">
             Price Range
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 pt-0 px-3 sm:px-4 pb-3 sm:pb-4">
+        <CardContent className="space-y-3 pt-3 px-3 sm:px-4 pb-3 sm:pb-4 flex-1 overflow-y-auto">
           <Slider
             value={filters.priceRange}
             onValueChange={(value) => updateFilters("priceRange", value)}
@@ -135,13 +135,13 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
       </Card>
 
       {/* Rating */}
-      <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] overflow-y-auto custom-scrollbar">
-        <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4">
+      <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] flex flex-col custom-scrollbar">
+        <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4 flex-shrink-0">
           <CardTitle className="text-sm sm:text-base font-semibold text-card-foreground">
             Customer Rating
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-0 px-3 sm:px-4 pb-3 sm:pb-4">
+        <CardContent className="pt-0 px-3 sm:px-4 pb-3 sm:pb-4 flex-1 overflow-y-auto">
           <RadioGroup
             value={filters.rating.toString()}
             onValueChange={(value) => updateFilters("rating", Number.parseInt(value))}
@@ -168,13 +168,13 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
       </Card>
 
       {/* Platform */}
-      <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] overflow-y-auto custom-scrollbar">
-        <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4">
+      <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] flex flex-col custom-scrollbar">
+        <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4 flex-shrink-0">
           <CardTitle className="text-sm sm:text-base font-semibold text-card-foreground">
             Platform
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-1.5 sm:space-y-2 pt-0 px-3 sm:px-4 pb-3 sm:pb-4">
+        <CardContent className="space-y-1.5 sm:space-y-2 pt-0 px-3 sm:px-4 pb-3 sm:pb-4 flex-1 overflow-y-auto">
           {platforms.map((platform) => (
             <div key={platform.id} className="flex items-center justify-between py-0.5 sm:py-1">
               <div className="flex items-center space-x-2 sm:space-x-3">
@@ -200,13 +200,13 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
       </Card>
 
       {/* Genre */}
-      <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] overflow-y-auto custom-scrollbar">
-        <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4">
+      <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] flex flex-col custom-scrollbar">
+        <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4 flex-shrink-0">
           <CardTitle className="text-sm sm:text-base font-semibold text-card-foreground">
             Genre
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-1.5 sm:space-y-2 pt-0 px-3 sm:px-4 pb-3 sm:pb-4">
+        <CardContent className="space-y-1.5 sm:space-y-2 pt-0 px-3 sm:px-4 pb-3 sm:pb-4 flex-1 overflow-y-auto">
           {genres.map((genre) => (
             <div key={genre.id} className="flex items-center justify-between py-0.5 sm:py-1">
               <div className="flex items-center space-x-2 sm:space-x-3">
