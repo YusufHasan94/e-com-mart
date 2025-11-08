@@ -489,12 +489,12 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
   }
 
   @media (min-width: 640px) {
     .custom-scrollbar::-webkit-scrollbar {
-      width: 8px;
+      width: 4px;
     }
   }
 
