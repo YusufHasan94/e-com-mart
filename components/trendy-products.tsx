@@ -3,8 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Star, ShoppingCart, TrendingUp, Flame } from "lucide-react"
-import { useCart } from "@/contexts/cart-context"
+import { Star, TrendingUp, Flame } from "lucide-react"
 import Link from "next/link"
 
 const trendyProducts = [
@@ -95,20 +94,6 @@ const trendyProducts = [
 ]
 
 export function TrendyProducts() {
-  const { addItem } = useCart()
-
-  const handleAddToCart = (product: any) => {
-    addItem({
-      id: product.id,
-      title: product.title,
-      price: product.salePrice,
-      originalPrice: product.originalPrice,
-      image: product.image,
-      category: product.category,
-      platform: "steam",
-      discount: product.discount,
-    })
-  }
 
   return (
     <section className="py-16">
@@ -172,17 +157,9 @@ export function TrendyProducts() {
                       {product.discount > 0 && (
                         <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>
                       )}
-                      <span className="text-xl font-bold text-primary">${product.salePrice}</span>
+                      <span className="text-xl font-bold text-primary">From ${product.salePrice}</span>
                     </div>
                   </div>
-                  <Button
-                    size="sm"
-                    className="gap-2 "
-                    onClick={() => handleAddToCart(product)}
-                  >
-                    <ShoppingCart className="h-4 w-4" />
-                    Add to Cart
-                  </Button>
                 </div>
               </CardContent>
             </Card>

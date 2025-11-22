@@ -1,8 +1,6 @@
 "use client"
 
-import type React from "react"
-
-import { createContext, useContext, useReducer, useEffect, type ReactNode } from "react"
+import { createContext, useContext, useReducer, useEffect, useRef, type ReactNode, type Dispatch } from "react"
 
 export interface CartItem {
   id: number
@@ -31,11 +29,13 @@ type CartAction =
 
 const CartContext = createContext<{
   state: CartState
-  dispatch: React.Dispatch<CartAction>
+  dispatch: Dispatch<CartAction>
   addItem: (item: Omit<CartItem, "quantity">) => void
   removeItem: (id: number) => void
   updateQuantity: (id: number, quantity: number) => void
   clearCart: () => void
+  setOpenCartDrawer: (callback: () => void) => void
+  openCartDrawer: () => void
 } | null>(null)
 
 function cartReducer(state: CartState, action: CartAction): CartState {
@@ -103,6 +103,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     total: 0,
     itemCount: 0,
   })
+  const openCartDrawerCallbackRef = useRef<(() => void) | null>(null)
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -124,6 +125,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addItem = (item: Omit<CartItem, "quantity">) => {
     dispatch({ type: "ADD_ITEM", payload: item })
+    // Open cart drawer after adding item
+    if (openCartDrawerCallbackRef.current) {
+      try {
+        openCartDrawerCallbackRef.current()
+      } catch (error) {
+        console.error("Error opening cart drawer:", error)
+      }
+    }
   }
 
   const removeItem = (id: number) => {
@@ -138,6 +147,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "CLEAR_CART" })
   }
 
+  const setOpenCartDrawer = (callback: () => void) => {
+    openCartDrawerCallbackRef.current = callback
+  }
+
+  const openCartDrawer = () => {
+    if (openCartDrawerCallbackRef.current) {
+      try {
+        openCartDrawerCallbackRef.current()
+      } catch (error) {
+        console.error("Error opening cart drawer:", error)
+      }
+    }
+  }
+
   return (
     <CartContext.Provider
       value={{
@@ -147,6 +170,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         removeItem,
         updateQuantity,
         clearCart,
+        setOpenCartDrawer,
+        openCartDrawer,
       }}
     >
       {children}

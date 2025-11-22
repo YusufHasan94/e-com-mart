@@ -3,8 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Star, ShoppingCart, ChevronRight, Check } from "lucide-react"
-import { useCart } from "@/contexts/cart-context"
+import { Star, ChevronRight, Check } from "lucide-react"
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -345,37 +344,23 @@ const categoryProducts = {
 }
 
 export function CategoryTabs() {
-  const { addItem } = useCart()
   const [activeCategory, setActiveCategory] = useState("electronic-digital")
   const [isAnimating, setIsAnimating] = useState(false)
   const [swiperKey, setSwiperKey] = useState(0)
 
   const handleCategoryChange = (categoryId: string) => {
     if (categoryId === activeCategory) return
-    
+
     setIsAnimating(true)
     setActiveCategory(categoryId)
-    
+
     // Reset swiper to first slide when category changes
     setSwiperKey(prev => prev + 1)
-    
+
     // Reset animation state after transition
     setTimeout(() => {
       setIsAnimating(false)
     }, 500)
-  }
-
-  const handleAddToCart = (product: any) => {
-    addItem({
-      id: parseInt(product.id.replace(/\D/g, '')) || Math.random() * 1000,
-      title: product.title,
-      price: product.price,
-      originalPrice: product.originalPrice,
-      image: product.image,
-      category: product.category,
-      platform: "Digital",
-      discount: product.discount,
-    })
   }
 
   const currentProducts = categoryProducts[activeCategory as keyof typeof categoryProducts] || []
@@ -384,10 +369,9 @@ export function CategoryTabs() {
     return currentProducts.map((product, index) => (
       <SwiperSlide key={`${product.id}-${swiperKey}`}>
         <Link href={`/product/${product.id}`}>
-          <Card 
-            className={`group hover:shadow-xl transition-all duration-500 overflow-hidden dark:card-hover cursor-pointer min-h-[420px] rounded-lg ${
-              isAnimating ? 'animate-fade-in-up' : ''
-            }`}
+          <Card
+            className={`group hover:shadow-xl transition-all duration-500 overflow-hidden dark:card-hover cursor-pointer min-h-[420px] rounded-lg ${isAnimating ? 'animate-fade-in-up' : ''
+              }`}
             style={{
               animationDelay: `${index * 100}ms`,
               animationFillMode: 'both'
@@ -429,39 +413,26 @@ export function CategoryTabs() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {(product as any).priceRange ? (
-                      <span className="text-sm sm:text-lg font-bold text-primary">
-                        ${(product as any).priceRange.min.toFixed(2)} - ${(product as any).priceRange.max.toFixed(2)}
-                      </span>
-                    ) : (
-                      <span className="text-sm sm:text-lg font-bold text-primary">${product.price.toFixed(2)}</span>
-                    )}
-                    {product.originalPrice && (
-                      <span className="text-xs sm:text-sm text-muted-foreground line-through">
-                        ${product.originalPrice.toFixed(2)}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-2">
                     <Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
                     <span className="text-xs sm:text-sm text-foreground">In Stock</span>
                   </div>
-                </div>
 
-                <div className="mt-auto pt-4 pb-2">
-                  <Button
-                    size="sm"
-                    className="w-full h-[36px] gap-2 hover:animate-pulse-glow transition-all duration-300 hover:scale-105 text-xs sm:text-sm bg-primary rounded-[4px]"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      handleAddToCart(product)
-                    }}
-                  >
-                    <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4" />
-                    Add to Cart
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    {(product as any).priceRange ? (
+                      <div className="flex items-start gap-0 flex-col">
+                        <span className="text-sm text-muted-foreground">from</span>
+                        <span className="text-xl font-bold text-primary">${product.price.toFixed(2)}</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-start gap-0 flex-col">
+                        <span className="text-sm text-muted-foreground">from</span>
+                        <span className="text-xl font-bold text-primary">${product.price.toFixed(2)}</span>
+                      </div>
+                    )}
+
+                  </div>
+
+
                 </div>
               </div>
             </CardContent>
@@ -478,18 +449,17 @@ export function CategoryTabs() {
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 sm:mb-8 gap-4 lg:gap-8">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 lg:gap-8">
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold uppercase">Electronic & Digital</h2>
-            
+
             {/* Category Tabs */}
             <div className="flex flex-wrap gap-2 sm:gap-3 lg:gap-4">
               {categories.map((category) => (
                 <button
                   key={category.id}
                   onClick={() => handleCategoryChange(category.id)}
-                  className={`px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium transition-all duration-300 transform hover:scale-105 rounded-[4px] ${
-                      activeCategory === category.id
-                      ? 'bg-muted text-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`}
+                  className={`px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium transition-all duration-300 transform hover:scale-105 rounded-[4px] ${activeCategory === category.id
+                    ? 'bg-muted text-foreground'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                    }`}
                 >
                   {category.name}
                 </button>
@@ -535,19 +505,19 @@ export function CategoryTabs() {
           >
             {renderProducts()}
           </Swiper>
-          
+
           {/* Navigation Arrow */}
-          <Button 
-            variant="outline" 
-            size="icon" 
+          <Button
+            variant="outline"
+            size="icon"
             className="category-swiper-button-next absolute right-0 top-1/2 -translate-y-1/2 -translate-x-1 sm:-translate-x-2 bg-white/90 hover:bg-white z-10 rounded-full"
           >
             <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
-          
-          <Button 
-            variant="outline" 
-            size="icon" 
+
+          <Button
+            variant="outline"
+            size="icon"
             className="category-swiper-button-prev absolute left-0 top-1/2 -translate-y-1/2 translate-x-1 sm:translate-x-2 bg-white/90 hover:bg-white z-10 rounded-full"
           >
             <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 rotate-180" />

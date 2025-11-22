@@ -3,8 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Star, ShoppingCart, Clock, ChevronRight, Sparkles } from "lucide-react"
-import { useCart } from "@/contexts/cart-context"
+import { Star, Clock, ChevronRight, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -117,20 +116,6 @@ function CountdownTimer() {
 }
 
 export function BestDeals() {
-  const { addItem } = useCart()
-
-  const handleAddToCart = (product: any) => {
-    addItem({
-      id: parseInt(product.id.replace(/\D/g, '')) || Math.random() * 1000,
-      title: product.title,
-      price: product.salePrice,
-      originalPrice: product.originalPrice,
-      image: product.image,
-      category: product.category,
-      platform: "Digital",
-      discount: product.discount,
-    })
-  }
 
   return (
     <section className="py-8 sm:py-12 lg:py-16 bg-background relative">
@@ -163,20 +148,20 @@ export function BestDeals() {
                   <Sparkles className="absolute bottom-8 right-8 h-4 w-4 text-primary-foreground/60 opacity-60" />
                   <Sparkles className="absolute top-1/2 left-4 h-3 w-3 text-primary-foreground/30 opacity-30" />
                 </div>
-                
+
                 <div className="relative z-10">
                   <div className="text-primary-foreground text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-4">HURRY UP</div>
-                  
+
                   <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
                     <div className="text-primary-foreground text-sm sm:text-lg font-semibold writing-mode-vertical transform rotate-180 hidden sm:block">
                       SAVE UP TO
                     </div>
                     <div className="text-primary-foreground text-4xl sm:text-6xl lg:text-8xl font-black">80%</div>
                   </div>
-                  
+
                   <div className="text-primary-foreground text-sm sm:text-lg mb-4 sm:mb-8">THIS WEEK ONLY SHOPPING DAYS</div>
                 </div>
-                
+
                 <div className="relative z-10">
                   <div className="text-primary-foreground text-3xl sm:text-4xl lg:text-6xl font-black tracking-wider" style={{
                     textShadow: '2px 2px 0px var(--primary), -2px -2px 0px var(--primary), 2px -2px 0px var(--primary), -2px 2px 0px var(--primary)',
@@ -255,35 +240,24 @@ export function BestDeals() {
                               <span className="text-sm text-muted-foreground ml-1">({product.reviews} reviews)</span>
                             </div>
 
-                            <div className="flex items-center gap-2">
-                              <span className="text-2xl font-bold text-primary">${product.salePrice.toFixed(2)}</span>
-                              <span className="text-lg text-muted-foreground line-through">${product.originalPrice.toFixed(2)}</span>
-                            </div>
+
 
                             <div className="space-y-2 mt-auto">
                               <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">Sold: {product.sold}/{product.total} Products</span>
                               </div>
                               <div className="w-full bg-gray-200 rounded-full h-2">
-                                <div 
+                                <div
                                   className="bg-red-500 h-2 rounded-full transition-all duration-300"
                                   style={{ width: `${(product.sold / product.total) * 100}%` }}
                                 ></div>
                               </div>
                             </div>
 
-                            <Button
-                              size="sm"
-                              className="w-full gap-2 hover:animate-pulse-glow mt-2"
-                              onClick={(e) => {
-                                e.preventDefault()
-                                e.stopPropagation()
-                                handleAddToCart(product)
-                              }}
-                            >
-                              <ShoppingCart className="h-4 w-4" />
-                              Add to Cart
-                            </Button>
+                            <div className="flex items-start gap-0 flex-col">
+                              <span className="text-sm text-muted-foreground">from</span>
+                              <span className="text-xl font-bold text-primary">${product.salePrice.toFixed(2)}</span>
+                            </div>
                           </div>
                         </CardContent>
                       </Card>
@@ -291,19 +265,19 @@ export function BestDeals() {
                   </SwiperSlide>
                 ))}
               </Swiper>
-              
+
               {/* Custom Navigation Buttons */}
-              <Button 
-                variant="outline" 
-                size="icon" 
+              <Button
+                variant="outline"
+                size="icon"
                 className="swiper-button-next-custom absolute right-0 top-1/2 -translate-y-1/2 -translate-x-1 sm:-translate-x-2 bg-white/90 hover:bg-white z-10 rounded-full"
               >
                 <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
-              
-              <Button 
-                variant="outline" 
-                size="icon" 
+
+              <Button
+                variant="outline"
+                size="icon"
                 className="swiper-button-prev-custom absolute left-0 top-1/2 -translate-y-1/2 translate-x-1 sm:translate-x-2 bg-white/90 hover:bg-white z-10 rounded-full"
               >
                 <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 rotate-180" />
