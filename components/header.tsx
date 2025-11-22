@@ -1,10 +1,11 @@
 "use client"
 
 import { useState, useEffect, useRef, useMemo } from "react"
-import { Search, ShoppingCart, User, Menu, X, LogOut, ChevronRight } from "lucide-react"
+import { Search, ShoppingCart, User, Menu, X, LogOut, ChevronRight, LayoutDashboard, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
 import { CartDrawer } from "@/components/cart-drawer"
@@ -27,8 +28,14 @@ export function Header() {
   const searchRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
-  const { state } = useCart()
+  const { state, setOpenCartDrawer } = useCart()
   const { user, logout } = useAuth()
+
+  // Register cart drawer open callback
+  useEffect(() => {
+    setOpenCartDrawer(() => setIsCartOpen(true))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Search suggestions
   const searchSuggestions = useMemo(() => {
@@ -326,7 +333,7 @@ export function Header() {
                   {user ? (
                     <Avatar className="h-6 w-6 sm:h-8 sm:w-8">
                       <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
-                      <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
+                      <AvatarFallback>{user?.name?.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                   ) : (
                     <User className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -338,10 +345,44 @@ export function Header() {
                     {user ? (
                       <>
                         <div className="px-4 py-3 border-b">
-                          <div className="text-sm font-medium">{user.name}</div>
-                          <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="text-sm font-medium">{user.name}</div>
+                              <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+                            </div>
+                            {user.role === "admin" && (
+                              <Badge className="bg-red-500/10 text-red-500 border-red-500/20">
+                                Admin
+                              </Badge>
+                            )}
+                            {user.role === "seller" && (
+                              <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20">
+                                Seller
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                         <div className="p-1">
+                          {user.role === "admin" && (
+                            <Link 
+                              href="/admin/dashboard" 
+                              className="flex items-center px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                              onClick={() => setIsUserMenuOpen(false)}
+                            >
+                              <Shield className="mr-2 h-4 w-4" />
+                              Admin Dashboard
+                            </Link>
+                          )}
+                          {user.role === "seller" && (
+                            <Link 
+                              href="/seller/dashboard" 
+                              className="flex items-center px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                              onClick={() => setIsUserMenuOpen(false)}
+                            >
+                              <LayoutDashboard className="mr-2 h-4 w-4" />
+                              Seller Dashboard
+                            </Link>
+                          )}
                           <Link 
                             href="/account" 
                             className="flex items-center px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"

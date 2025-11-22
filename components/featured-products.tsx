@@ -4,8 +4,7 @@ import { useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Star, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react"
-import { useCart } from "@/contexts/cart-context"
+import { Star, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, Autoplay } from 'swiper/modules'
@@ -120,22 +119,8 @@ const featuredProducts = [
 ]
 
 export function FeaturedProducts() {
-  const { addItem } = useCart()
   const prevRef = useRef<HTMLButtonElement>(null)
   const nextRef = useRef<HTMLButtonElement>(null)
-
-  const handleAddToCart = (product: any) => {
-    addItem({
-      id: parseInt(product.id.replace(/\D/g, '')) || Math.random() * 1000, // Convert string ID to number
-      title: product.title,
-      price: product.salePrice,
-      originalPrice: product.originalPrice,
-      image: product.image,
-      category: product.category,
-      platform: "Digital", // Default platform
-      discount: product.discount,
-    })
-  }
 
   return (
     <section className="py-8 sm:py-12 lg:py-16">
@@ -218,25 +203,11 @@ export function FeaturedProducts() {
 
                       <div className="flex flex-col gap-4 items-center justify-between">
                         <div className="space-y-1 text-start w-full">
-                          <div className="flex items-center gap-2">
-                            {product.discount > 0 && (
-                              <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>
-                            )}
+                          <div className="flex items-start gap-0 flex-col">
+                            <span className="text-sm text-muted-foreground">from</span>
                             <span className="text-xl font-bold text-primary">${product.salePrice}</span>
                           </div>
                         </div>
-                        <Button 
-                          size="sm" 
-                          className="gap-2 hover:animate-pulse-glow rounded-[4px] w-full" 
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            handleAddToCart(product)
-                          }}
-                        >
-                          <ShoppingCart className="h-4 w-4" />
-                          Add to Cart
-                        </Button>
                       </div>
                     </CardContent>
                   </Card>

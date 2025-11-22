@@ -1,12 +1,10 @@
 import { Suspense } from "react"
-import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ProductCatalog } from "@/components/product-catalog"
 
 export default function ProductsPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
-      <Header />
       <main className="flex-1">
         <Suspense fallback={<div className="container mx-auto px-4 py-8">Loading...</div>}>
           <ProductCatalog />

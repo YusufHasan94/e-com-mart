@@ -1,4 +1,3 @@
-import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { HeroCategoriesWrapper } from "@/components/hero-categories-wrapper"
 import { FeaturedProducts } from "@/components/featured-products"
@@ -13,7 +12,6 @@ import { CategoryMarquee } from "@/components/category-marquee"
 export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       <main className="flex-1">
         <HeroCategoriesWrapper />
         <FeaturedProducts />

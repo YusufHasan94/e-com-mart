@@ -7,15 +7,15 @@ export interface User {
   email: string
   name: string
   avatar?: string
-  role: "user" | "seller"
+  role: "user" | "seller" | "admin"
   createdAt: string
 }
 
 interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<boolean>
-  demoLogin: (role: "user" | "seller") => Promise<boolean>
-  register: (email: string, password: string, name: string, role?: "user" | "seller") => Promise<boolean>
+  demoLogin: (role: "user" | "seller" | "admin") => Promise<boolean>
+  register: (email: string, password: string, name: string, role?: "user" | "seller" | "admin") => Promise<boolean>
   logout: () => void
   isLoading: boolean
 }
@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return false
   }
 
-  const demoLogin = async (role: "user" | "seller"): Promise<boolean> => {
+  const demoLogin = async (role: "user" | "seller" | "admin"): Promise<boolean> => {
     setIsLoading(true)
     await new Promise((resolve) => setTimeout(resolve, 500))
 
@@ -102,6 +102,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         role: "seller" as const,
         createdAt: new Date().toISOString(),
       },
+      admin: {
+        id: "demo-admin-1",
+        email: "demo.admin@gamehub.com",
+        name: "Demo Admin",
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=demoadmin`,
+        role: "admin" as const,
+        createdAt: new Date().toISOString(),
+      },
     }
 
     const mockUser = demoUsers[role]
@@ -113,7 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return true
   }
 
-  const register = async (email: string, password: string, name: string, role: "user" | "seller" = "user"): Promise<boolean> => {
+  const register = async (email: string, password: string, name: string, role: "user" | "seller" | "admin" = "user"): Promise<boolean> => {
     setIsLoading(true)
 
     // Mock registration - in a real app, this would call an API
