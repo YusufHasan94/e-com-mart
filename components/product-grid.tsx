@@ -1,11 +1,13 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Star, ShoppingCart, Heart, Eye } from "lucide-react"
+import { Star, ShoppingCart, Heart, Eye, Loader2 } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
+import { apiService } from "@/lib/api-service"
+import Link from "next/link"
 
 interface ProductGridProps {
   viewMode: "grid" | "list"
@@ -20,143 +22,30 @@ interface ProductGridProps {
   sortBy: string
 }
 
-// Mock product data
-const allProducts = [
-  {
-    id: 1,
-    title: "Cyberpunk 2077",
-    category: "games",
-    genre: "rpg",
-    platform: "steam",
-    originalPrice: 59.99,
-    salePrice: 29.99,
-    discount: 50,
-    rating: 4.2,
-    reviews: 1250,
-    image: "/cyberpunk-futuristic-city-game.png",
-    isNew: false,
-    isBestseller: true,
-    releaseDate: "2020-12-10",
-  },
-  {
-    id: 2,
-    title: "Elden Ring",
-    category: "games",
-    genre: "action",
-    platform: "steam",
-    originalPrice: 59.99,
-    salePrice: 49.99,
-    discount: 17,
-    rating: 4.8,
-    reviews: 2100,
-    image: "/fantasy-medieval-game-world.jpg",
-    isNew: true,
-    isBestseller: false,
-    releaseDate: "2022-02-25",
-  },
-  {
-    id: 3,
-    title: "Microsoft Office 365",
-    category: "software",
-    genre: "productivity",
-    platform: "microsoft",
-    originalPrice: 149.99,
-    salePrice: 89.99,
-    discount: 40,
-    rating: 4.5,
-    reviews: 850,
-    image: "/office-productivity-software.jpg",
-    isNew: false,
-    isBestseller: false,
-    releaseDate: "2023-01-15",
-  },
-  {
-    id: 4,
-    title: "Steam Gift Card $50",
-    category: "gift-cards",
-    genre: "gift",
-    platform: "steam",
-    originalPrice: 50.0,
-    salePrice: 47.5,
-    discount: 5,
-    rating: 5.0,
-    reviews: 3200,
-    image: "/steam-gift-card-gaming.jpg",
-    isNew: false,
-    isBestseller: true,
-    releaseDate: "2023-01-01",
-  },
-  {
-    id: 5,
-    title: "Adobe Creative Suite",
-    category: "software",
-    genre: "creative",
-    platform: "adobe",
-    originalPrice: 299.99,
-    salePrice: 199.99,
-    discount: 33,
-    rating: 4.6,
-    reviews: 1100,
-    image: "/creative-design-software.jpg",
-    isNew: false,
-    isBestseller: false,
-    releaseDate: "2023-03-01",
-  },
-  {
-    id: 6,
-    title: "Call of Duty: MW3",
-    category: "games",
-    genre: "action",
-    platform: "steam",
-    originalPrice: 69.99,
-    salePrice: 55.99,
-    discount: 20,
-    rating: 4.3,
-    reviews: 1800,
-    image: "/military-shooter.png",
-    isNew: true,
-    isBestseller: false,
-    releaseDate: "2023-11-10",
-  },
-  // Add more products for demonstration
-  {
-    id: 7,
-    title: "The Witcher 3: Wild Hunt",
-    category: "games",
-    genre: "rpg",
-    platform: "gog",
-    originalPrice: 39.99,
-    salePrice: 19.99,
-    discount: 50,
-    rating: 4.9,
-    reviews: 5200,
-    image: "/witcher-fantasy-game.jpg",
-    isNew: false,
-    isBestseller: true,
-    releaseDate: "2015-05-19",
-  },
-  {
-    id: 8,
-    title: "FIFA 24",
-    category: "games",
-    genre: "sports",
-    platform: "origin",
-    originalPrice: 69.99,
-    salePrice: 39.99,
-    discount: 43,
-    rating: 4.1,
-    reviews: 2800,
-    image: "/fifa-soccer-game.jpg",
-    isNew: false,
-    isBestseller: false,
-    releaseDate: "2023-09-29",
-  },
-]
-
 export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
   const [currentPage, setCurrentPage] = useState(1)
+  const [products, setProducts] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const itemsPerPage = 12
   const { addItem } = useCart()
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoading(true)
+      const response = await apiService.getProducts()
+      if (response.success && response.data?.products) {
+        const mappedProducts = response.data.products.map(apiService.mapApiProductToProduct)
+        setProducts(mappedProducts)
+      }
+      setIsLoading(false)
+    }
+
+    fetchProducts()
+  }, [])
+
+  console.log("all products: ", products);
+
+
 
   const handleAddToCart = (product: any) => {
     addItem({
@@ -173,7 +62,7 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
 
   // Filter and sort products
   const filteredAndSortedProducts = useMemo(() => {
-    const filtered = allProducts.filter((product) => {
+    const filtered = products.filter((product) => {
       // Search filter
       if (filters.search && filters.search.trim() !== "") {
         const searchTerm = filters.search.toLowerCase().trim()
@@ -237,11 +126,13 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
   const ProductCard = ({ product }: { product: any }) => (
     <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden">
       <div className="relative">
-        <img
-          src={product.image || "/placeholder.svg"}
-          alt={product.title}
-          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-        />
+        <Link href={`/product/${product.id}`}>
+          <img
+            src={product.image || "/placeholder.svg"}
+            alt={product.title}
+            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        </Link>
         <div className="absolute top-3 left-3 flex gap-2">
           {product.isNew && <Badge className="bg-green-600 hover:bg-green-700">New</Badge>}
           {product.isBestseller && <Badge className="bg-orange-600 hover:bg-orange-700">Bestseller</Badge>}
@@ -260,7 +151,9 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
       <CardContent className="p-4 space-y-3">
         <div className="space-y-1">
           <p className="text-sm text-muted-foreground capitalize">{product.category}</p>
-          <h3 className="font-semibold text-lg group-hover:text-primary transition-colors min-h-[50px]">{product.title}</h3>
+          <Link href={`/product/${product.id}`}>
+            <h3 className="font-semibold text-lg group-hover:text-primary transition-colors min-h-[50px]">{product.title}</h3>
+          </Link>
         </div>
 
         <div className="flex items-center gap-2">
@@ -293,7 +186,7 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
     <Card className="group hover:shadow-lg transition-all duration-300">
       <CardContent className="p-4">
         <div className="flex gap-4">
-          <div className="relative w-32 h-24 flex-shrink-0">
+          <Link href={`/product/${product.id}`} className="relative w-32 h-24 flex-shrink-0">
             <img
               src={product.image || "/placeholder.svg"}
               alt={product.title}
@@ -308,12 +201,14 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
                 </Badge>
               )}
             </div>
-          </div>
+          </Link>
 
           <div className="flex-1 space-y-2">
             <div>
               <p className="text-sm text-muted-foreground capitalize">{product.category}</p>
-              <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">{product.title}</h3>
+              <Link href={`/product/${product.id}`}>
+                <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">{product.title}</h3>
+              </Link>
             </div>
 
             <div className="flex items-center gap-2">
@@ -341,6 +236,14 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
       </CardContent>
     </Card>
   )
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

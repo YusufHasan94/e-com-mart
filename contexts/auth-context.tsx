@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { apiService } from "@/lib/api-service"
 
 export interface User {
   id: string
@@ -15,7 +16,7 @@ interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<boolean>
   demoLogin: (role: "user" | "seller" | "admin") => Promise<boolean>
-  register: (email: string, password: string, name: string, role?: "user" | "seller" | "admin") => Promise<boolean>
+  register: (email: string, password: string, password_confirmation: string, name: string, role?: "user" | "seller" | "admin") => Promise<boolean>
   logout: () => void
   isLoading: boolean
 }
@@ -53,30 +54,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log("Login attempt:", { email, password: "***" })
     setIsLoading(true)
 
-    // Mock authentication - in a real app, this would call an API
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    const response = await apiService.login(email, password)
 
-    if (email && password) {
-      const mockUser: User = {
-        id: "1",
-        email,
-        name: email.split("@")[0],
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-        role: "user",
-        createdAt: new Date().toISOString(),
+    if (response.success && response.data) {
+      const apiUser = response.data
+      console.log("Processing user data from API:", apiUser)
+
+      const safeUser: User = {
+        id: apiUser.id || Date.now().toString(),
+        email: apiUser.email || email,
+        name: apiUser.name || (apiUser.email ? apiUser.email.split("@")[0] : email.split("@")[0]),
+        avatar: apiUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${apiUser.email || email}`,
+        role: apiUser.role || "user",
+        createdAt: apiUser.createdAt || new Date().toISOString(),
       }
 
-      console.log("Login successful, setting user:", mockUser)
-      setUser(mockUser)
+      console.log("Login successful, setting user:", safeUser)
+      setUser(safeUser)
       if (typeof window !== "undefined") {
-        localStorage.setItem("user", JSON.stringify(mockUser))
+        localStorage.setItem("user", JSON.stringify(safeUser))
         console.log("User saved to localStorage")
       }
       setIsLoading(false)
       return true
     }
 
-    console.log("Login failed - invalid credentials")
+    console.log("Login failed:", response.error)
     setIsLoading(false)
     return false
   }
@@ -121,30 +124,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return true
   }
 
-  const register = async (email: string, password: string, name: string, role: "user" | "seller" | "admin" = "user"): Promise<boolean> => {
+  const register = async (
+    email: string,
+    password: string,
+    password_confirmation: string,
+    name: string,
+    role: "user" | "seller" | "admin" = "user",
+  ): Promise<boolean> => {
     setIsLoading(true)
 
-    // Mock registration - in a real app, this would call an API
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    const response = await apiService.register(email, password, password_confirmation, name, role)
 
-    if (email && password && name) {
-      const mockUser: User = {
-        id: Date.now().toString(),
-        email,
-        name,
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-        role,
-        createdAt: new Date().toISOString(),
+    if (response.success && response.data) {
+      const apiUser = response.data
+      console.log("Processing registration data from API:", apiUser)
+
+      const safeUser: User = {
+        id: apiUser.id || Date.now().toString(),
+        email: apiUser.email || email,
+        name: apiUser.name || name,
+        avatar: apiUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+        role: apiUser.role || role,
+        createdAt: apiUser.createdAt || new Date().toISOString(),
       }
 
-      setUser(mockUser)
+      setUser(safeUser)
       if (typeof window !== "undefined") {
-        localStorage.setItem("user", JSON.stringify(mockUser))
+        localStorage.setItem("user", JSON.stringify(safeUser))
       }
       setIsLoading(false)
       return true
     }
 
+    console.log("Registration failed:", response.error)
     setIsLoading(false)
     return false
   }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Card,
   CardContent,
@@ -40,10 +40,11 @@ import {
   Monitor,
   Cpu,
   HardDrive,
-  MemoryStick
+  MemoryStick,
+  Loader2
 } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
-import { getProductById, Product } from "@/lib/products"
+import { apiService, type AppProduct } from "@/lib/api-service"
 import Link from "next/link"
 
 interface MultivendorProductPageProps {
@@ -51,8 +52,80 @@ interface MultivendorProductPageProps {
 }
 
 export function MultivendorProductPage({ productId }: MultivendorProductPageProps) {
-  // Get product data or use default
-  const product = productId ? getProductById(productId) : getProductById("netflix-gift-card")
+  const [product, setProduct] = useState<AppProduct | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [selectedVariation, setSelectedVariation] = useState<any>(null)
+  const [sortBy, setSortBy] = useState("price")
+  const [showAllVariations, setShowAllVariations] = useState(false)
+  const [showAllOffers, setShowAllOffers] = useState(false)
+  const { addItem } = useCart()
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!productId) {
+        setIsLoading(false)
+        return
+      }
+
+      setIsLoading(true)
+      try {
+        const response = await apiService.getProductById(productId)
+        if (response.success && response.data) {
+          // Since getProductById returns ApiProductDetailsResponse which should have the product details in data
+          // Looking at api-service, getProductById returns ApiResponse<ApiProduct>
+          // So response.data is the ApiProduct object itself.
+          const mappedProduct = apiService.mapApiProductToProduct(response.data)
+
+          // Enrich with vendors since API might not have them yet or structure is different
+          // For now, let's keep the mock vendors/variations logic if the API doesn't provide them, 
+          // or synthesize them to avoid component breaking.
+          if (!mappedProduct.vendors || mappedProduct.vendors.length === 0) {
+            mappedProduct.vendors = [
+              {
+                id: 1,
+                name: "GameHub Official",
+                price: mappedProduct.salePrice,
+                rating: 4.9,
+                reviews: 1200,
+                isVerified: true,
+              },
+              {
+                id: 2,
+                name: "BestKeys",
+                price: mappedProduct.salePrice * 1.05,
+                rating: 4.7,
+                reviews: 850,
+                isVerified: true,
+              }
+            ]
+          }
+          if (!mappedProduct.variations || mappedProduct.variations.length === 0) {
+            mappedProduct.variations = [
+              { value: "Standard Edition", price: mappedProduct.salePrice },
+              { value: "Deluxe Edition", price: mappedProduct.salePrice * 1.3 }
+            ]
+          }
+
+          setProduct(mappedProduct)
+          setSelectedVariation(mappedProduct.variations[0])
+        }
+      } catch (error) {
+        console.error("Failed to fetch product", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchProduct()
+  }, [productId])
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   if (!product) {
     return (
@@ -65,12 +138,6 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
       </div>
     )
   }
-
-  const [selectedVariation, setSelectedVariation] = useState(product.variations[0] || { value: "Standard", price: product.salePrice || 0 })
-  const [sortBy, setSortBy] = useState("price")
-  const [showAllVariations, setShowAllVariations] = useState(false)
-  const [showAllOffers, setShowAllOffers] = useState(false)
-  const { addItem } = useCart()
 
   const handleAddToCart = (vendor: any) => {
     addItem({
@@ -180,8 +247,8 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
 
         {/* Main Layout: 80% Content + 20% Featured Offer */}
         <div className="grid grid-cols-1 lg:grid-cols-8 gap-4 sm:gap-6 lg:gap-8 pb-20 lg:pb-0">
-                    {/* Main Content - 80% */}
-                    <div className="lg:col-span-6 space-y-4 sm:space-y-6 lg:space-y-8">
+          {/* Main Content - 80% */}
+          <div className="lg:col-span-6 space-y-4 sm:space-y-6 lg:space-y-8">
             {/* Product Header - Desktop Only */}
             <div className="hidden lg:block mb-6 sm:mb-8">
               <div className="flex flex-wrap items-start gap-2 mb-3 sm:mb-4">
@@ -314,7 +381,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                       <Card key={vendor.id} className="relative dark:glass-effect dark:card-hover">
                         <CardContent className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                           <div className="flex items-center gap-3 sm:gap-4 flex-1 w-full sm:w-auto">
-                            
+
                             <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
                               <span className="font-bold text-lg">{vendor.name.charAt(0)}</span>
                             </div>
@@ -489,7 +556,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
               </Card>
             </div>
           </div>
-          
+
           {/* Featured Offer Card - Desktop: Right side, sticky at top */}
           <div className="hidden lg:block lg:col-span-2 lg:sticky lg:top-24 lg:h-fit">
             <Card className="dark:glass-effect p-4 sm:p-5">
