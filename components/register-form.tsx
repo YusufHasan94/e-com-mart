@@ -42,7 +42,7 @@ export function RegisterForm() {
       return
     }
 
-    const success = await register(email, password, name)
+    const success = await register(email, password, confirmPassword, name)
     if (success) {
       router.push("/")
     } else {

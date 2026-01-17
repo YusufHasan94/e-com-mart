@@ -3,97 +3,43 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Star, TrendingUp, Flame } from "lucide-react"
+import { Star, TrendingUp, Flame, Loader2 } from "lucide-react"
 import Link from "next/link"
-
-const trendyProducts = [
-  {
-    id: "netflix-gift-card",
-    title: "Netflix Gift Card",
-    category: "Gift Cards",
-    originalPrice: 25.99,
-    salePrice: 23.38,
-    discount: 10,
-    rating: 4.8,
-    reviews: 25000,
-    image: "/placeholder.jpg",
-    isNew: false,
-    isTrending: true,
-    trendingRank: 1,
-  },
-  {
-    id: "baldurs-gate-3",
-    title: "Baldur's Gate 3",
-    category: "RPG",
-    originalPrice: 59.99,
-    salePrice: 59.99,
-    discount: 0,
-    rating: 4.9,
-    reviews: 8500,
-    image: "/baldurs-gate-3-fantasy-rpg-game.jpg",
-    isNew: true,
-    isTrending: true,
-    trendingRank: 2,
-  },
-  {
-    id: "chatgpt-plus",
-    title: "ChatGPT Plus",
-    category: "AI Software",
-    originalPrice: 20.0,
-    salePrice: 20.0,
-    discount: 0,
-    rating: 4.8,
-    reviews: 12000,
-    image: "/chatgpt-ai-assistant-software.jpg",
-    isNew: false,
-    isTrending: true,
-    trendingRank: 3,
-  },
-  {
-    id: "spider-man-2",
-    title: "Spider-Man 2",
-    category: "Action",
-    originalPrice: 69.99,
-    salePrice: 59.99,
-    discount: 14,
-    rating: 4.6,
-    reviews: 4200,
-    image: "/spider-man-2-superhero-action-game.jpg",
-    isNew: true,
-    isTrending: true,
-    trendingRank: 4,
-  },
-  {
-    id: "notion-pro",
-    title: "Notion Pro",
-    category: "Productivity",
-    originalPrice: 96.0,
-    salePrice: 96.0,
-    discount: 0,
-    rating: 4.7,
-    reviews: 6800,
-    image: "/notion-productivity-workspace-software.jpg",
-    isNew: false,
-    isTrending: true,
-    trendingRank: 5,
-  },
-  {
-    id: "starfield",
-    title: "Starfield",
-    category: "Sci-Fi RPG",
-    originalPrice: 69.99,
-    salePrice: 49.99,
-    discount: 29,
-    rating: 4.2,
-    reviews: 3600,
-    image: "/starfield-space-exploration-rpg-game.jpg",
-    isNew: true,
-    isTrending: true,
-    trendingRank: 6,
-  },
-]
+import { apiService } from "@/lib/api-service"
+import { useState, useEffect } from "react"
 
 export function TrendyProducts() {
+  const [productsList, setProductsList] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoading(true)
+      const response = await apiService.getProducts()
+      if (response.success && response.data?.products) {
+        // Take some products and simulate ranking
+        const mappedProducts = response.data.products
+          .slice(0, 8)
+          .map(apiService.mapApiProductToProduct)
+          .map((p, index) => ({ ...p, trendingRank: index + 1 }))
+        setProductsList(mappedProducts)
+      }
+      setIsLoading(false)
+    }
+
+    fetchProducts()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <section className="py-16">
+        <div className="container mx-auto px-4 text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+          <p className="mt-4 text-muted-foreground">Loading trending products...</p>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className="py-16">
@@ -105,15 +51,15 @@ export function TrendyProducts() {
             </h2>
             <p className="text-muted-foreground">What everyone's talking about right now</p>
           </div>
-          <Button
-            variant="outline"
-          >
-            View All Trending
-          </Button>
+          <Link href="/products">
+            <Button variant="outline">
+              View All Trending
+            </Button>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {trendyProducts.map((product) => (
+          {productsList.map((product) => (
             <Card
               key={product.id}
               className="group hover:shadow-xl transition-all duration-300 overflow-hidden"
