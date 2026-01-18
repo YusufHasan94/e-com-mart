@@ -12,6 +12,22 @@ export interface ApiUser {
     // Add other properties if available from API
 }
 
+export interface ApiOffer {
+    id: number
+    seller: {
+        id: number
+        store_name: string
+        slug: string
+        logo: string
+        is_verified: boolean
+        rating: number
+        total_sales: number
+    }
+    prices: Record<string, { symbol: string, price: number }>
+    stock: number
+    promoted: boolean
+}
+
 export interface ApiProduct {
     id: number
     title: string
@@ -25,10 +41,10 @@ export interface ApiProduct {
     regions?: { id: number; name: string; slug: string; pivot?: any }[]
     languages?: { id: number; name: string; slug: string; pivot?: any }[]
     works_on?: { id: number; name: string; slug: string; pivot?: any }[]
-    lowest_price: number | null
+    lowest_price: number | string | { price: number; currency?: string; symbol?: string; price_name?: string } | null
     sku?: string
     description?: string
-    offers?: any[]
+    offers?: ApiOffer[]
     currencies?: any[]
 }
 
@@ -77,7 +93,19 @@ export interface AppProduct {
     salePrice: number
     discount: number
     variations: { value: string; price: number; platform?: string; region?: string }[]
-    vendors: { id: number; name: string; price: number; rating: number; reviews: number; isVerified: boolean; originalPrice?: number; discount?: number }[]
+    vendors: {
+        id: number
+        name: string
+        price: number
+        rating: number
+        reviews: number
+        isVerified: boolean
+        originalPrice?: number
+        discount?: number
+        stock?: number
+        isPromoted?: boolean
+        logo?: string
+    }[]
     customerReviews: { user: string; rating: number; comment: string; date: string }[]
     releaseDate: string
 }
@@ -122,10 +150,9 @@ export const apiService = {
     },
 
     /**
-     * Login user (Placeholder for future implementation)
+     * Login user
      */
-    login: async (email: string, password: string): Promise<ApiResponse<ApiUser>> => {
-        // For now, keeping it as a placeholder or implementing if endpoint exists
+    login: async (email: string, password: string): Promise<ApiResponse<{ user: ApiUser; access_token: string }>> => {
         try {
             const response = await fetch(`${BASE_URL}/auth/login`, {
                 method: "POST",
@@ -148,7 +175,7 @@ export const apiService = {
 
             return {
                 success: true,
-                data: result.user || result.data || result, // Fallback to root if not nested
+                data: result, // Expecting { access_token, user, ... }
                 message: result.message,
             }
         } catch (error) {
@@ -156,6 +183,115 @@ export const apiService = {
             return {
                 success: false,
                 error: `Network error or CORS issue: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Get current user profile
+     */
+    getProfile: async (token: string): Promise<ApiResponse<ApiUser>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/auth/me`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+            console.log("API Profile Result:", result)
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch profile",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data?.user || result.data || result, // Extract user object correctly
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getProfile):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Logout user
+     */
+    logout: async (token: string): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/auth/logout`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Logout failed",
+                }
+            }
+
+            return {
+                success: true,
+                data: result,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (logout):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Get trending products
+     */
+    getTrendingProducts: async (): Promise<ApiResponse<ApiProduct[]>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/products/trending`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+            console.log("API Trending Products Result:", result)
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch trending products",
+                }
+            }
+
+            return {
+                success: true,
+                data: Array.isArray(result.data) ? result.data : [],
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getTrendingProducts):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
             }
         }
     },
@@ -175,6 +311,7 @@ export const apiService = {
             console.log("API Get Products Result:", response);
 
             const result = await response.json()
+            console.log("API Get Products JSON:", result)
 
             if (!response.ok) {
                 return {
@@ -183,9 +320,15 @@ export const apiService = {
                 }
             }
 
+            // Normalize data: ensure we return an object with a products array
+            let productsData = result.data;
+            if (Array.isArray(result.data)) {
+                productsData = { products: result.data, current_page: 1, last_page: 1, total: result.data.length };
+            }
+
             return {
                 success: true,
-                data: result.data,
+                data: productsData,
                 message: result.message,
             }
         } catch (error) {
@@ -236,12 +379,64 @@ export const apiService = {
      * Map API Product to App Product format
      */
     mapApiProductToProduct: (apiProduct: ApiProduct): AppProduct => {
+        const getImageUrl = (path: string | null | undefined) => {
+            if (!path) return "/placeholder.jpg"
+            if (path.startsWith("http")) return path
+            return `https://gamehub.licensesender.com/${path}`
+        }
+
+        // Calculate best price from offers if lowest_price is not usable or we want to be specific
+        let bestPrice = 0
+
+        // Try to get price from offers first (single product view)
+        if (apiProduct.offers && apiProduct.offers.length > 0) {
+            // Find lowest price among offers, preferably USD
+            const prices = apiProduct.offers.map(offer => {
+                // Try USD first, then EUR, then first available
+                const p = offer.prices["USD"] || offer.prices["EUR"] || Object.values(offer.prices)[0]
+                return p ? p.price : Infinity
+            })
+            const minPrice = Math.min(...prices)
+            if (minPrice !== Infinity) bestPrice = minPrice
+        }
+
+        // Fallback to lowest_price field (list view)
+        if (bestPrice === 0) {
+            if (typeof apiProduct.lowest_price === 'object' && apiProduct.lowest_price !== null) {
+                bestPrice = apiProduct.lowest_price.price || 0
+            } else if (typeof apiProduct.lowest_price === 'string') {
+                bestPrice = parseFloat(apiProduct.lowest_price) || 0
+            } else if (typeof apiProduct.lowest_price === 'number') {
+                bestPrice = apiProduct.lowest_price
+            }
+        }
+
+        const mapOffersToVendors = (offers: ApiOffer[] | undefined) => {
+            if (!offers) return []
+            return offers.map(offer => {
+                const priceObj = offer.prices["USD"] || offer.prices["EUR"] || Object.values(offer.prices)[0]
+                return {
+                    id: offer.seller.id,
+                    name: offer.seller.store_name,
+                    price: priceObj ? priceObj.price : 0,
+                    rating: offer.seller.rating,
+                    reviews: offer.seller.total_sales,
+                    isVerified: offer.seller.is_verified,
+                    originalPrice: 0,
+                    discount: 0,
+                    stock: offer.stock,
+                    isPromoted: offer.promoted,
+                    logo: getImageUrl(offer.seller.logo)
+                }
+            })
+        }
+
         return {
             id: apiProduct.id.toString(),
             title: apiProduct.title,
             category: apiProduct.categories?.[0]?.name || "Uncategorized",
             description: apiProduct.description || "",
-            image: apiProduct.cover_image || "/placeholder.jpg",
+            image: getImageUrl(apiProduct.cover_image),
             platform: apiProduct.platforms?.[0]?.name || apiProduct.platforms?.[0]?.slug || "Steam",
             region: apiProduct.regions?.[0]?.name || "Global",
             type: (apiProduct.types?.[0]?.slug as any) || "game",
@@ -249,11 +444,11 @@ export const apiService = {
             reviews: Math.floor(Math.random() * 2000) + 500, // Mock reviews count
             isNew: true,
             isTrending: true,
-            originalPrice: apiProduct.lowest_price ? apiProduct.lowest_price * 1.2 : 0,
-            salePrice: apiProduct.lowest_price || 0,
+            originalPrice: bestPrice > 0 ? bestPrice * 1.2 : 0, // Fake original price
+            salePrice: bestPrice,
             discount: 20,
             variations: [],
-            vendors: [],
+            vendors: mapOffersToVendors(apiProduct.offers),
             customerReviews: [],
             releaseDate: new Date().toISOString().split('T')[0],
         }

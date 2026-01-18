@@ -54,7 +54,7 @@ interface MultivendorProductPageProps {
 export function MultivendorProductPage({ productId }: MultivendorProductPageProps) {
   // Get product data or use default
   const product = productId ? getProductById(productId) : getProductById("netflix-gift-card")
-  
+
   if (!product) {
     return (
       <div className="bg-background flex items-center justify-center py-16">
@@ -126,9 +126,9 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
             <Badge className="bg-green-600 hover:bg-green-700">{product.category}</Badge>
             <Badge variant="outline">{product.type === 'gift-card' ? 'Digital Key' : 'Digital Product'}</Badge>
           </div>
-          
+
           <h1 className="text-3xl font-bold mb-4">{product.title} {selectedVariation.value}</h1>
-          
+
           <div className="flex items-center gap-4 mb-6">
             <div className="flex items-center gap-1">
               <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
@@ -150,8 +150,8 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                     alt={product.title}
                     className="w-full h-full object-cover rounded-xl"
                   />
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
                     variant="secondary"
                   >
@@ -159,7 +159,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                     View
                   </Button>
                 </div>
-                
+
                 <div className="flex-1">
                   <div className="space-y-4 mb-6">
                     <div className="flex items-center gap-2 text-sm">
@@ -167,19 +167,19 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                       <span>Can be activated in Global</span>
                       <Button variant="link" size="sm" className="p-0 h-auto">Check Restrictions</Button>
                     </div>
-                    
+
                     <div className="flex items-center gap-2 text-sm">
                       <Globe className="h-4 w-4" />
                       <span>Region: {selectedVariation.region || 'Global'}</span>
                       <ChevronDown className="h-4 w-4" />
                     </div>
-                    
+
                     <div className="flex items-center gap-2 text-sm">
                       <Monitor className="h-4 w-4" />
                       <span>Platform: {product.platform || 'Digital'}</span>
                       <Button variant="link" size="sm" className="p-0 h-auto">Activation Guide</Button>
                     </div>
-                    
+
                     <div className="flex items-center gap-2 text-sm">
                       <Cpu className="h-4 w-4" />
                       <span>Works on: Windows</span>
@@ -221,13 +221,13 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                   )}
                   <div className="text-sm text-muted-foreground mb-4">PRICE NOT FINAL</div>
                 </div>
-                
+
                 <div className="space-y-3 mb-6">
                   <Button size="lg" className="w-full gap-2">
                     <ShoppingCart className="h-4 w-4" />
                     Buy now
                   </Button>
-                  
+
                   <div className="flex items-center gap-2">
                     <Truck className="h-4 w-4 text-green-500" />
                     <span className="text-sm">Instant Delivery</span>
@@ -241,7 +241,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                     <span className="text-sm">Verified Sellers</span>
                   </div>
                 </div>
-                
+
                 <div className="text-sm text-muted-foreground">
                   +{otherVendors.length} offers starting at ${Math.min(...otherVendors.map(v => v.price))}
                 </div>
@@ -301,14 +301,14 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
             <div className="text-sm text-muted-foreground mb-4">
               {otherVendors.length} other offers
             </div>
-            
+
             <div className="space-y-3">
               {(showAllOffers ? otherVendors : otherVendors.slice(0, 3)).map((vendor) => (
                 <Card key={vendor.id} className="dark:glass-effect dark:card-hover">
                   <CardContent className="p-4 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
-                        <span className="font-bold text-lg">{vendor.name.charAt(0)}</span>
+                        {/* <span className="font-bold text-lg">{vendor.name.charAt(0)}</span> */}
                       </div>
                       <div>
                         <h3 className="font-semibold">{vendor.name}</h3>
@@ -338,10 +338,10 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                 </Card>
               ))}
             </div>
-            
+
             {otherVendors.length > 3 && (
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => setShowAllOffers(!showAllOffers)}
                 className="w-full"
               >
@@ -366,9 +366,9 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                     <div className="text-sm text-muted-foreground">${featuredVendor.price}</div>
                   </div>
                 </div>
-                
+
                 <Plus className="h-6 w-6 text-muted-foreground" />
-                
+
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 bg-accent rounded-lg flex items-center justify-center">
                     <img src="/placeholder.jpg" alt="Bundle Item" className="w-full h-full object-cover rounded-lg" />
@@ -378,7 +378,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                     <div className="text-sm text-muted-foreground">$29.99</div>
                   </div>
                 </div>
-                
+
                 <div className="ml-auto text-right">
                   <div className="text-2xl font-bold text-primary">${featuredVendor.price + 29.99}</div>
                   <div className="text-sm text-green-600">Save $15.00</div>
@@ -430,7 +430,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                     </div>
                     <Button variant="outline">Leave a review</Button>
                   </div>
-                  
+
                   <div className="space-y-6">
                     {product.customerReviews.map((review, index) => (
                       <div key={index} className="border-b border-border pb-4 last:border-b-0">
@@ -453,7 +453,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
               <Card className="dark:glass-effect">
                 <CardContent className="p-6">
                   <h3 className="text-xl font-semibold mb-4">System: Windows</h3>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <h4 className="font-semibold mb-3">Minimum System Requirements</h4>
@@ -476,7 +476,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                         </div>
                       </div>
                     </div>
-                    
+
                     <div>
                       <h4 className="font-semibold mb-3">Recommended System Requirements</h4>
                       <div className="space-y-2 text-sm">
@@ -565,9 +565,9 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                 </Link>
               ))}
             </div>
-            <Button 
-              variant="outline" 
-              size="icon" 
+            <Button
+              variant="outline"
+              size="icon"
               className="absolute right-0 top-1/2 -translate-y-1/2 -translate-x-2"
             >
               <ChevronRight className="h-4 w-4" />
