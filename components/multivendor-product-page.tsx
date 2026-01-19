@@ -46,6 +46,7 @@ import {
 import { useCart } from "@/contexts/cart-context"
 import { apiService, type AppProduct } from "@/lib/api-service"
 import Link from "next/link"
+import { RelatedProducts } from "./related-products"
 
 interface MultivendorProductPageProps {
   productId?: string
@@ -71,45 +72,21 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
       try {
         const response = await apiService.getProductById(productId)
         if (response.success && response.data) {
-          // Since getProductById returns ApiProductDetailsResponse which should have the product details in data
-          // Looking at api-service, getProductById returns ApiResponse<ApiProduct>
-          // So response.data is the ApiProduct object itself.
-          const mappedProduct = apiService.mapApiProductToProduct(response.data)
-
-          console.log("mappedProduct", mappedProduct);
-
-          // Enrich with vendors since API might not have them yet or structure is different
-          // For now, let's keep the mock vendors/variations logic if the API doesn't provide them, 
-          // or synthesize them to avoid component breaking.
-          if (!mappedProduct.vendors || mappedProduct.vendors.length === 0) {
-            mappedProduct.vendors = [
-              {
-                id: 1,
-                name: "GameHub Official",
-                price: mappedProduct.salePrice,
-                rating: 4.9,
-                reviews: 1200,
-                isVerified: true,
-              },
-              {
-                id: 2,
-                name: "BestKeys",
-                price: mappedProduct.salePrice * 1.05,
-                rating: 4.7,
-                reviews: 850,
-                isVerified: true,
-              }
-            ]
+          console.log("Raw Product API Response data:", response.data);
+          try {
+            const { product: apiProduct, offers: apiOffers } = response.data;
+            const mappedProduct = apiService.mapApiProductToProduct(apiProduct, apiOffers)
+            console.log("Mapped Product:", mappedProduct);
+            setProduct(mappedProduct)
+            if (mappedProduct.variations && mappedProduct.variations.length > 0) {
+              setSelectedVariation(mappedProduct.variations[0])
+            }
+          } catch (mapError) {
+            console.error("Mapping Error:", mapError);
+            setIsLoading(false);
           }
-          if (!mappedProduct.variations || mappedProduct.variations.length === 0) {
-            mappedProduct.variations = [
-              { value: "Standard Edition", price: mappedProduct.salePrice },
-              { value: "Deluxe Edition", price: mappedProduct.salePrice * 1.3 }
-            ]
-          }
-
-          setProduct(mappedProduct)
-          setSelectedVariation(mappedProduct.variations[0])
+        } else {
+          console.error("API response was not successful or data is missing", response);
         }
       } catch (error) {
         console.error("Failed to fetch product", error)
@@ -155,6 +132,11 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
   }
 
   const sortedVendors = [...product.vendors].sort((a, b) => {
+    // Primary sort: Promoted first
+    if (a.isPromoted && !b.isPromoted) return -1
+    if (!a.isPromoted && b.isPromoted) return 1
+
+    // Secondary sort: user selected criteria
     switch (sortBy) {
       case "price":
         return a.price - b.price
@@ -166,6 +148,9 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
         return 0
     }
   })
+
+  const promotedOffers = sortedVendors.filter(v => v.isPromoted)
+  const regularOffers = sortedVendors.filter(v => !v.isPromoted)
 
   const featuredVendor = sortedVendors[0]
   const otherVendors = sortedVendors.slice(1)
@@ -195,7 +180,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
             <Badge variant="outline" className="text-xs sm:text-sm">{product.type === 'gift-card' ? 'Digital Key' : 'Digital Product'}</Badge>
           </div>
 
-          <h1 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">{product.title} {selectedVariation.value}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">{product.title} {selectedVariation?.value && selectedVariation.value !== 'Standard Edition' ? selectedVariation.value : ''}</h1>
 
           <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
             <div className="flex items-center gap-1">
@@ -227,25 +212,29 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
         </div>
 
         {/* Featured Offer Card - Mobile: Sticky at bottom */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 p-4 bg-background/95 backdrop-blur-sm border-t shadow-lg">
-          <Card className="dark:glass-effect p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <Badge className="bg-blue-600 hover:bg-blue-700 text-xs">FEATURED</Badge>
-                  <div className="text-lg font-bold text-primary">${featuredVendor.price}</div>
+        {featuredVendor && (
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 p-4 bg-background/95 backdrop-blur-sm border-t shadow-lg">
+            <Card className="dark:glass-effect p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Badge className={`${featuredVendor.isPromoted ? 'bg-purple-600 hover:bg-purple-700' : 'bg-blue-600 hover:bg-blue-700'} text-xs uppercase tracking-wider`}>
+                      {featuredVendor.isPromoted ? 'Promoted Deal' : 'Best Offer'}
+                    </Badge>
+                    <div className="text-lg font-bold text-primary">${featuredVendor.price}</div>
+                  </div>
+                  {featuredVendor.originalPrice && (
+                    <div className="text-xs text-muted-foreground line-through">${featuredVendor.originalPrice}</div>
+                  )}
                 </div>
-                {featuredVendor.originalPrice && (
-                  <div className="text-xs text-muted-foreground line-through">${featuredVendor.originalPrice}</div>
-                )}
+                <Button size="lg" className="flex-shrink-0 gap-2 text-sm" onClick={() => handleAddToCart(featuredVendor)}>
+                  <ShoppingCart className="h-4 w-4" />
+                  Add to Cart
+                </Button>
               </div>
-              <Button size="lg" className="flex-shrink-0 gap-2 text-sm" onClick={() => handleAddToCart(featuredVendor)}>
-                <ShoppingCart className="h-4 w-4" />
-                Add to Cart
-              </Button>
-            </div>
-          </Card>
-        </div>
+            </Card>
+          </div>
+        )}
 
         {/* Main Layout: 80% Content + 20% Featured Offer */}
         <div className="grid grid-cols-1 lg:grid-cols-8 gap-4 sm:gap-6 lg:gap-8 pb-20 lg:pb-0">
@@ -258,7 +247,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                 <Badge variant="outline" className="text-xs sm:text-sm">{product.type === 'gift-card' ? 'Digital Key' : 'Digital Product'}</Badge>
               </div>
 
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4">{product.title} {selectedVariation.value}</h1>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4">{product.title} {selectedVariation?.value && selectedVariation.value !== 'Standard Edition' ? selectedVariation.value : ''}</h1>
 
               <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
                 <div className="flex items-center gap-1">
@@ -307,7 +296,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                       <Globe className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
                         <div className="font-medium text-sm mb-1">Region</div>
-                        <p className="text-sm text-muted-foreground">{selectedVariation.region || 'Global'}</p>
+                        <p className="text-sm text-muted-foreground">{product.region || 'Global'}</p>
                         <Button variant="link" size="sm" className="p-0 h-auto text-xs mt-1">Change Region</Button>
                       </div>
                     </div>
@@ -333,6 +322,26 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                     </div>
                   </div>
 
+                  {/* Variations/Editions Selector */}
+                  {product.variations.length > 1 && (
+                    <div className="mb-6">
+                      <div className="font-medium text-sm mb-3">Select Edition</div>
+                      <div className="flex flex-wrap gap-2">
+                        {product.variations.map((v) => (
+                          <Button
+                            key={v.value}
+                            variant={selectedVariation?.value === v.value ? "default" : "outline"}
+                            size="sm"
+                            className="text-xs"
+                            onClick={() => setSelectedVariation(v)}
+                          >
+                            {v.value}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Service Features */}
                   <div className="mb-4 sm:mb-6">
                     <div className="font-medium text-sm mb-3">Service Features</div>
@@ -347,7 +356,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                       </div>
                       <div className="flex items-center gap-2">
                         <ShieldCheck className="h-4 w-4 text-purple-500" />
-                        <span className="text-sm">Verified Sellers</span>
+                        <span className="text-sm">{product.deliveryType}</span>
                       </div>
                     </div>
                   </div>
@@ -374,71 +383,114 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                 </DropdownMenu>
               </div>
 
-              <div className="space-y-4">
-                {/* All Offers */}
-                <div className="space-y-3">
-                  {sortedVendors
-                    .filter((vendor) => vendor.id !== featuredVendor.id)
-                    .map((vendor) => (
-                      <Card key={vendor.id} className="relative dark:glass-effect dark:card-hover">
-                        <CardContent className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                          <div className="flex items-center gap-3 sm:gap-4 flex-1 w-full sm:w-auto">
-
-                            <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center flex-shrink-0 relative overflow-hidden">
-                              {vendor.logo ? (
-                                <img
-                                  src={vendor.logo}
-                                  alt={vendor.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <span className="font-bold text-lg">{vendor.name.charAt(0)}</span>
-                              )}
-                              {vendor.isVerified && (
-                                <span className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-0.5">
-                                  <ShieldCheck className="w-2.5 h-2.5 text-white" />
-                                </span>
-                              )}
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <h3 className="font-semibold text-sm sm:text-base truncate">{vendor.name}</h3>
-                                {vendor.isPromoted && (
+              <div className="space-y-8">
+                {/* Promoted Offers Section */}
+                {promotedOffers.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <div className="h-6 w-1 bg-purple-600 rounded-full" />
+                      <h3 className="font-bold text-lg sm:text-xl">Promoted Offers</h3>
+                      <Badge variant="secondary" className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                        Top Choice
+                      </Badge>
+                    </div>
+                    <div className="space-y-3">
+                      {promotedOffers.map((vendor) => (
+                        <Card key={vendor.id} className={`relative dark:glass-effect dark:card-hover border-purple-100 dark:border-purple-900/30 ${vendor.id === featuredVendor?.id ? 'border-primary/50' : ''}`}>
+                          <CardContent className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div className="flex items-center gap-3 sm:gap-4 flex-1 w-full sm:w-auto">
+                              <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                                {vendor.logo ? (
+                                  <img src={vendor.logo} alt={vendor.name} className="w-full h-full object-cover" />
+                                ) : (
+                                  <span className="font-bold text-lg">{vendor.name.charAt(0)}</span>
+                                )}
+                                {vendor.isVerified && (
+                                  <span className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-0.5">
+                                    <ShieldCheck className="w-2.5 h-2.5 text-white" />
+                                  </span>
+                                )}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-semibold text-sm sm:text-base truncate">{vendor.name}</h3>
                                   <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
                                     Promoted
                                   </Badge>
+                                </div>
+                                <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
+                                  <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 flex-shrink-0" />
+                                  <span className="truncate">{vendor.rating} ({vendor.reviews} reviews)</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
+                              <div className="flex flex-col items-start sm:items-end">
+                                <div className="text-lg sm:text-xl font-bold text-primary">${vendor.price}</div>
+                                {vendor.stock !== undefined && vendor.stock < 10 && (
+                                  <span className="text-[10px] text-red-500 font-medium">Only {vendor.stock} left</span>
                                 )}
                               </div>
-                              <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
-                                <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 flex-shrink-0" />
-                                <span className="truncate">{vendor.rating} ({vendor.reviews} reviews)</span>
+                              <Button onClick={() => handleAddToCart(vendor)} className="flex-shrink-0 text-xs sm:text-sm bg-purple-600 hover:bg-purple-700">Add to Cart</Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* All Regular Offers Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <div className="h-6 w-1 bg-blue-600 rounded-full" />
+                    <h3 className="font-bold text-lg sm:text-xl">All Offers</h3>
+                    <span className="text-sm text-muted-foreground">({regularOffers.length} available)</span>
+                  </div>
+                  <div className="space-y-3">
+                    {regularOffers.length > 0 ? (
+                      regularOffers.map((vendor) => (
+                        <Card key={vendor.id} className={`relative dark:glass-effect dark:card-hover ${vendor.id === featuredVendor?.id ? 'border-primary/50' : ''}`}>
+                          <CardContent className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div className="flex items-center gap-3 sm:gap-4 flex-1 w-full sm:w-auto">
+                              <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                                {vendor.logo ? (
+                                  <img src={vendor.logo} alt={vendor.name} className="w-full h-full object-cover" />
+                                ) : (
+                                  <span className="font-bold text-lg">{vendor.name.charAt(0)}</span>
+                                )}
+                                {vendor.isVerified && (
+                                  <span className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-0.5">
+                                    <ShieldCheck className="w-2.5 h-2.5 text-white" />
+                                  </span>
+                                )}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <h3 className="font-semibold text-sm sm:text-base truncate">{vendor.name}</h3>
+                                <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
+                                  <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 flex-shrink-0" />
+                                  <span className="truncate">{vendor.rating} ({vendor.reviews} reviews)</span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                          <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
-                            <div className="flex flex-col items-start sm:items-end">
-                              <div className="text-lg sm:text-xl font-bold text-primary">${vendor.price}</div>
-                              {vendor.stock !== undefined && vendor.stock < 10 && (
-                                <span className="text-[10px] text-red-500 font-medium">
-                                  Only {vendor.stock} left
-                                </span>
-                              )}
-                              {vendor.originalPrice && (
-                                <div className="text-xs sm:text-sm text-muted-foreground line-through">
-                                  ${vendor.originalPrice}
-                                </div>
-                              )}
-                              {vendor.discount && vendor.discount > 0 && (
-                                <Badge variant="destructive" className="text-xs mt-1">
-                                  -{vendor.discount}%
-                                </Badge>
-                              )}
+                            <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
+                              <div className="flex flex-col items-start sm:items-end">
+                                <div className="text-lg sm:text-xl font-bold text-primary">${vendor.price}</div>
+                                {vendor.stock !== undefined && vendor.stock < 10 && (
+                                  <span className="text-[10px] text-red-500 font-medium">Only {vendor.stock} left</span>
+                                )}
+                              </div>
+                              <Button onClick={() => handleAddToCart(vendor)} className="flex-shrink-0 text-xs sm:text-sm">Add to Cart</Button>
                             </div>
-                            <Button onClick={() => handleAddToCart(vendor)} className="flex-shrink-0 text-xs sm:text-sm">Add to Cart</Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                          </CardContent>
+                        </Card>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 bg-muted/10 rounded-lg border border-dashed">
+                        <p className="text-muted-foreground text-sm">No regular offers available.</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -455,10 +507,10 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                 </CardHeader>
                 <CardContent className="p-4 sm:p-6 pt-0">
                   <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">{product.title}</h3>
-                  <div className="flex items-center gap-2 mb-4">
-                    <Badge variant="outline">{product.category}</Badge>
-                    <Badge variant="outline">Indie</Badge>
-                    <Badge variant="outline">Strategy</Badge>
+                  <div className="flex flex-wrap items-center gap-2 mb-4">
+                    {product.category && <Badge variant="outline">{product.category}</Badge>}
+                    {product.platform && <Badge variant="outline">{product.platform}</Badge>}
+                    {product.region && <Badge variant="outline">{product.region}</Badge>}
                   </div>
                   <p className="text-muted-foreground mb-4">
                     {product.description}
@@ -514,44 +566,24 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                     <div>
                       <h4 className="font-semibold mb-3">Minimum System Requirements</h4>
                       <div className="space-y-2 text-sm">
-                        <div className="flex items-center gap-2">
-                          <MemoryStick className="h-4 w-4" />
-                          <span>Memory: 1 GB RAM</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <HardDrive className="h-4 w-4" />
-                          <span>Storage: 50 MB available space</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Cpu className="h-4 w-4" />
-                          <span>Processor: Intel Core i3</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Monitor className="h-4 w-4" />
-                          <span>Graphics: OpenGL 2.1 compatible graphics card</span>
-                        </div>
+                        {product.systemRequirements?.minimum.map((req, idx) => (
+                          <div key={idx} className="flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+                            <span><strong>{req.key}:</strong> {req.value}</span>
+                          </div>
+                        )) || <p className="text-muted-foreground">Not specified</p>}
                       </div>
                     </div>
 
                     <div>
                       <h4 className="font-semibold mb-3">Recommended System Requirements</h4>
                       <div className="space-y-2 text-sm">
-                        <div className="flex items-center gap-2">
-                          <MemoryStick className="h-4 w-4" />
-                          <span>Memory: 2 GB RAM</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <HardDrive className="h-4 w-4" />
-                          <span>Storage: 100 MB available space</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Cpu className="h-4 w-4" />
-                          <span>Processor: Intel Core i5</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Monitor className="h-4 w-4" />
-                          <span>Graphics: DirectX 11 compatible graphics card</span>
-                        </div>
+                        {product.systemRequirements?.recommended.map((req, idx) => (
+                          <div key={idx} className="flex items-center gap-2">
+                            <Star className="h-4 w-4 text-muted-foreground" />
+                            <span><strong>{req.key}:</strong> {req.value}</span>
+                          </div>
+                        )) || <p className="text-muted-foreground">Not specified</p>}
                       </div>
                     </div>
                   </div>
@@ -568,16 +600,20 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                   <div className="space-y-4">
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4" />
-                      <span>Release Date: {new Date().toLocaleDateString()}</span>
+                      <span>Release Date: {new Date(product.releaseDate).toLocaleDateString()}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Award className="h-4 w-4" />
-                      <span>Developer: Digital Studios</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Globe className="h-4 w-4" />
-                      <span>Publisher: Global Games</span>
-                    </div>
+                    {product.developer?.name && (
+                      <div className="flex items-center gap-2">
+                        <Award className="h-4 w-4" />
+                        <span>Developer: {product.developer.name}</span>
+                      </div>
+                    )}
+                    {product.publisher?.name && (
+                      <div className="flex items-center gap-2">
+                        <Globe className="h-4 w-4" />
+                        <span>Publisher: {product.publisher.name}</span>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -586,77 +622,93 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
 
           {/* Featured Offer Card - Desktop: Right side, sticky at top */}
           <div className="hidden lg:block lg:col-span-2 lg:sticky lg:top-24 lg:h-fit">
-            <Card className="dark:glass-effect p-4 sm:p-5">
-              <div className="mb-3 sm:mb-4">
-                <Badge className="bg-blue-600 hover:bg-blue-700 mb-2 text-xs sm:text-sm">FEATURED OFFER</Badge>
-                <div className="text-2xl sm:text-3xl font-bold text-primary mb-1">${featuredVendor.price}</div>
-                {featuredVendor.originalPrice && (
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm sm:text-lg text-muted-foreground line-through">${featuredVendor.originalPrice}</span>
-                    <Badge variant="destructive" className="text-xs">
-                      {Math.round(((featuredVendor.originalPrice - featuredVendor.price) / featuredVendor.originalPrice) * 100)}% off
-                    </Badge>
+            {featuredVendor ? (
+              <Card className="dark:glass-effect p-4 sm:p-5">
+                <div className="mb-3 sm:mb-4">
+                  <Badge className={`${featuredVendor.isPromoted ? 'bg-purple-600 hover:bg-purple-700' : 'bg-blue-600 hover:bg-blue-700'} mb-2 text-xs sm:text-sm uppercase tracking-wider`}>
+                    {featuredVendor.isPromoted ? 'Promoted Deal' : 'Featured Offer'}
+                  </Badge>
+                  <div className="text-2xl sm:text-3xl font-bold text-primary mb-1">${featuredVendor.price}</div>
+                  {featuredVendor.originalPrice && (
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-sm sm:text-lg text-muted-foreground line-through">${featuredVendor.originalPrice}</span>
+                      <Badge variant="destructive" className="text-xs">
+                        {Math.round(((featuredVendor.originalPrice - featuredVendor.price) / featuredVendor.originalPrice) * 100)}% off
+                      </Badge>
+                    </div>
+                  )}
+                  <div className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">PRICE NOT FINAL</div>
+                </div>
+
+                <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
+                  <Button size="lg" className="w-full gap-2 text-sm sm:text-base" onClick={() => handleAddToCart(featuredVendor)}>
+                    <ShoppingCart className="h-4 w-4" />
+                    Add to Cart
+                  </Button>
+
+                  <div className="flex items-center gap-2">
+                    <Truck className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
+                    <span className="text-xs sm:text-sm">Instant Delivery</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500" />
+                    <span className="text-xs sm:text-sm">24/7 Support</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="h-3 w-3 sm:h-4 sm:w-4 text-purple-500" />
+                    <span className="text-xs sm:text-sm">Verified Sellers</span>
+                  </div>
+                </div>
+
+                {otherVendors.length > 0 && (
+                  <div className="text-xs sm:text-sm text-muted-foreground mb-4">
+                    +{otherVendors.length} other offers starting at ${Math.min(...otherVendors.map(v => v.price))}
                   </div>
                 )}
-                <div className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">PRICE NOT FINAL</div>
-              </div>
 
-              <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
-                <Button size="lg" className="w-full gap-2 text-sm sm:text-base" onClick={() => handleAddToCart(featuredVendor)}>
-                  <ShoppingCart className="h-4 w-4" />
-                  Add to Cart
-                </Button>
-
-                <div className="flex items-center gap-2">
-                  <Truck className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
-                  <span className="text-xs sm:text-sm">Instant Delivery</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500" />
-                  <span className="text-xs sm:text-sm">24/7 Support</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="h-3 w-3 sm:h-4 sm:w-4 text-purple-500" />
-                  <span className="text-xs sm:text-sm">Verified Sellers</span>
-                </div>
-              </div>
-
-              <div className="text-xs sm:text-sm text-muted-foreground mb-4">
-                +{otherVendors.length} other offers starting at ${Math.min(...otherVendors.map(v => v.price))}
-              </div>
-
-              {/* Vendor Info */}
-              <div className="border-t pt-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
-                    {featuredVendor.logo ? (
-                      <img
-                        src={featuredVendor.logo}
-                        alt={featuredVendor.name}
-                        className="w-full h-full object-cover rounded-full"
-                      />
-                    ) : (
-                      <span className="font-bold text-lg">{featuredVendor.name.charAt(0)}</span>
-                    )}
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-sm">{featuredVendor.name}</h4>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                      <span>{featuredVendor.rating} ({featuredVendor.reviews} reviews)</span>
+                {/* Vendor Info */}
+                <div className="border-t pt-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
+                      {featuredVendor.logo ? (
+                        <img
+                          src={featuredVendor.logo}
+                          alt={featuredVendor.name}
+                          className="w-full h-full object-cover rounded-full"
+                        />
+                      ) : (
+                        <span className="font-bold text-lg">{featuredVendor.name.charAt(0)}</span>
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-sm">{featuredVendor.name}</h4>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span>{featuredVendor.rating} ({featuredVendor.reviews} reviews)</span>
+                      </div>
                     </div>
                   </div>
+                  <Button variant="outline" size="sm" className="w-full">
+                    View Profile
+                  </Button>
                 </div>
-                <Button variant="outline" size="sm" className="w-full">
-                  View Profile
-                </Button>
-              </div>
-            </Card>
+              </Card>
+            ) : (
+              <Card className="dark:glass-effect p-4 sm:p-5 border-dashed">
+                <div className="text-center py-6">
+                  <Clock className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                  <h3 className="font-semibold mb-1">Coming Soon</h3>
+                  <p className="text-xs text-muted-foreground">No sellers are currently offering this product.</p>
+                  <Button variant="outline" className="w-full mt-4 text-xs">Notify Me</Button>
+                </div>
+              </Card>
+            )}
           </div>
-
-
-
         </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-12 border-t border-border mt-12 mb-20">
+        <RelatedProducts currentProductId={productId || ""} />
       </div>
     </div>
   )

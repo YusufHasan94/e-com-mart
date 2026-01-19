@@ -34,7 +34,7 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
       setIsLoading(true)
       const response = await apiService.getProducts()
       if (response.success && response.data?.products) {
-        const mappedProducts = response.data.products.map(apiService.mapApiProductToProduct)
+        const mappedProducts = response.data.products.map(p => apiService.mapApiProductToProduct(p))
         setProducts(mappedProducts)
       }
       setIsLoading(false)
