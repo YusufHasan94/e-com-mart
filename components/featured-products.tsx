@@ -23,9 +23,9 @@ export function FeaturedProducts() {
   useEffect(() => {
     const fetchProducts = async () => {
       setIsLoading(true)
-      const response = await apiService.getProducts()
-      if (response.success && response.data?.products) {
-        const mappedProducts = response.data.products.map(apiService.mapApiProductToProduct)
+      const response = await apiService.getTrendingProducts()
+      if (response.success && Array.isArray(response.data)) {
+        const mappedProducts = response.data.map(apiService.mapApiProductToProduct)
         setProductsList(mappedProducts)
       }
       setIsLoading(false)
@@ -33,6 +33,8 @@ export function FeaturedProducts() {
 
     fetchProducts()
   }, [])
+
+  console.log("productsList", productsList);
 
   if (isLoading) {
     return (

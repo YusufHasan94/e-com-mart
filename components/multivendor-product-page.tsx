@@ -76,6 +76,8 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
           // So response.data is the ApiProduct object itself.
           const mappedProduct = apiService.mapApiProductToProduct(response.data)
 
+          console.log("mappedProduct", mappedProduct);
+
           // Enrich with vendors since API might not have them yet or structure is different
           // For now, let's keep the mock vendors/variations logic if the API doesn't provide them, 
           // or synthesize them to avoid component breaking.
@@ -382,11 +384,31 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                         <CardContent className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                           <div className="flex items-center gap-3 sm:gap-4 flex-1 w-full sm:w-auto">
 
-                            <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
-                              <span className="font-bold text-lg">{vendor.name.charAt(0)}</span>
+                            <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                              {vendor.logo ? (
+                                <img
+                                  src={vendor.logo}
+                                  alt={vendor.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <span className="font-bold text-lg">{vendor.name.charAt(0)}</span>
+                              )}
+                              {vendor.isVerified && (
+                                <span className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-0.5">
+                                  <ShieldCheck className="w-2.5 h-2.5 text-white" />
+                                </span>
+                              )}
                             </div>
                             <div className="min-w-0 flex-1">
-                              <h3 className="font-semibold text-sm sm:text-base truncate">{vendor.name}</h3>
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-semibold text-sm sm:text-base truncate">{vendor.name}</h3>
+                                {vendor.isPromoted && (
+                                  <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                                    Promoted
+                                  </Badge>
+                                )}
+                              </div>
                               <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
                                 <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 flex-shrink-0" />
                                 <span className="truncate">{vendor.rating} ({vendor.reviews} reviews)</span>
@@ -396,6 +418,11 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                           <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
                             <div className="flex flex-col items-start sm:items-end">
                               <div className="text-lg sm:text-xl font-bold text-primary">${vendor.price}</div>
+                              {vendor.stock !== undefined && vendor.stock < 10 && (
+                                <span className="text-[10px] text-red-500 font-medium">
+                                  Only {vendor.stock} left
+                                </span>
+                              )}
                               {vendor.originalPrice && (
                                 <div className="text-xs sm:text-sm text-muted-foreground line-through">
                                   ${vendor.originalPrice}
@@ -601,8 +628,16 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
               {/* Vendor Info */}
               <div className="border-t pt-4">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-                    <span className="font-bold text-sm">{featuredVendor.name.charAt(0)}</span>
+                  <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
+                    {featuredVendor.logo ? (
+                      <img
+                        src={featuredVendor.logo}
+                        alt={featuredVendor.name}
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    ) : (
+                      <span className="font-bold text-lg">{featuredVendor.name.charAt(0)}</span>
+                    )}
                   </div>
                   <div>
                     <h4 className="font-semibold text-sm">{featuredVendor.name}</h4>

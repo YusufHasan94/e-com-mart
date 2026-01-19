@@ -44,7 +44,7 @@ export function RegisterForm() {
 
     const success = await register(email, password, confirmPassword, name)
     if (success) {
-      router.push("/")
+      router.push("/login")
     } else {
       setError("Registration failed. Please try again.")
     }

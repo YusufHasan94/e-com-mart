@@ -29,54 +29,93 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isHydrated, setIsHydrated] = useState(false)
 
   useEffect(() => {
-    // Check for stored user session
-    if (typeof window !== "undefined") {
-      const storedUser = localStorage.getItem("user")
-      if (storedUser) {
-        try {
-          const userData = JSON.parse(storedUser)
-          // Ensure existing users have a role (backward compatibility)
-          if (!userData.role) {
-            userData.role = "user"
+    // Check for stored user session and token
+    const initializeAuth = async () => {
+      if (typeof window !== "undefined") {
+        const storedToken = localStorage.getItem("token")
+        const storedUser = localStorage.getItem("user")
+
+        if (storedToken) {
+          // Verify token with 'me' endpoint
+          const response = await apiService.getProfile(storedToken)
+          if (response.success && response.data) {
+            const apiUser = response.data
+            const safeUser: User = {
+              id: apiUser.id || Date.now().toString(),
+              email: apiUser.email,
+              name: apiUser.name,
+              avatar: apiUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${apiUser.email}`,
+              role: apiUser.role || "user",
+              createdAt: apiUser.createdAt || new Date().toISOString(),
+            }
+            setUser(safeUser)
+            // Update stored user just in case
+            localStorage.setItem("user", JSON.stringify(safeUser))
+          } else {
+            // Token invalid or expired
+            console.warn("Stored token invalid, clearing session")
+            localStorage.removeItem("token")
+            localStorage.removeItem("user")
           }
-          setUser(userData)
-        } catch (error) {
-          console.error("Error parsing stored user:", error)
-          localStorage.removeItem("user")
+        } else if (storedUser) {
+          // Fallback to stored user if no token (legacy or offline) - but actually user wants token auth.
+          // For now, let's respect the token flow strictly.
+          try {
+            const userData = JSON.parse(storedUser)
+            // Force re-login if no token present
+            // setUser(userData) 
+          } catch {
+            localStorage.removeItem("user")
+          }
         }
+        setIsHydrated(true)
       }
-      setIsHydrated(true)
+      setIsLoading(false)
     }
-    setIsLoading(false)
+
+    initializeAuth()
   }, [])
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    console.log("Login attempt:", { email, password: "***" })
+    console.log("Login attempt:", { email })
     setIsLoading(true)
 
     const response = await apiService.login(email, password)
 
     if (response.success && response.data) {
-      const apiUser = response.data
-      console.log("Processing user data from API:", apiUser)
+      // Handle potential variations in API response structure
+      // e.g. { access_token: "..." } or { token: "..." } or { data: { token: "..." } }
+      const data: any = response.data
+      const accessToken = data.access_token || data.token || data.accessToken || (data.data && (data.data.access_token || data.data.token))
 
-      const safeUser: User = {
-        id: apiUser.id || Date.now().toString(),
-        email: apiUser.email || email,
-        name: apiUser.name || (apiUser.email ? apiUser.email.split("@")[0] : email.split("@")[0]),
-        avatar: apiUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${apiUser.email || email}`,
-        role: apiUser.role || "user",
-        createdAt: apiUser.createdAt || new Date().toISOString(),
-      }
+      console.log("Login successful, token found:", accessToken ? "Yes" : "No")
 
-      console.log("Login successful, setting user:", safeUser)
-      setUser(safeUser)
-      if (typeof window !== "undefined") {
-        localStorage.setItem("user", JSON.stringify(safeUser))
-        console.log("User saved to localStorage")
+      if (accessToken) {
+        localStorage.setItem("token", accessToken)
+
+        // Fetch full profile using token
+        const meResponse = await apiService.getProfile(accessToken)
+
+        if (meResponse.success && meResponse.data) {
+          const fullUser = meResponse.data
+          const safeUser: User = {
+            id: fullUser.id,
+            email: fullUser.email,
+            name: fullUser.name,
+            avatar: fullUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${fullUser.email}`,
+            role: fullUser.role || "user",
+            createdAt: fullUser.createdAt || new Date().toISOString(),
+          }
+          setUser(safeUser)
+          localStorage.setItem("user", JSON.stringify(safeUser))
+          setIsLoading(false)
+          return true
+        } else {
+          console.error("Failed to fetch profile after login:", meResponse.error)
+        }
+      } else {
+        console.error("Token missing in response data:", data)
       }
-      setIsLoading(false)
-      return true
     }
 
     console.log("Login failed:", response.error)
@@ -119,6 +158,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(mockUser)
     if (typeof window !== "undefined") {
       localStorage.setItem("user", JSON.stringify(mockUser))
+      // Demo doesn't have a real token
     }
     setIsLoading(false)
     return true
@@ -135,23 +175,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const response = await apiService.register(email, password, password_confirmation, name, role)
 
-    if (response.success && response.data) {
-      const apiUser = response.data
-      console.log("Processing registration data from API:", apiUser)
-
-      const safeUser: User = {
-        id: apiUser.id || Date.now().toString(),
-        email: apiUser.email || email,
-        name: apiUser.name || name,
-        avatar: apiUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-        role: apiUser.role || role,
-        createdAt: apiUser.createdAt || new Date().toISOString(),
-      }
-
-      setUser(safeUser)
-      if (typeof window !== "undefined") {
-        localStorage.setItem("user", JSON.stringify(safeUser))
-      }
+    if (response.success) {
+      console.log("Registration successful")
+      // No auto-login as per request
       setIsLoading(false)
       return true
     }
@@ -161,12 +187,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return false
   }
 
-  const logout = () => {
+  const logout = async () => {
     console.log("Logout called")
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+
+    if (token) {
+      try {
+        await apiService.logout(token)
+        console.log("Logged out from API")
+      } catch (error) {
+        console.error("Logout API failed", error)
+      }
+    }
+
     setUser(null)
     if (typeof window !== "undefined") {
       localStorage.removeItem("user")
-      console.log("User removed from localStorage")
+      localStorage.removeItem("token")
+      console.log("User and token removed from localStorage")
     }
   }
 

@@ -17,13 +17,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { Checkbox as UICheckbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { 
-  ShoppingBag, 
-  Heart, 
-  Settings, 
-  CreditCard, 
-  LogOut, 
-  Search, 
+import {
+  ShoppingBag,
+  Heart,
+  Settings,
+  CreditCard,
+  LogOut,
+  Search,
   Calendar,
   TrendingUp,
   Megaphone,
@@ -75,13 +75,13 @@ import { Product } from "@/lib/products"
 import { products } from "@/lib/products"
 
 // Sidebar Content Component (reusable for desktop and mobile)
-function SidebarContent({ 
-  activeTab, 
-  onTabChange, 
+function SidebarContent({
+  activeTab,
+  onTabChange,
   onItemClick,
   expandedMenu,
   setExpandedMenu
-}: { 
+}: {
   activeTab: string
   onTabChange: (tab: string) => void
   onItemClick?: () => void
@@ -89,7 +89,7 @@ function SidebarContent({
   setExpandedMenu: (menu: string | null) => void
 }) {
   const { user, logout } = useAuth()
-  
+
   // Mock user reputation
   const userReputation = 96.48
   // Mock credit balance
@@ -99,10 +99,10 @@ function SidebarContent({
     { id: "purchases", label: "Purchases", icon: ShoppingBag, active: activeTab === "purchases" },
     { id: "wishlist", label: "Wishlist", icon: Heart, active: activeTab === "wishlist" },
     { id: "credit", label: "Balance", icon: Wallet, active: activeTab === "credit", badge: `$${creditBalance.toFixed(2)}` },
-    { 
-      id: "offers", 
-      label: "Offers", 
-      icon: TrendingUp, 
+    {
+      id: "offers",
+      label: "Offers",
+      icon: TrendingUp,
       active: activeTab === "offers",
       hasSubMenu: true,
       subItems: [
@@ -113,10 +113,10 @@ function SidebarContent({
     },
     { id: "tax-report", label: "Tax report", icon: FileText, active: activeTab === "tax-report" },
     { id: "retail", label: "Retail advertising", icon: Sparkles, active: activeTab === "retail" },
-    { 
-      id: "wholesale", 
-      label: "Wholesale", 
-      icon: Package, 
+    {
+      id: "wholesale",
+      label: "Wholesale",
+      icon: Package,
       active: activeTab === "wholesale",
       hasSubMenu: true,
       subItems: [
@@ -165,7 +165,7 @@ function SidebarContent({
             const hasActiveSubItem = subItems?.some(subItem => activeTab === subItem.id) || false
             // Expand menu if any sub-item is active or if manually expanded
             const isExpanded = expandedMenu === item.id || (hasSubMenu && hasActiveSubItem)
-            
+
             return (
               <div key={item.id}>
                 <button
@@ -185,11 +185,10 @@ function SidebarContent({
                       handleItemClick(item.id)
                     }
                   }}
-                  className={`w-full flex items-center justify-between px-2.5 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 rounded-lg transition-colors text-sm sm:text-base ${
-                    item.active && !hasActiveSubItem
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                  }`}
+                  className={`w-full flex items-center justify-between px-2.5 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 rounded-lg transition-colors text-sm sm:text-base ${item.active && !hasActiveSubItem
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                    }`}
                 >
                   <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3 min-w-0 flex-1">
                     <Icon className="h-4 w-4 sm:h-4 sm:w-4 md:h-5 md:w-5 flex-shrink-0" />
@@ -215,11 +214,10 @@ function SidebarContent({
                           handleItemClick(subItem.id)
                           onItemClick?.()
                         }}
-                        className={`w-full flex items-center px-2.5 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 rounded-lg transition-colors text-sm sm:text-base ${
-                          activeTab === subItem.id
-                            ? "bg-primary text-primary-foreground"
-                            : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                        }`}
+                        className={`w-full flex items-center px-2.5 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 rounded-lg transition-colors text-sm sm:text-base ${activeTab === subItem.id
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                          }`}
                       >
                         <span className="font-medium truncate">{subItem.label}</span>
                       </button>
@@ -247,7 +245,7 @@ function SidebarContent({
 }
 
 export function AccountDashboard() {
-  const { user } = useAuth()
+  const { user, isLoading } = useAuth()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("offers-list")
   const [purchasesTab, setPurchasesTab] = useState("games")
@@ -280,7 +278,7 @@ export function AccountDashboard() {
   const [productSearch, setProductSearch] = useState("")
   const [showProductResults, setShowProductResults] = useState(false)
   const productSearchRef = useRef<HTMLDivElement>(null)
-  
+
   // Product search results
   const productSearchResults = useMemo(() => {
     if (!productSearch.trim() || productSearch.length < 2) {
@@ -384,17 +382,21 @@ export function AccountDashboard() {
   }>>([])
 
   useEffect(() => {
-    if (!user) {
+    if (!isLoading && !user) {
       router.push("/login")
-    } else {
+    } else if (user) {
       // Load wishlist
       const savedWishlist = localStorage.getItem(`wishlist_${user.id}`)
       if (savedWishlist) {
         setWishlist(JSON.parse(savedWishlist))
       }
     }
-  }, [user, router])
+  }, [user, isLoading, router])
 
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+  }
 
   if (!user) {
     return null
@@ -689,8 +691,8 @@ export function AccountDashboard() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-[260px] sm:w-[280px] md:w-[320px] p-0 flex flex-col">
-            <SidebarContent 
-              activeTab={activeTab} 
+            <SidebarContent
+              activeTab={activeTab}
               onTabChange={(tab) => {
                 setActiveTab(tab)
                 setIsMobileMenuOpen(false)
@@ -704,8 +706,8 @@ export function AccountDashboard() {
 
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:h-screen lg:sticky lg:top-0 bg-card border-r border-border">
-        <SidebarContent 
-          activeTab={activeTab} 
+        <SidebarContent
+          activeTab={activeTab}
           onTabChange={setActiveTab}
           expandedMenu={expandedMenu}
           setExpandedMenu={setExpandedMenu}
@@ -722,7 +724,7 @@ export function AccountDashboard() {
               <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
                 <ShoppingBag className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
                 <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Purchases</h1>
-        </div>
+              </div>
 
               {/* Search and Filters */}
               <div className="flex flex-col gap-2.5 sm:gap-3 md:gap-4">
@@ -735,7 +737,7 @@ export function AccountDashboard() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-9 sm:pl-10 h-10 sm:h-11 text-base sm:text-base bg-card border-border focus:border-primary focus:ring-primary"
                   />
-                    </div>
+                </div>
                 <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 md:gap-4 sm:items-center">
                   <div className="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-initial">
                     <span className="text-sm sm:text-sm md:text-sm text-muted-foreground whitespace-nowrap">filter</span>
@@ -772,8 +774,8 @@ export function AccountDashboard() {
                       </SelectContent>
                     </Select>
                   </div>
-                    </div>
-                  </div>
+                </div>
+              </div>
 
               {/* Content Tabs */}
               <Tabs value={purchasesTab} onValueChange={setPurchasesTab} className="w-full">
@@ -818,44 +820,44 @@ export function AccountDashboard() {
                               mockPurchases.map((purchase) => {
                                 const firstLetter = purchase.article?.charAt(0).toUpperCase() || "?"
                                 const hasImage = purchase.image && purchase.image.trim() !== ""
-                                
+
                                 return (
-                                <TableRow key={purchase.id} className="border-border hover:bg-accent">
-                                  <TableCell className="text-foreground text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">
-                                    <div className="flex items-center gap-3">
-                                      <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
-                                        {hasImage ? (
-                                          <AvatarImage src={purchase.image} alt={purchase.article} />
-                                        ) : null}
-                                        <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-sm sm:text-base">
-                                          {firstLetter}
-                                        </AvatarFallback>
-                                      </Avatar>
-                                      <span className="font-medium">{purchase.article}</span>
-                                    </div>
-                                  </TableCell>
-                                  <TableCell className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">
-                                    <Shield className="h-4 w-4 sm:h-4 sm:w-4 text-muted-foreground" />
-                                  </TableCell>
-                                  <TableCell className="text-muted-foreground text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">{purchase.date}</TableCell>
-                                  <TableCell className="text-foreground font-medium text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">{purchase.price}</TableCell>
-                                  <TableCell className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">
-                                    <Button variant="ghost" size="sm" className="text-primary hover:text-primary text-sm sm:text-sm md:text-sm h-8 sm:h-9 px-2 sm:px-3">
-                                      Review
-                                    </Button>
-                                  </TableCell>
-                                  <TableCell className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">
-                                    <Button variant="ghost" size="sm" className="text-primary hover:text-primary text-sm sm:text-sm md:text-sm h-8 sm:h-9 px-2 sm:px-3">
-                                      Review
-                                    </Button>
-                                  </TableCell>
-                                </TableRow>
+                                  <TableRow key={purchase.id} className="border-border hover:bg-accent">
+                                    <TableCell className="text-foreground text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">
+                                      <div className="flex items-center gap-3">
+                                        <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
+                                          {hasImage ? (
+                                            <AvatarImage src={purchase.image} alt={purchase.article} />
+                                          ) : null}
+                                          <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-sm sm:text-base">
+                                            {firstLetter}
+                                          </AvatarFallback>
+                                        </Avatar>
+                                        <span className="font-medium">{purchase.article}</span>
+                                      </div>
+                                    </TableCell>
+                                    <TableCell className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">
+                                      <Shield className="h-4 w-4 sm:h-4 sm:w-4 text-muted-foreground" />
+                                    </TableCell>
+                                    <TableCell className="text-muted-foreground text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">{purchase.date}</TableCell>
+                                    <TableCell className="text-foreground font-medium text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">{purchase.price}</TableCell>
+                                    <TableCell className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">
+                                      <Button variant="ghost" size="sm" className="text-primary hover:text-primary text-sm sm:text-sm md:text-sm h-8 sm:h-9 px-2 sm:px-3">
+                                        Review
+                                      </Button>
+                                    </TableCell>
+                                    <TableCell className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">
+                                      <Button variant="ghost" size="sm" className="text-primary hover:text-primary text-sm sm:text-sm md:text-sm h-8 sm:h-9 px-2 sm:px-3">
+                                        Review
+                                      </Button>
+                                    </TableCell>
+                                  </TableRow>
                                 )
                               })
                             )}
                           </TableBody>
                         </Table>
-                  </div>
+                      </div>
                     </div>
                   </div>
                 </TabsContent>
@@ -882,12 +884,12 @@ export function AccountDashboard() {
                             </TableRow>
                           </TableBody>
                         </Table>
-                  </div>
+                      </div>
                     </div>
                   </div>
                 </TabsContent>
               </Tabs>
-      </div>
+            </div>
           )}
 
           {/* Wishlist Section */}
@@ -897,21 +899,21 @@ export function AccountDashboard() {
                 <Heart className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
                 <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Wishlist</h1>
               </div>
-                {wishlist.length === 0 ? (
+              {wishlist.length === 0 ? (
                 <div className="bg-card border border-border rounded-lg p-6 sm:p-8 md:p-12 text-center">
                   <p className="text-muted-foreground text-sm sm:text-base">No items in your wishlist</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                    {wishlist.map((product) => (
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  {wishlist.map((product) => (
                     <div key={product.id} className="bg-card border border-border rounded-lg p-3 sm:p-4">
                       <img src={product.image} alt={product.title} className="w-full h-36 sm:h-40 md:h-48 object-cover rounded mb-3 sm:mb-4" />
                       <h3 className="font-semibold text-foreground mb-1.5 sm:mb-2 text-xs sm:text-sm md:text-base line-clamp-2">{product.title}</h3>
                       <p className="text-primary font-bold text-sm sm:text-base md:text-lg">${product.vendors[0]?.price || 0}</p>
-                          </div>
-                    ))}
-                  </div>
-                )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -1133,7 +1135,7 @@ export function AccountDashboard() {
                                       {transaction.orderId}
                                     </TableCell>
                                     <TableCell className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">
-                                      <Badge 
+                                      <Badge
                                         variant={transaction.status === "completed" ? "default" : "secondary"}
                                         className="text-xs"
                                       >
@@ -1146,9 +1148,8 @@ export function AccountDashboard() {
                                     <TableCell className="text-muted-foreground text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">
                                       {transaction.expirationDate}
                                     </TableCell>
-                                    <TableCell className={`text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 font-semibold ${
-                                      transaction.value >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
-                                    }`}>
+                                    <TableCell className={`text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 font-semibold ${transaction.value >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                                      }`}>
                                       ${transaction.value >= 0 ? "+" : ""}{transaction.value.toFixed(2)}
                                     </TableCell>
                                   </TableRow>
@@ -1165,9 +1166,8 @@ export function AccountDashboard() {
                     {/* Progress Steps */}
                     <div className="flex items-center justify-between max-w-2xl">
                       <div className="flex items-center gap-2 flex-1">
-                        <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
-                          payoutStep >= 1 ? 'bg-primary border-primary text-primary-foreground' : 'border-muted text-muted-foreground'
-                        }`}>
+                        <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${payoutStep >= 1 ? 'bg-primary border-primary text-primary-foreground' : 'border-muted text-muted-foreground'
+                          }`}>
                           {payoutStep > 1 ? (
                             <CheckCircle2 className="h-5 w-5" />
                           ) : (
@@ -1175,20 +1175,17 @@ export function AccountDashboard() {
                           )}
                         </div>
                         <div className="flex-1">
-                          <p className={`text-sm font-medium ${
-                            payoutStep >= 1 ? 'text-primary' : 'text-muted-foreground'
-                          }`}>
+                          <p className={`text-sm font-medium ${payoutStep >= 1 ? 'text-primary' : 'text-muted-foreground'
+                            }`}>
                             Step: Select Your Payout Method
                           </p>
                         </div>
                       </div>
-                      <div className={`h-0.5 flex-1 mx-2 ${
-                        payoutStep >= 2 ? 'bg-primary' : 'bg-muted'
-                      }`} />
+                      <div className={`h-0.5 flex-1 mx-2 ${payoutStep >= 2 ? 'bg-primary' : 'bg-muted'
+                        }`} />
                       <div className="flex items-center gap-2 flex-1">
-                        <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
-                          payoutStep >= 2 ? 'bg-primary border-primary text-primary-foreground' : 'border-muted text-muted-foreground'
-                        }`}>
+                        <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${payoutStep >= 2 ? 'bg-primary border-primary text-primary-foreground' : 'border-muted text-muted-foreground'
+                          }`}>
                           {payoutStep > 2 ? (
                             <CheckCircle2 className="h-5 w-5" />
                           ) : (
@@ -1196,26 +1193,22 @@ export function AccountDashboard() {
                           )}
                         </div>
                         <div className="flex-1">
-                          <p className={`text-sm font-medium ${
-                            payoutStep >= 2 ? 'text-primary' : 'text-muted-foreground'
-                          }`}>
+                          <p className={`text-sm font-medium ${payoutStep >= 2 ? 'text-primary' : 'text-muted-foreground'
+                            }`}>
                             Step: Set Your Payout Amount
                           </p>
                         </div>
                       </div>
-                      <div className={`h-0.5 flex-1 mx-2 ${
-                        payoutStep >= 3 ? 'bg-primary' : 'bg-muted'
-                      }`} />
+                      <div className={`h-0.5 flex-1 mx-2 ${payoutStep >= 3 ? 'bg-primary' : 'bg-muted'
+                        }`} />
                       <div className="flex items-center gap-2 flex-1">
-                        <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
-                          payoutStep >= 3 ? 'bg-primary border-primary text-primary-foreground' : 'border-muted text-muted-foreground'
-                        }`}>
+                        <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${payoutStep >= 3 ? 'bg-primary border-primary text-primary-foreground' : 'border-muted text-muted-foreground'
+                          }`}>
                           <span className="text-sm font-semibold">III</span>
                         </div>
                         <div className="flex-1">
-                          <p className={`text-sm font-medium ${
-                            payoutStep >= 3 ? 'text-primary' : 'text-muted-foreground'
-                          }`}>
+                          <p className={`text-sm font-medium ${payoutStep >= 3 ? 'text-primary' : 'text-muted-foreground'
+                            }`}>
                             Step: Payout Summary
                           </p>
                         </div>
@@ -1337,14 +1330,14 @@ export function AccountDashboard() {
                     {/* Instructions */}
                     <div className="bg-muted/30 border border-border rounded-lg p-4 sm:p-6">
                       <p className="text-sm text-muted-foreground leading-relaxed">
-                        To change your payment details, please contact our customer service. To add additional payment methods, 
+                        To change your payment details, please contact our customer service. To add additional payment methods,
                         please contact <span className="text-primary font-medium">merchants@gamivo.com</span> with proof of ownership.
                       </p>
                     </div>
 
                     {/* Next Button */}
                     <div className="flex justify-end">
-                      <Button 
+                      <Button
                         onClick={() => setPayoutStep(Math.min(payoutStep + 1, 3))}
                         className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 sm:px-8"
                       >
@@ -1357,9 +1350,8 @@ export function AccountDashboard() {
                     {/* Progress Steps */}
                     <div className="flex items-center justify-between max-w-2xl">
                       <div className="flex items-center gap-2 flex-1">
-                        <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
-                          topUpStep >= 1 ? 'bg-primary border-primary text-primary-foreground' : 'border-muted text-muted-foreground'
-                        }`}>
+                        <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${topUpStep >= 1 ? 'bg-primary border-primary text-primary-foreground' : 'border-muted text-muted-foreground'
+                          }`}>
                           {topUpStep > 1 ? (
                             <CheckCircle2 className="h-5 w-5" />
                           ) : (
@@ -1367,20 +1359,17 @@ export function AccountDashboard() {
                           )}
                         </div>
                         <div className="flex-1">
-                          <p className={`text-sm font-medium ${
-                            topUpStep >= 1 ? 'text-primary' : 'text-muted-foreground'
-                          }`}>
+                          <p className={`text-sm font-medium ${topUpStep >= 1 ? 'text-primary' : 'text-muted-foreground'
+                            }`}>
                             Step: Select Your Top Up Method
                           </p>
                         </div>
                       </div>
-                      <div className={`h-0.5 flex-1 mx-2 ${
-                        topUpStep >= 2 ? 'bg-primary' : 'bg-muted'
-                      }`} />
+                      <div className={`h-0.5 flex-1 mx-2 ${topUpStep >= 2 ? 'bg-primary' : 'bg-muted'
+                        }`} />
                       <div className="flex items-center gap-2 flex-1">
-                        <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
-                          topUpStep >= 2 ? 'bg-primary border-primary text-primary-foreground' : 'border-muted text-muted-foreground'
-                        }`}>
+                        <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${topUpStep >= 2 ? 'bg-primary border-primary text-primary-foreground' : 'border-muted text-muted-foreground'
+                          }`}>
                           {topUpStep > 2 ? (
                             <CheckCircle2 className="h-5 w-5" />
                           ) : (
@@ -1388,26 +1377,22 @@ export function AccountDashboard() {
                           )}
                         </div>
                         <div className="flex-1">
-                          <p className={`text-sm font-medium ${
-                            topUpStep >= 2 ? 'text-primary' : 'text-muted-foreground'
-                          }`}>
+                          <p className={`text-sm font-medium ${topUpStep >= 2 ? 'text-primary' : 'text-muted-foreground'
+                            }`}>
                             Step: Set Your Top Up Amount
                           </p>
                         </div>
                       </div>
-                      <div className={`h-0.5 flex-1 mx-2 ${
-                        topUpStep >= 3 ? 'bg-primary' : 'bg-muted'
-                      }`} />
+                      <div className={`h-0.5 flex-1 mx-2 ${topUpStep >= 3 ? 'bg-primary' : 'bg-muted'
+                        }`} />
                       <div className="flex items-center gap-2 flex-1">
-                        <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
-                          topUpStep >= 3 ? 'bg-primary border-primary text-primary-foreground' : 'border-muted text-muted-foreground'
-                        }`}>
+                        <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${topUpStep >= 3 ? 'bg-primary border-primary text-primary-foreground' : 'border-muted text-muted-foreground'
+                          }`}>
                           <span className="text-sm font-semibold">III</span>
                         </div>
                         <div className="flex-1">
-                          <p className={`text-sm font-medium ${
-                            topUpStep >= 3 ? 'text-primary' : 'text-muted-foreground'
-                          }`}>
+                          <p className={`text-sm font-medium ${topUpStep >= 3 ? 'text-primary' : 'text-muted-foreground'
+                            }`}>
                             Step: Top Up Summary
                           </p>
                         </div>
@@ -1561,7 +1546,7 @@ export function AccountDashboard() {
                   </TabsContent>
                 </Tabs>
               </div>
-                  </div>
+            </div>
           )}
 
           {/* Offers List Section */}
@@ -1576,7 +1561,7 @@ export function AccountDashboard() {
               {/* Header with Title and Button */}
               <div className="flex items-center justify-between">
                 <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Offers list</h1>
-                <Button 
+                <Button
                   onClick={() => setShowSellItem(true)}
                   className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
@@ -1589,749 +1574,747 @@ export function AccountDashboard() {
                 <div className="space-y-4">
                   {/* Offers Status Tabs */}
                   <Tabs value={offersTab} onValueChange={setOffersTab} className="w-full">
-                        <TabsList className="bg-card border border-border p-0.5 sm:p-1 inline-flex w-full sm:w-auto h-9 sm:h-10">
-                          <TabsTrigger
-                            value="active"
-                            className="flex-1 sm:flex-initial text-sm sm:text-base px-3 sm:px-4 h-8 sm:h-9 min-h-[32px] sm:min-h-[36px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                          >
-                            Active
-                          </TabsTrigger>
-                          <TabsTrigger
-                            value="inactive"
-                            className="flex-1 sm:flex-initial text-sm sm:text-base px-3 sm:px-4 h-8 sm:h-9 min-h-[32px] sm:min-h-[36px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                          >
-                            Inactive
-                          </TabsTrigger>
-                          <TabsTrigger
-                            value="sold"
-                            className="flex-1 sm:flex-initial text-sm sm:text-base px-3 sm:px-4 h-8 sm:h-9 min-h-[32px] sm:min-h-[36px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                          >
-                            Sold
-                          </TabsTrigger>
-                          <TabsTrigger
-                            value="suspended"
-                            className="flex-1 sm:flex-initial text-sm sm:text-base px-3 sm:px-4 h-8 sm:h-9 min-h-[32px] sm:min-h-[36px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                          >
-                            Suspended
-                          </TabsTrigger>
-                        </TabsList>
+                    <TabsList className="bg-card border border-border p-0.5 sm:p-1 inline-flex w-full sm:w-auto h-9 sm:h-10">
+                      <TabsTrigger
+                        value="active"
+                        className="flex-1 sm:flex-initial text-sm sm:text-base px-3 sm:px-4 h-8 sm:h-9 min-h-[32px] sm:min-h-[36px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                      >
+                        Active
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="inactive"
+                        className="flex-1 sm:flex-initial text-sm sm:text-base px-3 sm:px-4 h-8 sm:h-9 min-h-[32px] sm:min-h-[36px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                      >
+                        Inactive
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="sold"
+                        className="flex-1 sm:flex-initial text-sm sm:text-base px-3 sm:px-4 h-8 sm:h-9 min-h-[32px] sm:min-h-[36px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                      >
+                        Sold
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="suspended"
+                        className="flex-1 sm:flex-initial text-sm sm:text-base px-3 sm:px-4 h-8 sm:h-9 min-h-[32px] sm:min-h-[36px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                      >
+                        Suspended
+                      </TabsTrigger>
+                    </TabsList>
 
-                <TabsContent value={offersTab} className="mt-4 space-y-4">
-                  {/* Search and Filters */}
-                  <div className="flex flex-col gap-3 sm:gap-4">
-                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center">
-                      <div className="relative flex-1 w-full sm:w-auto">
-                        <Search className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
-                        <Input
-                          type="text"
-                          placeholder="Search..."
-                          value={offersSearch}
-                          onChange={(e) => setOffersSearch(e.target.value)}
-                          className="pl-9 sm:pl-10 h-10 sm:h-11 text-base sm:text-base bg-card border-border focus:border-primary focus:ring-primary"
-                        />
+                    <TabsContent value={offersTab} className="mt-4 space-y-4">
+                      {/* Search and Filters */}
+                      <div className="flex flex-col gap-3 sm:gap-4">
+                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center">
+                          <div className="relative flex-1 w-full sm:w-auto">
+                            <Search className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+                            <Input
+                              type="text"
+                              placeholder="Search..."
+                              value={offersSearch}
+                              onChange={(e) => setOffersSearch(e.target.value)}
+                              className="pl-9 sm:pl-10 h-10 sm:h-11 text-base sm:text-base bg-card border-border focus:border-primary focus:ring-primary"
+                            />
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                              <span className="text-sm text-muted-foreground whitespace-nowrap">Show</span>
+                              <Select value={offersShowCount} onValueChange={setOffersShowCount}>
+                                <SelectTrigger className="w-[70px] sm:w-[80px] h-10 sm:h-11 bg-card border-border text-base sm:text-base">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="bg-popover border-border">
+                                  <SelectItem value="10">10</SelectItem>
+                                  <SelectItem value="25">25</SelectItem>
+                                  <SelectItem value="50">50</SelectItem>
+                                  <SelectItem value="100">100</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <Switch
+                                checked={offersShowWholesaleOnly}
+                                onCheckedChange={setOffersShowWholesaleOnly}
+                                id="offers-wholesale-only"
+                              />
+                              <label htmlFor="offers-wholesale-only" className="text-sm text-muted-foreground cursor-pointer whitespace-nowrap">
+                                Show my wholesale offers only
+                              </label>
+                            </div>
+
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                              <span className="text-sm text-muted-foreground whitespace-nowrap">Sort</span>
+                              <Select value={offersSort} onValueChange={setOffersSort}>
+                                <SelectTrigger className="w-[140px] sm:w-[150px] h-10 sm:h-11 bg-card border-border text-base sm:text-base">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="bg-popover border-border">
+                                  <SelectItem value="bestselling">Bestselling</SelectItem>
+                                  <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                                  <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                                  <SelectItem value="date-newest">Date: Newest</SelectItem>
+                                  <SelectItem value="date-oldest">Date: Oldest</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <Select value={offersPlatform} onValueChange={setOffersPlatform}>
+                              <SelectTrigger className="w-[120px] sm:w-[140px] h-10 sm:h-11 bg-card border-border text-base sm:text-base">
+                                <SelectValue placeholder="All platforms" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-popover border-border">
+                                <SelectItem value="all">All platforms</SelectItem>
+                                <SelectItem value="windows">Windows</SelectItem>
+                                <SelectItem value="mac">Mac</SelectItem>
+                                <SelectItem value="linux">Linux</SelectItem>
+                              </SelectContent>
+                            </Select>
+
+                            <Select value={offersRegion} onValueChange={setOffersRegion}>
+                              <SelectTrigger className="w-[110px] sm:w-[120px] h-10 sm:h-11 bg-card border-border text-base sm:text-base">
+                                <SelectValue placeholder="All regions" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-popover border-border">
+                                <SelectItem value="all">All regions</SelectItem>
+                                <SelectItem value="global">Global</SelectItem>
+                                <SelectItem value="eu">EU</SelectItem>
+                                <SelectItem value="us">US</SelectItem>
+                              </SelectContent>
+                            </Select>
+
+                            <Select value={offersPrice} onValueChange={setOffersPrice}>
+                              <SelectTrigger className="w-[100px] sm:w-[110px] h-10 sm:h-11 bg-card border-border text-base sm:text-base">
+                                <SelectValue placeholder="All prices" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-popover border-border">
+                                <SelectItem value="all">All prices</SelectItem>
+                                <SelectItem value="0-10">€0 - €10</SelectItem>
+                                <SelectItem value="10-25">€10 - €25</SelectItem>
+                                <SelectItem value="25-50">€25 - €50</SelectItem>
+                                <SelectItem value="50+">€50+</SelectItem>
+                              </SelectContent>
+                            </Select>
+
+                            <Select value={offersDistribution} onValueChange={setOffersDistribution}>
+                              <SelectTrigger className="w-[130px] sm:w-[140px] h-10 sm:h-11 bg-card border-border text-base sm:text-base">
+                                <SelectValue placeholder="All distributions" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-popover border-border">
+                                <SelectItem value="all">All distributions</SelectItem>
+                                <SelectItem value="key">Key</SelectItem>
+                                <SelectItem value="account">Account</SelectItem>
+                                <SelectItem value="gift">Gift Card</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                        <div className="flex items-center gap-1.5 sm:gap-2">
-                          <span className="text-sm text-muted-foreground whitespace-nowrap">Show</span>
-                          <Select value={offersShowCount} onValueChange={setOffersShowCount}>
-                            <SelectTrigger className="w-[70px] sm:w-[80px] h-10 sm:h-11 bg-card border-border text-base sm:text-base">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="bg-popover border-border">
-                              <SelectItem value="10">10</SelectItem>
-                              <SelectItem value="25">25</SelectItem>
-                              <SelectItem value="50">50</SelectItem>
-                              <SelectItem value="100">100</SelectItem>
-                            </SelectContent>
-                          </Select>
+                      {/* Offers Table */}
+                      <div className="bg-card border border-border rounded-lg overflow-hidden">
+                        <div className="p-3 sm:p-4 border-b border-border">
+                          <p className="text-sm text-muted-foreground">7 item(s)</p>
                         </div>
-
-                        <div className="flex items-center gap-2">
-                          <Switch
-                            checked={offersShowWholesaleOnly}
-                            onCheckedChange={setOffersShowWholesaleOnly}
-                            id="offers-wholesale-only"
-                          />
-                          <label htmlFor="offers-wholesale-only" className="text-sm text-muted-foreground cursor-pointer whitespace-nowrap">
-                            Show my wholesale offers only
-                          </label>
+                        <div className="overflow-x-auto">
+                          <Table>
+                            <TableHeader>
+                              <TableRow className="border-border hover:bg-card">
+                                <TableHead className="text-muted-foreground font-medium text-sm px-3 sm:px-4 py-3">Product name</TableHead>
+                                <TableHead className="text-muted-foreground font-medium text-sm px-3 sm:px-4 py-3">Platform</TableHead>
+                                <TableHead className="text-muted-foreground font-medium text-sm px-3 sm:px-4 py-3">Region</TableHead>
+                                <TableHead className="text-muted-foreground font-medium text-sm px-3 sm:px-4 py-3">Distributions</TableHead>
+                                <TableHead className="text-muted-foreground font-medium text-sm px-3 sm:px-4 py-3">Available</TableHead>
+                                <TableHead className="text-muted-foreground font-medium text-sm px-3 sm:px-4 py-3">Retail</TableHead>
+                                <TableHead className="text-muted-foreground font-medium text-sm px-3 sm:px-4 py-3">Wholesale</TableHead>
+                                <TableHead className="text-muted-foreground font-medium text-sm px-3 sm:px-4 py-3">Last changed</TableHead>
+                                <TableHead className="text-muted-foreground font-medium text-sm px-3 sm:px-4 py-3">Manual Retail Advertising</TableHead>
+                                <TableHead className="text-muted-foreground font-medium text-sm px-3 sm:px-4 py-3"></TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {mockOffers.map((offer) => (
+                                <TableRow key={offer.id} className="border-border hover:bg-accent">
+                                  <TableCell className="px-3 sm:px-4 py-3">
+                                    <div className="flex items-center gap-3">
+                                      <div className={`w-10 h-10 rounded flex items-center justify-center text-white font-bold text-xs ${offer.iconColor}`}>
+                                        {offer.iconText}
+                                      </div>
+                                      <span className="text-sm font-medium text-foreground">{offer.name}</span>
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="px-3 sm:px-4 py-3">
+                                    <Grid3x3 className="h-4 w-4 text-muted-foreground" />
+                                  </TableCell>
+                                  <TableCell className="px-3 sm:px-4 py-3">
+                                    <span className="text-sm text-foreground">{offer.region}</span>
+                                  </TableCell>
+                                  <TableCell className="px-3 sm:px-4 py-3">
+                                    <Key className="h-4 w-4 text-muted-foreground" />
+                                  </TableCell>
+                                  <TableCell className="px-3 sm:px-4 py-3">
+                                    <span className="text-sm font-medium text-foreground">{offer.available}</span>
+                                  </TableCell>
+                                  <TableCell className="px-3 sm:px-4 py-3">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-sm font-semibold text-foreground">€{offer.retail}</span>
+                                      <button className="text-muted-foreground hover:text-foreground">
+                                        <Edit className="h-3 w-3" />
+                                      </button>
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="px-3 sm:px-4 py-3">
+                                    <span className="text-sm text-muted-foreground">{offer.wholesale || "-"}</span>
+                                  </TableCell>
+                                  <TableCell className="px-3 sm:px-4 py-3">
+                                    <span className="text-sm text-muted-foreground">{offer.lastChanged}</span>
+                                  </TableCell>
+                                  <TableCell className="px-3 sm:px-4 py-3">
+                                    <AlertCircle className="h-4 w-4 text-muted-foreground" />
+                                  </TableCell>
+                                  <TableCell className="px-3 sm:px-4 py-3">
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <button className="text-muted-foreground hover:text-foreground">
+                                          <MoreVertical className="h-4 w-4" />
+                                        </button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent align="end" className="bg-popover border-border">
+                                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                                        <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                                        <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
                         </div>
-
-                        <div className="flex items-center gap-1.5 sm:gap-2">
-                          <span className="text-sm text-muted-foreground whitespace-nowrap">Sort</span>
-                          <Select value={offersSort} onValueChange={setOffersSort}>
-                            <SelectTrigger className="w-[140px] sm:w-[150px] h-10 sm:h-11 bg-card border-border text-base sm:text-base">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="bg-popover border-border">
-                              <SelectItem value="bestselling">Bestselling</SelectItem>
-                              <SelectItem value="price-asc">Price: Low to High</SelectItem>
-                              <SelectItem value="price-desc">Price: High to Low</SelectItem>
-                              <SelectItem value="date-newest">Date: Newest</SelectItem>
-                              <SelectItem value="date-oldest">Date: Oldest</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <Select value={offersPlatform} onValueChange={setOffersPlatform}>
-                          <SelectTrigger className="w-[120px] sm:w-[140px] h-10 sm:h-11 bg-card border-border text-base sm:text-base">
-                            <SelectValue placeholder="All platforms" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-popover border-border">
-                            <SelectItem value="all">All platforms</SelectItem>
-                            <SelectItem value="windows">Windows</SelectItem>
-                            <SelectItem value="mac">Mac</SelectItem>
-                            <SelectItem value="linux">Linux</SelectItem>
-                          </SelectContent>
-                        </Select>
-
-                        <Select value={offersRegion} onValueChange={setOffersRegion}>
-                          <SelectTrigger className="w-[110px] sm:w-[120px] h-10 sm:h-11 bg-card border-border text-base sm:text-base">
-                            <SelectValue placeholder="All regions" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-popover border-border">
-                            <SelectItem value="all">All regions</SelectItem>
-                            <SelectItem value="global">Global</SelectItem>
-                            <SelectItem value="eu">EU</SelectItem>
-                            <SelectItem value="us">US</SelectItem>
-                          </SelectContent>
-                        </Select>
-
-                        <Select value={offersPrice} onValueChange={setOffersPrice}>
-                          <SelectTrigger className="w-[100px] sm:w-[110px] h-10 sm:h-11 bg-card border-border text-base sm:text-base">
-                            <SelectValue placeholder="All prices" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-popover border-border">
-                            <SelectItem value="all">All prices</SelectItem>
-                            <SelectItem value="0-10">€0 - €10</SelectItem>
-                            <SelectItem value="10-25">€10 - €25</SelectItem>
-                            <SelectItem value="25-50">€25 - €50</SelectItem>
-                            <SelectItem value="50+">€50+</SelectItem>
-                          </SelectContent>
-                        </Select>
-
-                        <Select value={offersDistribution} onValueChange={setOffersDistribution}>
-                          <SelectTrigger className="w-[130px] sm:w-[140px] h-10 sm:h-11 bg-card border-border text-base sm:text-base">
-                            <SelectValue placeholder="All distributions" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-popover border-border">
-                            <SelectItem value="all">All distributions</SelectItem>
-                            <SelectItem value="key">Key</SelectItem>
-                            <SelectItem value="account">Account</SelectItem>
-                            <SelectItem value="gift">Gift Card</SelectItem>
-                          </SelectContent>
-                        </Select>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Offers Table */}
-                  <div className="bg-card border border-border rounded-lg overflow-hidden">
-                    <div className="p-3 sm:p-4 border-b border-border">
-                      <p className="text-sm text-muted-foreground">7 item(s)</p>
-                    </div>
-                    <div className="overflow-x-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="border-border hover:bg-card">
-                            <TableHead className="text-muted-foreground font-medium text-sm px-3 sm:px-4 py-3">Product name</TableHead>
-                            <TableHead className="text-muted-foreground font-medium text-sm px-3 sm:px-4 py-3">Platform</TableHead>
-                            <TableHead className="text-muted-foreground font-medium text-sm px-3 sm:px-4 py-3">Region</TableHead>
-                            <TableHead className="text-muted-foreground font-medium text-sm px-3 sm:px-4 py-3">Distributions</TableHead>
-                            <TableHead className="text-muted-foreground font-medium text-sm px-3 sm:px-4 py-3">Available</TableHead>
-                            <TableHead className="text-muted-foreground font-medium text-sm px-3 sm:px-4 py-3">Retail</TableHead>
-                            <TableHead className="text-muted-foreground font-medium text-sm px-3 sm:px-4 py-3">Wholesale</TableHead>
-                            <TableHead className="text-muted-foreground font-medium text-sm px-3 sm:px-4 py-3">Last changed</TableHead>
-                            <TableHead className="text-muted-foreground font-medium text-sm px-3 sm:px-4 py-3">Manual Retail Advertising</TableHead>
-                            <TableHead className="text-muted-foreground font-medium text-sm px-3 sm:px-4 py-3"></TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {mockOffers.map((offer) => (
-                            <TableRow key={offer.id} className="border-border hover:bg-accent">
-                              <TableCell className="px-3 sm:px-4 py-3">
-                                <div className="flex items-center gap-3">
-                                  <div className={`w-10 h-10 rounded flex items-center justify-center text-white font-bold text-xs ${offer.iconColor}`}>
-                                    {offer.iconText}
-                                  </div>
-                                  <span className="text-sm font-medium text-foreground">{offer.name}</span>
-                                </div>
-                              </TableCell>
-                              <TableCell className="px-3 sm:px-4 py-3">
-                                <Grid3x3 className="h-4 w-4 text-muted-foreground" />
-                              </TableCell>
-                              <TableCell className="px-3 sm:px-4 py-3">
-                                <span className="text-sm text-foreground">{offer.region}</span>
-                              </TableCell>
-                              <TableCell className="px-3 sm:px-4 py-3">
-                                <Key className="h-4 w-4 text-muted-foreground" />
-                              </TableCell>
-                              <TableCell className="px-3 sm:px-4 py-3">
-                                <span className="text-sm font-medium text-foreground">{offer.available}</span>
-                              </TableCell>
-                              <TableCell className="px-3 sm:px-4 py-3">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm font-semibold text-foreground">€{offer.retail}</span>
-                                  <button className="text-muted-foreground hover:text-foreground">
-                                    <Edit className="h-3 w-3" />
-                                  </button>
-                                </div>
-                              </TableCell>
-                              <TableCell className="px-3 sm:px-4 py-3">
-                                <span className="text-sm text-muted-foreground">{offer.wholesale || "-"}</span>
-                              </TableCell>
-                              <TableCell className="px-3 sm:px-4 py-3">
-                                <span className="text-sm text-muted-foreground">{offer.lastChanged}</span>
-                              </TableCell>
-                              <TableCell className="px-3 sm:px-4 py-3">
-                                <AlertCircle className="h-4 w-4 text-muted-foreground" />
-                              </TableCell>
-                              <TableCell className="px-3 sm:px-4 py-3">
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <button className="text-muted-foreground hover:text-foreground">
-                                      <MoreVertical className="h-4 w-4" />
-                                    </button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end" className="bg-popover border-border">
-                                    <DropdownMenuItem>Edit</DropdownMenuItem>
-                                    <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                                    <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </div>
-                        </TabsContent>
-                      </Tabs>
+                    </TabsContent>
+                  </Tabs>
                 </div>
               ) : (
                 // Sell New Item Form (shown when showSellItem is true)
                 <div className="space-y-4 sm:space-y-5 md:space-y-6">
-                      {/* Breadcrumbs */}
-                      <div className="text-sm text-muted-foreground">
-                        My Account &gt; Sales &gt; Sell new item
+                  {/* Breadcrumbs */}
+                  <div className="text-sm text-muted-foreground">
+                    My Account &gt; Sales &gt; Sell new item
+                  </div>
+
+                  {/* Header */}
+                  <div className="flex items-center gap-2">
+                    <Pencil className="h-5 w-5 text-primary" />
+                    <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Edit offer</h1>
+                  </div>
+
+                  {/* Progress Steps */}
+                  <div className="flex items-center gap-2">
+                    <div className={`flex items-center gap-2 px-4 py-2 rounded-md ${sellItemStep >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                      }`}>
+                      <span className="text-sm font-medium">1. Product & Prices</span>
+                    </div>
+                    <ArrowRight className={`h-4 w-4 ${sellItemStep >= 2 ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <div className={`flex items-center gap-2 px-4 py-2 rounded-md ${sellItemStep >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                      }`}>
+                      <span className="text-sm font-medium">2. Keys & Status</span>
+                    </div>
+                  </div>
+
+                  {/* Step 1: Product & Prices */}
+                  {sellItemStep === 1 && (
+                    <div className="space-y-6">
+                      {/* Product Section */}
+                      <div className="bg-card border border-border rounded-lg p-4 sm:p-6 space-y-4">
+                        <div className="flex items-center gap-2">
+                          <Box className="h-5 w-5 text-primary" />
+                          <h2 className="text-lg font-semibold">Product</h2>
+                        </div>
+                        <div className="space-y-3">
+                          <div className="relative" ref={productSearchRef}>
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                            <Input
+                              type="text"
+                              placeholder="Search for product..."
+                              value={productSearch}
+                              onChange={(e) => {
+                                setProductSearch(e.target.value)
+                                setShowProductResults(e.target.value.length >= 2)
+                              }}
+                              onFocus={() => {
+                                if (productSearch.length >= 2) {
+                                  setShowProductResults(true)
+                                }
+                              }}
+                              className="pl-10 h-12 bg-card border-border"
+                            />
+
+                            {/* Product Search Results Dropdown */}
+                            {showProductResults && productSearchResults.length > 0 && (
+                              <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg z-50 max-h-[400px] overflow-y-auto custom-scrollbar">
+                                <div className="py-1">
+                                  {productSearchResults.map((product) => (
+                                    <button
+                                      key={product.id}
+                                      onClick={() => {
+                                        setSelectedProduct(product)
+                                        setProductSearch(product.title)
+                                        setShowProductResults(false)
+                                      }}
+                                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-accent cursor-pointer transition-colors text-left"
+                                    >
+                                      <div className="flex-shrink-0 w-10 h-10 rounded overflow-hidden bg-muted">
+                                        <img
+                                          src={product.image}
+                                          alt={product.title}
+                                          className="w-full h-full object-cover"
+                                          onError={(e) => {
+                                            (e.target as HTMLImageElement).src = "/placeholder.jpg"
+                                          }}
+                                        />
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="text-sm font-medium text-popover-foreground truncate">
+                                          {product.title}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground truncate">
+                                          {product.category} {product.platform ? `• ${product.platform}` : ""}
+                                        </div>
+                                      </div>
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {selectedProduct && (
+                            <div className="flex items-start gap-4 p-4 bg-muted/30 border border-border rounded-lg">
+                              <div className="w-16 h-16 rounded overflow-hidden bg-muted flex-shrink-0">
+                                <img
+                                  src={selectedProduct.image}
+                                  alt={selectedProduct.title}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = "/placeholder.jpg"
+                                  }}
+                                />
+                              </div>
+                              <div className="flex-1 space-y-2">
+                                <div>
+                                  <p className="text-sm font-semibold text-foreground mb-1">{selectedProduct.title}</p>
+                                  <span className="text-xs text-muted-foreground uppercase">Region</span>
+                                  <p className="text-sm font-medium text-foreground">
+                                    {selectedProduct.region || "Global"} (Check restrictions)
+                                  </p>
+                                  <div className="flex gap-1 mt-1">
+                                    {["🇬🇧", "🇩🇪", "🇫🇷", "🇮🇹", "🇪🇸", "🇵🇱", "🇯🇵", "🇰🇷", "🇧🇷", "🇺🇸", "🇦🇷", "🇲🇽", "🇸🇪", "🇹🇷", "🇨🇦", "🇨🇳"].map((flag, i) => (
+                                      <span key={i} className="text-xs">{flag}</span>
+                                    ))}
+                                  </div>
+                                </div>
+                                <div>
+                                  <span className="text-xs text-muted-foreground uppercase">Language</span>
+                                  <p className="text-sm font-medium text-foreground">-</p>
+                                </div>
+                                <div>
+                                  <span className="text-xs text-muted-foreground uppercase">Platform</span>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    {selectedProduct.platform && (
+                                      <>
+                                        <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center">
+                                          <span className="text-white text-xs font-bold">
+                                            {selectedProduct.platform.charAt(0).toUpperCase()}
+                                          </span>
+                                        </div>
+                                        <span className="text-sm font-medium text-foreground">{selectedProduct.platform}</span>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  setSelectedProduct(null)
+                                  setProductSearch("")
+                                }}
+                                className="text-primary hover:text-primary/80"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
-              {/* Header */}
-              <div className="flex items-center gap-2">
-                <Pencil className="h-5 w-5 text-primary" />
-                <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Edit offer</h1>
-              </div>
-
-              {/* Progress Steps */}
-              <div className="flex items-center gap-2">
-                <div className={`flex items-center gap-2 px-4 py-2 rounded-md ${
-                  sellItemStep >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                }`}>
-                  <span className="text-sm font-medium">1. Product & Prices</span>
-                </div>
-                <ArrowRight className={`h-4 w-4 ${sellItemStep >= 2 ? 'text-primary' : 'text-muted-foreground'}`} />
-                <div className={`flex items-center gap-2 px-4 py-2 rounded-md ${
-                  sellItemStep >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                }`}>
-                  <span className="text-sm font-medium">2. Keys & Status</span>
-                </div>
-              </div>
-
-              {/* Step 1: Product & Prices */}
-              {sellItemStep === 1 && (
-                <div className="space-y-6">
-                  {/* Product Section */}
-                  <div className="bg-card border border-border rounded-lg p-4 sm:p-6 space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Box className="h-5 w-5 text-primary" />
-                      <h2 className="text-lg font-semibold">Product</h2>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="relative" ref={productSearchRef}>
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
-                        <Input
-                          type="text"
-                          placeholder="Search for product..."
-                          value={productSearch}
-                          onChange={(e) => {
-                            setProductSearch(e.target.value)
-                            setShowProductResults(e.target.value.length >= 2)
-                          }}
-                          onFocus={() => {
-                            if (productSearch.length >= 2) {
-                              setShowProductResults(true)
-                            }
-                          }}
-                          className="pl-10 h-12 bg-card border-border"
-                        />
-                        
-                        {/* Product Search Results Dropdown */}
-                        {showProductResults && productSearchResults.length > 0 && (
-                          <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg z-50 max-h-[400px] overflow-y-auto custom-scrollbar">
-                            <div className="py-1">
-                              {productSearchResults.map((product) => (
-                                <button
-                                  key={product.id}
-                                  onClick={() => {
-                                    setSelectedProduct(product)
-                                    setProductSearch(product.title)
-                                    setShowProductResults(false)
-                                  }}
-                                  className="w-full flex items-center gap-3 px-3 py-2 hover:bg-accent cursor-pointer transition-colors text-left"
-                                >
-                                  <div className="flex-shrink-0 w-10 h-10 rounded overflow-hidden bg-muted">
-                                    <img 
-                                      src={product.image} 
-                                      alt={product.title}
-                                      className="w-full h-full object-cover"
-                                      onError={(e) => {
-                                        (e.target as HTMLImageElement).src = "/placeholder.jpg"
-                                      }}
-                                    />
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="text-sm font-medium text-popover-foreground truncate">
-                                      {product.title}
-                                    </div>
-                                    <div className="text-xs text-muted-foreground truncate">
-                                      {product.category} {product.platform ? `• ${product.platform}` : ""}
-                                    </div>
-                                  </div>
-                                </button>
-                              ))}
+                      {/* Prices Section - Only show after product is selected */}
+                      {selectedProduct && (
+                        <div className="bg-card border border-border rounded-lg p-4 sm:p-6 space-y-6">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <ShoppingBag className="h-5 w-5 text-primary" />
+                              <h2 className="text-lg font-semibold">Prices</h2>
                             </div>
+                            <Button variant="link" className="text-primary p-0 h-auto">
+                              <ExternalLink className="h-4 w-4 mr-1" />
+                              View Fee Table
+                            </Button>
+                          </div>
+
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-3">
+                              <span className="text-sm text-muted-foreground">Sale on:</span>
+                              <Select value={saleType} onValueChange={setSaleType}>
+                                <SelectTrigger className="w-[200px] h-10 bg-card border-border">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="bg-popover border-border">
+                                  <SelectItem value="retail">Retail</SelectItem>
+                                  <SelectItem value="wholesale">Wholesale</SelectItem>
+                                  <SelectItem value="retail-wholesale">Retail & Wholesale</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            {/* Retail Pricing */}
+                            {(saleType === "retail" || saleType === "retail-wholesale") && (
+                              <div className="space-y-4 p-4 bg-muted/20 border border-border rounded-lg">
+                                <h3 className="text-base font-semibold">Retail</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label className="text-sm text-muted-foreground">Final Product Price:</Label>
+                                    <div className="relative">
+                                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">€</span>
+                                      <Input
+                                        type="number"
+                                        value={retailPrice}
+                                        onChange={(e) => setRetailPrice(e.target.value)}
+                                        className="pl-8 h-10 bg-card border-border"
+                                        placeholder="0.00"
+                                      />
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">Current listing prices: €31.92 - €78.28</p>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label className="text-sm text-muted-foreground">Profit:</Label>
+                                    <div className="relative">
+                                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">€</span>
+                                      <Input
+                                        type="number"
+                                        value={retailProfit}
+                                        onChange={(e) => setRetailProfit(e.target.value)}
+                                        className="pl-8 h-10 bg-green-500/20 border-green-500/50 text-green-600 dark:text-green-400"
+                                        placeholder="0.00"
+                                      />
+                                    </div>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label className="text-sm text-muted-foreground">Acquisition cost (optional):</Label>
+                                    <div className="relative">
+                                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">€</span>
+                                      <Input
+                                        type="number"
+                                        value={retailAcquisition}
+                                        onChange={(e) => setRetailAcquisition(e.target.value)}
+                                        className="pl-8 h-10 bg-card border-border"
+                                        placeholder="0.00"
+                                      />
+                                    </div>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label className="text-sm text-muted-foreground">Commission:</Label>
+                                    <p className="text-sm font-medium">0.00 EUR</p>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label className="text-sm text-muted-foreground">Supplier's share:</Label>
+                                    <p className="text-sm font-medium">EUR</p>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Wholesale Pricing */}
+                            {(saleType === "wholesale" || saleType === "retail-wholesale") && (
+                              <div className="space-y-4">
+                                {/* 10-99 Keys */}
+                                <div className="p-4 bg-muted/20 border border-border rounded-lg space-y-4">
+                                  <h3 className="text-base font-semibold">Wholesale - 10-99 Keys</h3>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                      <Label className="text-sm text-muted-foreground">Final Product Price:</Label>
+                                      <div className="relative">
+                                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">€</span>
+                                        <Input
+                                          type="number"
+                                          value={wholesale10Price}
+                                          onChange={(e) => setWholesale10Price(e.target.value)}
+                                          className="pl-8 h-10 bg-card border-border"
+                                          placeholder="0.00"
+                                        />
+                                      </div>
+                                      <p className="text-xs text-muted-foreground">Current listing prices: €31.92 - €78.28</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label className="text-sm text-muted-foreground">Profit:</Label>
+                                      <div className="relative">
+                                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">€</span>
+                                        <Input
+                                          type="number"
+                                          value={wholesale10Profit}
+                                          onChange={(e) => setWholesale10Profit(e.target.value)}
+                                          className="pl-8 h-10 bg-green-500/20 border-green-500/50 text-green-600 dark:text-green-400"
+                                          placeholder="0.00"
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label className="text-sm text-muted-foreground">Acquisition cost (optional):</Label>
+                                      <div className="relative">
+                                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">€</span>
+                                        <Input
+                                          type="number"
+                                          value={wholesale10Acquisition}
+                                          onChange={(e) => setWholesale10Acquisition(e.target.value)}
+                                          className="pl-8 h-10 bg-card border-border"
+                                          placeholder="0.00"
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label className="text-sm text-muted-foreground">Commission:</Label>
+                                      <p className="text-sm font-medium">0.00 EUR</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label className="text-sm text-muted-foreground">Supplier's share:</Label>
+                                      <p className="text-sm font-medium">EUR</p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* 100+ Keys */}
+                                <div className="p-4 bg-muted/20 border border-border rounded-lg space-y-4">
+                                  <h3 className="text-base font-semibold">Wholesale - 100+ Keys</h3>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                      <Label className="text-sm text-muted-foreground">Final Product Price:</Label>
+                                      <div className="relative">
+                                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">€</span>
+                                        <Input
+                                          type="number"
+                                          value={wholesale100Price}
+                                          onChange={(e) => setWholesale100Price(e.target.value)}
+                                          className="pl-8 h-10 bg-card border-border"
+                                          placeholder="0.00"
+                                        />
+                                      </div>
+                                      <p className="text-xs text-muted-foreground">Current listing prices: €31.92 - €78.28</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label className="text-sm text-muted-foreground">Profit:</Label>
+                                      <div className="relative">
+                                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">€</span>
+                                        <Input
+                                          type="number"
+                                          value={wholesale100Profit}
+                                          onChange={(e) => setWholesale100Profit(e.target.value)}
+                                          className="pl-8 h-10 bg-green-500/20 border-green-500/50 text-green-600 dark:text-green-400"
+                                          placeholder="0.00"
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label className="text-sm text-muted-foreground">Acquisition cost (optional):</Label>
+                                      <div className="relative">
+                                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">€</span>
+                                        <Input
+                                          type="number"
+                                          value={wholesale100Acquisition}
+                                          onChange={(e) => setWholesale100Acquisition(e.target.value)}
+                                          className="pl-8 h-10 bg-card border-border"
+                                          placeholder="0.00"
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label className="text-sm text-muted-foreground">Commission:</Label>
+                                      <p className="text-sm font-medium">0.00 EUR</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label className="text-sm text-muted-foreground">Supplier's share:</Label>
+                                      <p className="text-sm font-medium">EUR</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Step 2: Keys & Status */}
+                  {sellItemStep === 2 && (
+                    <div className="space-y-6">
+                      {/* Keys Section */}
+                      <div className="bg-card border border-border rounded-lg p-4 sm:p-6 space-y-4">
+                        <div className="flex items-center gap-2">
+                          <Key className="h-5 w-5 text-primary" />
+                          <h2 className="text-lg font-semibold">Keys (Choose one method at least)</h2>
+                        </div>
+                        {selectedProduct && (
+                          <div className="flex items-center justify-between p-3 bg-muted/30 border border-border rounded-lg">
+                            <span className="text-sm font-medium text-foreground">{selectedProduct.title} {selectedProduct.platform ? `• ${selectedProduct.platform}` : ""}</span>
+                            <button
+                              onClick={() => {
+                                setSelectedProduct(null)
+                                setProductSearch("")
+                                setSellItemStep(1)
+                              }}
+                              className="text-primary hover:text-primary/80"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
                           </div>
                         )}
-                      </div>
-                      
-                      {selectedProduct && (
-                        <div className="flex items-start gap-4 p-4 bg-muted/30 border border-border rounded-lg">
-                          <div className="w-16 h-16 rounded overflow-hidden bg-muted flex-shrink-0">
-                            <img 
-                              src={selectedProduct.image} 
-                              alt={selectedProduct.title}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = "/placeholder.jpg"
-                              }}
-                            />
-                          </div>
-                          <div className="flex-1 space-y-2">
-                            <div>
-                              <p className="text-sm font-semibold text-foreground mb-1">{selectedProduct.title}</p>
-                              <span className="text-xs text-muted-foreground uppercase">Region</span>
-                              <p className="text-sm font-medium text-foreground">
-                                {selectedProduct.region || "Global"} (Check restrictions)
-                              </p>
-                              <div className="flex gap-1 mt-1">
-                                {["🇬🇧", "🇩🇪", "🇫🇷", "🇮🇹", "🇪🇸", "🇵🇱", "🇯🇵", "🇰🇷", "🇧🇷", "🇺🇸", "🇦🇷", "🇲🇽", "🇸🇪", "🇹🇷", "🇨🇦", "🇨🇳"].map((flag, i) => (
-                                  <span key={i} className="text-xs">{flag}</span>
-                                ))}
-                              </div>
-                            </div>
-                            <div>
-                              <span className="text-xs text-muted-foreground uppercase">Language</span>
-                              <p className="text-sm font-medium text-foreground">-</p>
-                            </div>
-                            <div>
-                              <span className="text-xs text-muted-foreground uppercase">Platform</span>
-                              <div className="flex items-center gap-2 mt-1">
-                                {selectedProduct.platform && (
-                                  <>
-                                    <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center">
-                                      <span className="text-white text-xs font-bold">
-                                        {selectedProduct.platform.charAt(0).toUpperCase()}
-                                      </span>
-                                    </div>
-                                    <span className="text-sm font-medium text-foreground">{selectedProduct.platform}</span>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          <button 
-                            onClick={() => {
-                              setSelectedProduct(null)
-                              setProductSearch("")
-                            }}
-                            className="text-primary hover:text-primary/80"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Prices Section - Only show after product is selected */}
-                  {selectedProduct && (
-                    <div className="bg-card border border-border rounded-lg p-4 sm:p-6 space-y-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <ShoppingBag className="h-5 w-5 text-primary" />
-                        <h2 className="text-lg font-semibold">Prices</h2>
-                      </div>
-                      <Button variant="link" className="text-primary p-0 h-auto">
-                        <ExternalLink className="h-4 w-4 mr-1" />
-                        View Fee Table
-                      </Button>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm text-muted-foreground">Sale on:</span>
-                        <Select value={saleType} onValueChange={setSaleType}>
-                          <SelectTrigger className="w-[200px] h-10 bg-card border-border">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-popover border-border">
-                            <SelectItem value="retail">Retail</SelectItem>
-                            <SelectItem value="wholesale">Wholesale</SelectItem>
-                            <SelectItem value="retail-wholesale">Retail & Wholesale</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Retail Pricing */}
-                      {(saleType === "retail" || saleType === "retail-wholesale") && (
-                        <div className="space-y-4 p-4 bg-muted/20 border border-border rounded-lg">
-                          <h3 className="text-base font-semibold">Retail</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <Label className="text-sm text-muted-foreground">Final Product Price:</Label>
-                              <div className="relative">
-                                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">€</span>
-                                <Input
-                                  type="number"
-                                  value={retailPrice}
-                                  onChange={(e) => setRetailPrice(e.target.value)}
-                                  className="pl-8 h-10 bg-card border-border"
-                                  placeholder="0.00"
-                                />
-                              </div>
-                              <p className="text-xs text-muted-foreground">Current listing prices: €31.92 - €78.28</p>
-                            </div>
-                            <div className="space-y-2">
-                              <Label className="text-sm text-muted-foreground">Profit:</Label>
-                              <div className="relative">
-                                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">€</span>
-                                <Input
-                                  type="number"
-                                  value={retailProfit}
-                                  onChange={(e) => setRetailProfit(e.target.value)}
-                                  className="pl-8 h-10 bg-green-500/20 border-green-500/50 text-green-600 dark:text-green-400"
-                                  placeholder="0.00"
-                                />
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              <Label className="text-sm text-muted-foreground">Acquisition cost (optional):</Label>
-                              <div className="relative">
-                                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">€</span>
-                                <Input
-                                  type="number"
-                                  value={retailAcquisition}
-                                  onChange={(e) => setRetailAcquisition(e.target.value)}
-                                  className="pl-8 h-10 bg-card border-border"
-                                  placeholder="0.00"
-                                />
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              <Label className="text-sm text-muted-foreground">Commission:</Label>
-                              <p className="text-sm font-medium">0.00 EUR</p>
-                            </div>
-                            <div className="space-y-2">
-                              <Label className="text-sm text-muted-foreground">Supplier's share:</Label>
-                              <p className="text-sm font-medium">EUR</p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Wholesale Pricing */}
-                      {(saleType === "wholesale" || saleType === "retail-wholesale") && (
                         <div className="space-y-4">
-                          {/* 10-99 Keys */}
-                          <div className="p-4 bg-muted/20 border border-border rounded-lg space-y-4">
-                            <h3 className="text-base font-semibold">Wholesale - 10-99 Keys</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <Tabs value={keyType} onValueChange={setKeyType} className="w-full">
+                            <TabsList className="bg-card border border-border p-0.5 inline-flex w-full sm:w-auto h-9">
+                              <TabsTrigger
+                                value="text"
+                                className="flex-1 sm:flex-initial text-sm px-4 h-8 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                              >
+                                Text keys
+                              </TabsTrigger>
+                              <TabsTrigger
+                                value="image"
+                                className="flex-1 sm:flex-initial text-sm px-4 h-8 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                              >
+                                Image keys
+                              </TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="text" className="mt-4">
                               <div className="space-y-2">
-                                <Label className="text-sm text-muted-foreground">Final Product Price:</Label>
-                                <div className="relative">
-                                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">€</span>
-                                  <Input
-                                    type="number"
-                                    value={wholesale10Price}
-                                    onChange={(e) => setWholesale10Price(e.target.value)}
-                                    className="pl-8 h-10 bg-card border-border"
-                                    placeholder="0.00"
-                                  />
+                                <Label className="text-sm text-muted-foreground">Enter one code per line</Label>
+                                <Textarea
+                                  value={textKeys}
+                                  onChange={(e) => setTextKeys(e.target.value)}
+                                  placeholder="gmgift&#10;2"
+                                  className="min-h-[200px] bg-card border-border font-mono text-sm"
+                                />
+                              </div>
+                            </TabsContent>
+                            <TabsContent value="image" className="mt-4">
+                              <div className="space-y-4">
+                                <div>
+                                  <Label className="text-sm font-medium mb-2 block">Upload image product keys</Label>
+                                  <p className="text-xs text-muted-foreground mb-2">Import files: (.jpg, .jpeg, .png, .gif, .bmp, .txt, .csv)</p>
+                                  <div className="flex items-center gap-3">
+                                    <div className="flex-1 p-4 border-2 border-dashed border-border rounded-lg text-center">
+                                      <p className="text-sm text-muted-foreground">Select files to upload</p>
+                                    </div>
+                                    <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                                      <Upload className="h-4 w-4 mr-2" />
+                                      Browse
+                                    </Button>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground mt-2">Maximum upload file size: 100kb</p>
                                 </div>
-                                <p className="text-xs text-muted-foreground">Current listing prices: €31.92 - €78.28</p>
                               </div>
-                              <div className="space-y-2">
-                                <Label className="text-sm text-muted-foreground">Profit:</Label>
-                                <div className="relative">
-                                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">€</span>
-                                  <Input
-                                    type="number"
-                                    value={wholesale10Profit}
-                                    onChange={(e) => setWholesale10Profit(e.target.value)}
-                                    className="pl-8 h-10 bg-green-500/20 border-green-500/50 text-green-600 dark:text-green-400"
-                                    placeholder="0.00"
-                                  />
-                                </div>
-                              </div>
-                              <div className="space-y-2">
-                                <Label className="text-sm text-muted-foreground">Acquisition cost (optional):</Label>
-                                <div className="relative">
-                                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">€</span>
-                                  <Input
-                                    type="number"
-                                    value={wholesale10Acquisition}
-                                    onChange={(e) => setWholesale10Acquisition(e.target.value)}
-                                    className="pl-8 h-10 bg-card border-border"
-                                    placeholder="0.00"
-                                  />
-                                </div>
-                              </div>
-                              <div className="space-y-2">
-                                <Label className="text-sm text-muted-foreground">Commission:</Label>
-                                <p className="text-sm font-medium">0.00 EUR</p>
-                              </div>
-                              <div className="space-y-2">
-                                <Label className="text-sm text-muted-foreground">Supplier's share:</Label>
-                                <p className="text-sm font-medium">EUR</p>
-                              </div>
-                            </div>
-                          </div>
+                            </TabsContent>
+                          </Tabs>
+                        </div>
+                      </div>
 
-                          {/* 100+ Keys */}
-                          <div className="p-4 bg-muted/20 border border-border rounded-lg space-y-4">
-                            <h3 className="text-base font-semibold">Wholesale - 100+ Keys</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <Label className="text-sm text-muted-foreground">Final Product Price:</Label>
-                                <div className="relative">
-                                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">€</span>
-                                  <Input
-                                    type="number"
-                                    value={wholesale100Price}
-                                    onChange={(e) => setWholesale100Price(e.target.value)}
-                                    className="pl-8 h-10 bg-card border-border"
-                                    placeholder="0.00"
-                                  />
-                                </div>
-                                <p className="text-xs text-muted-foreground">Current listing prices: €31.92 - €78.28</p>
-                              </div>
-                              <div className="space-y-2">
-                                <Label className="text-sm text-muted-foreground">Profit:</Label>
-                                <div className="relative">
-                                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">€</span>
-                                  <Input
-                                    type="number"
-                                    value={wholesale100Profit}
-                                    onChange={(e) => setWholesale100Profit(e.target.value)}
-                                    className="pl-8 h-10 bg-green-500/20 border-green-500/50 text-green-600 dark:text-green-400"
-                                    placeholder="0.00"
-                                  />
-                                </div>
-                              </div>
-                              <div className="space-y-2">
-                                <Label className="text-sm text-muted-foreground">Acquisition cost (optional):</Label>
-                                <div className="relative">
-                                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">€</span>
-                                  <Input
-                                    type="number"
-                                    value={wholesale100Acquisition}
-                                    onChange={(e) => setWholesale100Acquisition(e.target.value)}
-                                    className="pl-8 h-10 bg-card border-border"
-                                    placeholder="0.00"
-                                  />
-                                </div>
-                              </div>
-                              <div className="space-y-2">
-                                <Label className="text-sm text-muted-foreground">Commission:</Label>
-                                <p className="text-sm font-medium">0.00 EUR</p>
-                              </div>
-                              <div className="space-y-2">
-                                <Label className="text-sm text-muted-foreground">Supplier's share:</Label>
-                                <p className="text-sm font-medium">EUR</p>
-                              </div>
-                            </div>
+                      {/* Status Section */}
+                      <div className="bg-card border border-border rounded-lg p-4 sm:p-6 space-y-4">
+                        <div className="flex items-center gap-2">
+                          <Power className="h-5 w-5 text-primary" />
+                          <h2 className="text-lg font-semibold">Status</h2>
+                        </div>
+                        <div className="space-y-4">
+                          <div className="flex items-start gap-3">
+                            <UICheckbox
+                              checked={agreeConditions}
+                              onCheckedChange={(checked) => setAgreeConditions(checked === true)}
+                              id="agree-conditions"
+                            />
+                            <Label htmlFor="agree-conditions" className="text-sm text-foreground cursor-pointer">
+                              I agree to the{" "}
+                              <a href="#" className="text-primary hover:underline">General Sale Conditions</a>.
+                            </Label>
+                          </div>
+                          <div className="flex items-start gap-3">
+                            <UICheckbox
+                              checked={guaranteeContent}
+                              onCheckedChange={(checked) => setGuaranteeContent(checked === true)}
+                              id="guarantee-content"
+                            />
+                            <Label htmlFor="guarantee-content" className="text-sm text-foreground cursor-pointer">
+                              I guarantee that the content of my offers corresponds to the descriptions on the{" "}
+                              <a href="#" className="text-primary hover:underline">product page</a>.
+                            </Label>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm text-muted-foreground">Status</Label>
+                            <Select value={offerStatus} onValueChange={setOfferStatus}>
+                              <SelectTrigger className="w-[200px] h-10 bg-card border-border">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="bg-popover border-border">
+                                <SelectItem value="active">Active</SelectItem>
+                                <SelectItem value="inactive">Inactive</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
                         </div>
-                      )}
-                    </div>
+                      </div>
                     </div>
                   )}
-                </div>
-              )}
 
-              {/* Step 2: Keys & Status */}
-              {sellItemStep === 2 && (
-                <div className="space-y-6">
-                  {/* Keys Section */}
-                  <div className="bg-card border border-border rounded-lg p-4 sm:p-6 space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Key className="h-5 w-5 text-primary" />
-                      <h2 className="text-lg font-semibold">Keys (Choose one method at least)</h2>
-                    </div>
-                    {selectedProduct && (
-                      <div className="flex items-center justify-between p-3 bg-muted/30 border border-border rounded-lg">
-                        <span className="text-sm font-medium text-foreground">{selectedProduct.title} {selectedProduct.platform ? `• ${selectedProduct.platform}` : ""}</span>
-                        <button 
+                  {/* Navigation Buttons */}
+                  <div className="flex items-center justify-between pt-4 border-t border-border">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        if (sellItemStep === 1) {
+                          setShowSellItem(false)
+                        } else {
+                          setSellItemStep(sellItemStep - 1)
+                        }
+                      }}
+                      className="flex items-center gap-2"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                      Back
+                    </Button>
+                    <div className="flex gap-3">
+                      {sellItemStep < 2 && (
+                        <Button
+                          onClick={() => setSellItemStep(2)}
+                          disabled={!selectedProduct}
+                          className="bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Next
+                        </Button>
+                      )}
+                      {sellItemStep === 2 && (
+                        <Button
                           onClick={() => {
-                            setSelectedProduct(null)
-                            setProductSearch("")
+                            // Handle save offer
+                            console.log("Saving offer...")
+                            setShowSellItem(false)
                             setSellItemStep(1)
                           }}
-                          className="text-primary hover:text-primary/80"
+                          disabled={!agreeConditions || !guaranteeContent}
+                          className="bg-primary hover:bg-primary/90 text-primary-foreground"
                         >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                      </div>
-                    )}
-                    <div className="space-y-4">
-                      <Tabs value={keyType} onValueChange={setKeyType} className="w-full">
-                        <TabsList className="bg-card border border-border p-0.5 inline-flex w-full sm:w-auto h-9">
-                          <TabsTrigger
-                            value="text"
-                            className="flex-1 sm:flex-initial text-sm px-4 h-8 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                          >
-                            Text keys
-                          </TabsTrigger>
-                          <TabsTrigger
-                            value="image"
-                            className="flex-1 sm:flex-initial text-sm px-4 h-8 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                          >
-                            Image keys
-                          </TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="text" className="mt-4">
-                          <div className="space-y-2">
-                            <Label className="text-sm text-muted-foreground">Enter one code per line</Label>
-                            <Textarea
-                              value={textKeys}
-                              onChange={(e) => setTextKeys(e.target.value)}
-                              placeholder="gmgift&#10;2"
-                              className="min-h-[200px] bg-card border-border font-mono text-sm"
-                            />
-                          </div>
-                        </TabsContent>
-                        <TabsContent value="image" className="mt-4">
-                          <div className="space-y-4">
-                            <div>
-                              <Label className="text-sm font-medium mb-2 block">Upload image product keys</Label>
-                              <p className="text-xs text-muted-foreground mb-2">Import files: (.jpg, .jpeg, .png, .gif, .bmp, .txt, .csv)</p>
-                              <div className="flex items-center gap-3">
-                                <div className="flex-1 p-4 border-2 border-dashed border-border rounded-lg text-center">
-                                  <p className="text-sm text-muted-foreground">Select files to upload</p>
-                                </div>
-                                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                                  <Upload className="h-4 w-4 mr-2" />
-                                  Browse
-                                </Button>
-                              </div>
-                              <p className="text-xs text-muted-foreground mt-2">Maximum upload file size: 100kb</p>
-                            </div>
-                          </div>
-                        </TabsContent>
-                      </Tabs>
+                          Save Offer
+                        </Button>
+                      )}
                     </div>
                   </div>
-
-                  {/* Status Section */}
-                  <div className="bg-card border border-border rounded-lg p-4 sm:p-6 space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Power className="h-5 w-5 text-primary" />
-                      <h2 className="text-lg font-semibold">Status</h2>
-                    </div>
-                    <div className="space-y-4">
-                      <div className="flex items-start gap-3">
-                        <UICheckbox
-                          checked={agreeConditions}
-                          onCheckedChange={(checked) => setAgreeConditions(checked === true)}
-                          id="agree-conditions"
-                        />
-                        <Label htmlFor="agree-conditions" className="text-sm text-foreground cursor-pointer">
-                          I agree to the{" "}
-                          <a href="#" className="text-primary hover:underline">General Sale Conditions</a>.
-                        </Label>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <UICheckbox
-                          checked={guaranteeContent}
-                          onCheckedChange={(checked) => setGuaranteeContent(checked === true)}
-                          id="guarantee-content"
-                        />
-                        <Label htmlFor="guarantee-content" className="text-sm text-foreground cursor-pointer">
-                          I guarantee that the content of my offers corresponds to the descriptions on the{" "}
-                          <a href="#" className="text-primary hover:underline">product page</a>.
-                        </Label>
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-sm text-muted-foreground">Status</Label>
-                        <Select value={offerStatus} onValueChange={setOfferStatus}>
-                          <SelectTrigger className="w-[200px] h-10 bg-card border-border">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-popover border-border">
-                            <SelectItem value="active">Active</SelectItem>
-                            <SelectItem value="inactive">Inactive</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Navigation Buttons */}
-              <div className="flex items-center justify-between pt-4 border-t border-border">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    if (sellItemStep === 1) {
-                      setShowSellItem(false)
-                    } else {
-                      setSellItemStep(sellItemStep - 1)
-                    }
-                  }}
-                  className="flex items-center gap-2"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Back
-                </Button>
-                <div className="flex gap-3">
-                  {sellItemStep < 2 && (
-                    <Button
-                      onClick={() => setSellItemStep(2)}
-                      disabled={!selectedProduct}
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </Button>
-                  )}
-                  {sellItemStep === 2 && (
-                    <Button
-                      onClick={() => {
-                        // Handle save offer
-                        console.log("Saving offer...")
-                        setShowSellItem(false)
-                        setSellItemStep(1)
-                      }}
-                      disabled={!agreeConditions || !guaranteeContent}
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                    >
-                      Save Offer
-                    </Button>
-                  )}
-                </div>
-              </div>
                 </div>
               )}
             </div>
@@ -2995,11 +2978,11 @@ export function AccountDashboard() {
                             const isExpanded = expandedWholesaleProducts.has(product.id)
                             const currentQty = productQty[product.id] || "0"
                             const currentPrice = parseFloat(product.price) * parseFloat(currentQty || "0")
-                            
+
                             return (
                               <>
-                                <TableRow 
-                                  key={product.id} 
+                                <TableRow
+                                  key={product.id}
                                   className="border-border hover:bg-accent cursor-pointer"
                                   onClick={() => {
                                     const newExpanded = new Set(expandedWholesaleProducts)
@@ -3140,7 +3123,7 @@ export function AccountDashboard() {
                                               <p className="text-sm text-muted-foreground">Qty: {currentQty}</p>
                                               <p className="text-sm text-muted-foreground">Price: €{currentPrice.toFixed(2)}</p>
                                             </div>
-                                              <Button 
+                                            <Button
                                               className="bg-primary hover:bg-primary/90 text-primary-foreground"
                                               disabled={parseInt(currentQty) === 0}
                                             >
@@ -3321,17 +3304,17 @@ export function AccountDashboard() {
                                       createdAt: new Date().toISOString(),
                                       lastUpdate: new Date().toISOString(),
                                     }
-                                    
+
                                     // Add ticket to state
                                     setTickets(prev => [newTicket, ...prev])
-                                    
+
                                     // Reset form and close dialog
                                     setShowCreateTicket(false)
                                     setTicketTitle("")
                                     setTicketCategory("")
                                     setTicketPriority("normal")
                                     setTicketMessage("")
-                                    
+
                                     // Switch to Open tab to show the new ticket
                                     setSupportTab("open")
                                   }
@@ -3495,7 +3478,7 @@ export function AccountDashboard() {
                     {/* Main Heading */}
                     <div className="text-center space-y-4">
                       <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold">Encountered a problem?</h1>
-                      
+
                       {/* Search Bar */}
                       <div className="max-w-2xl mx-auto">
                         <div className="relative">
@@ -3523,44 +3506,40 @@ export function AccountDashboard() {
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto">
                       <button
                         onClick={() => setHelpCategory("orders")}
-                        className={`flex flex-col items-center justify-center gap-3 p-6 rounded-lg border-2 transition-colors ${
-                          helpCategory === "orders"
-                            ? "border-primary bg-primary/10"
-                            : "border-border bg-card hover:border-primary/50"
-                        }`}
+                        className={`flex flex-col items-center justify-center gap-3 p-6 rounded-lg border-2 transition-colors ${helpCategory === "orders"
+                          ? "border-primary bg-primary/10"
+                          : "border-border bg-card hover:border-primary/50"
+                          }`}
                       >
                         <PackageIcon className={`h-8 w-8 ${helpCategory === "orders" ? "text-primary" : "text-muted-foreground"}`} />
                         <span className="text-sm font-medium">Orders</span>
                       </button>
                       <button
                         onClick={() => setHelpCategory("account")}
-                        className={`flex flex-col items-center justify-center gap-3 p-6 rounded-lg border-2 transition-colors ${
-                          helpCategory === "account"
-                            ? "border-primary bg-primary/10"
-                            : "border-border bg-card hover:border-primary/50"
-                        }`}
+                        className={`flex flex-col items-center justify-center gap-3 p-6 rounded-lg border-2 transition-colors ${helpCategory === "account"
+                          ? "border-primary bg-primary/10"
+                          : "border-border bg-card hover:border-primary/50"
+                          }`}
                       >
                         <User className={`h-8 w-8 ${helpCategory === "account" ? "text-primary" : "text-muted-foreground"}`} />
                         <span className="text-sm font-medium">Account</span>
                       </button>
                       <button
                         onClick={() => setHelpCategory("payments")}
-                        className={`flex flex-col items-center justify-center gap-3 p-6 rounded-lg border-2 transition-colors ${
-                          helpCategory === "payments"
-                            ? "border-primary bg-primary/10"
-                            : "border-border bg-card hover:border-primary/50"
-                        }`}
+                        className={`flex flex-col items-center justify-center gap-3 p-6 rounded-lg border-2 transition-colors ${helpCategory === "payments"
+                          ? "border-primary bg-primary/10"
+                          : "border-border bg-card hover:border-primary/50"
+                          }`}
                       >
                         <CreditCardIcon className={`h-8 w-8 ${helpCategory === "payments" ? "text-primary" : "text-muted-foreground"}`} />
                         <span className="text-sm font-medium">Payments</span>
                       </button>
                       <button
                         onClick={() => setHelpCategory("other")}
-                        className={`flex flex-col items-center justify-center gap-3 p-6 rounded-lg border-2 transition-colors ${
-                          helpCategory === "other"
-                            ? "border-primary bg-primary/10"
-                            : "border-border bg-card hover:border-primary/50"
-                        }`}
+                        className={`flex flex-col items-center justify-center gap-3 p-6 rounded-lg border-2 transition-colors ${helpCategory === "other"
+                          ? "border-primary bg-primary/10"
+                          : "border-border bg-card hover:border-primary/50"
+                          }`}
                       >
                         <HelpCircleIcon className={`h-8 w-8 ${helpCategory === "other" ? "text-primary" : "text-muted-foreground"}`} />
                         <span className="text-sm font-medium">Other</span>

@@ -62,28 +62,36 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
 
   // Filter and sort products
   const filteredAndSortedProducts = useMemo(() => {
+    // If loading, return empty array
+    if (isLoading) return []
+    // If no products, return empty array
+    if (!products || products.length === 0) return []
+
     const filtered = products.filter((product) => {
       // Search filter
       if (filters.search && filters.search.trim() !== "") {
         const searchTerm = filters.search.toLowerCase().trim()
-        const productTitle = product.title.toLowerCase()
+        const productTitle = product.title?.toLowerCase() || ""
         if (!productTitle.includes(searchTerm)) return false
       }
 
-      // Category filter
-      if (filters.category && product.category !== filters.category) return false
+      // Category filter - only filter if specific category selected and not "all"
+      if (filters.category && filters.category !== "all" && product.category !== filters.category) return false
 
-      // Price range filter
-      if (product.salePrice < filters.priceRange[0] || product.salePrice > filters.priceRange[1]) return false
+      // Price range filter - ensure valid numbers
+      if (filters.priceRange && filters.priceRange.length === 2) {
+        const price = typeof product.salePrice === 'number' ? product.salePrice : parseFloat(product.salePrice) || 0
+        if (price < filters.priceRange[0] || price > filters.priceRange[1]) return false
+      }
 
       // Rating filter
-      if (filters.rating > 0 && product.rating < filters.rating) return false
+      if (filters.rating > 0 && (product.rating || 0) < filters.rating) return false
 
       // Platform filter
-      if (filters.platform && product.platform !== filters.platform) return false
+      if (filters.platform && filters.platform !== "all" && product.platform !== filters.platform) return false
 
       // Genre filter
-      if (filters.genre && product.genre !== filters.genre) return false
+      if (filters.genre && filters.genre !== "all" && product.genre !== filters.genre) return false
 
       return true
     })
@@ -91,30 +99,35 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
     // Sort products
     switch (sortBy) {
       case "price-low":
-        filtered.sort((a, b) => a.salePrice - b.salePrice)
+        filtered.sort((a, b) => (Number(a.salePrice) || 0) - (Number(b.salePrice) || 0))
         break
       case "price-high":
-        filtered.sort((a, b) => b.salePrice - a.salePrice)
+        filtered.sort((a, b) => (Number(b.salePrice) || 0) - (Number(a.salePrice) || 0))
         break
       case "rating":
-        filtered.sort((a, b) => b.rating - a.rating)
+        filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0))
         break
       case "newest":
-        filtered.sort((a, b) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime())
+        // Handle potentially missing dates safely
+        filtered.sort((a, b) => {
+          const dateA = a.releaseDate ? new Date(a.releaseDate).getTime() : 0
+          const dateB = b.releaseDate ? new Date(b.releaseDate).getTime() : 0
+          return dateB - dateA
+        })
         break
       case "bestselling":
-        filtered.sort((a, b) => b.reviews - a.reviews)
+        filtered.sort((a, b) => (b.reviews || 0) - (a.reviews || 0))
         break
       case "discount":
-        filtered.sort((a, b) => b.discount - a.discount)
+        filtered.sort((a, b) => (b.discount || 0) - (a.discount || 0))
         break
       default:
-        // Featured - keep original order but prioritize bestsellers
-        filtered.sort((a, b) => (b.isBestseller ? 1 : 0) - (a.isBestseller ? 1 : 0))
+        // Featured default sort
+        break
     }
 
     return filtered
-  }, [filters, sortBy])
+  }, [products, filters, sortBy, isLoading])
 
   // Pagination
   const totalPages = Math.ceil(filteredAndSortedProducts.length / itemsPerPage)
