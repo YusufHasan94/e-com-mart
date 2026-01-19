@@ -33,6 +33,9 @@ export interface ApiProduct {
     title: string
     slug: string
     cover_image: string | null
+    gallery?: string[] | null
+    sku?: string
+    description?: string
     developer?: { id: number; name: string; slug: string }
     publisher?: { id: number; name: string; slug: string }
     categories?: { id: number; name: string; slug: string; pivot?: any }[]
@@ -41,9 +44,17 @@ export interface ApiProduct {
     regions?: { id: number; name: string; slug: string; pivot?: any }[]
     languages?: { id: number; name: string; slug: string; pivot?: any }[]
     works_on?: { id: number; name: string; slug: string; pivot?: any }[]
-    lowest_price: number | string | { price: number; currency?: string; symbol?: string; price_name?: string } | null
-    sku?: string
-    description?: string
+    lowest_price?: number | string | { price: number; currency?: string; symbol?: string; price_name?: string } | null
+    attributes?: { key: string; value: string }[]
+    system_requirements?: {
+        minimum: { key: string; value: string }[]
+        recommended: { key: string; value: string }[]
+    }
+    delivery_type?: string
+    status?: string
+    is_featured?: boolean
+    meta_title?: string
+    meta_description?: string
     offers?: ApiOffer[]
     currencies?: any[]
 }
@@ -66,7 +77,10 @@ export interface ApiProductsResponse {
 export interface ApiProductDetailsResponse {
     status: string
     message: string
-    data: ApiProduct
+    data: {
+        product: ApiProduct
+        offers: ApiOffer[]
+    }
 }
 
 export interface ApiResponse<T> {
@@ -82,6 +96,7 @@ export interface AppProduct {
     category: string
     description: string
     image: string
+    gallery: string[]
     platform: string
     region: string
     type: string
@@ -92,6 +107,7 @@ export interface AppProduct {
     originalPrice: number
     salePrice: number
     discount: number
+    deliveryType: string
     variations: { value: string; price: number; platform?: string; region?: string }[]
     vendors: {
         id: number
@@ -106,6 +122,12 @@ export interface AppProduct {
         isPromoted?: boolean
         logo?: string
     }[]
+    systemRequirements?: {
+        minimum: { key: string; value: string }[]
+        recommended: { key: string; value: string }[]
+    }
+    developer?: { id: number; name: string; slug: string }
+    publisher?: { id: number; name: string; slug: string }
     customerReviews: { user: string; rating: number; comment: string; date: string }[]
     releaseDate: string
 }
@@ -343,7 +365,7 @@ export const apiService = {
     /**
      * Fetch product details by ID
      */
-    getProductById: async (id: string | number): Promise<ApiResponse<ApiProduct>> => {
+    getProductById: async (id: string | number): Promise<ApiResponse<ApiProductDetailsResponse["data"]>> => {
         try {
             const response = await fetch(`${BASE_URL}/products/${id}`, {
                 method: "GET",
@@ -376,31 +398,74 @@ export const apiService = {
     },
 
     /**
+     * Fetch related products for a given product ID
+     */
+    getRelatedProducts: async (id: string | number): Promise<ApiResponse<ApiProduct[]>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/products/${id}/related`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch related products",
+                }
+            }
+
+            return {
+                success: true,
+                data: Array.isArray(result.data) ? result.data : result.data?.products || [],
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getRelatedProducts):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
      * Map API Product to App Product format
      */
-    mapApiProductToProduct: (apiProduct: ApiProduct): AppProduct => {
+    mapApiProductToProduct: (apiProduct: ApiProduct, apiOffers: ApiOffer[] = []): AppProduct => {
+        if (!apiProduct) {
+            console.error("mapApiProductToProduct: apiProduct is null or undefined");
+            throw new Error("Invalid product data");
+        }
+
         const getImageUrl = (path: string | null | undefined) => {
             if (!path) return "/placeholder.jpg"
             if (path.startsWith("http")) return path
             return `https://gamehub.licensesender.com/${path}`
         }
 
-        // Calculate best price from offers if lowest_price is not usable or we want to be specific
-        let bestPrice = 0
+        // Use apiProduct.offers if apiOffers is not provided
+        const finalOffers = apiOffers.length > 0 ? apiOffers : (apiProduct.offers || [])
 
-        // Try to get price from offers first (single product view)
-        if (apiProduct.offers && apiProduct.offers.length > 0) {
-            // Find lowest price among offers, preferably USD
-            const prices = apiProduct.offers.map(offer => {
-                // Try USD first, then EUR, then first available
-                const p = offer.prices["USD"] || offer.prices["EUR"] || Object.values(offer.prices)[0]
-                return p ? p.price : Infinity
+        // Calculate best price from offers
+        let bestPrice = 0
+        if (finalOffers.length > 0) {
+            const prices = finalOffers.map(offer => {
+                if (offer.prices) {
+                    const p = offer.prices["USD"] || offer.prices["EUR"] || Object.values(offer.prices)[0]
+                    return p ? p.price : Infinity
+                }
+                // Fallback for offers structured differently
+                return (offer as any).retail_price ? parseFloat((offer as any).retail_price) : (offer as any).price || Infinity
             })
             const minPrice = Math.min(...prices)
             if (minPrice !== Infinity) bestPrice = minPrice
         }
 
-        // Fallback to lowest_price field (list view)
+        // Fallback to lowest_price field
         if (bestPrice === 0) {
             if (typeof apiProduct.lowest_price === 'object' && apiProduct.lowest_price !== null) {
                 bestPrice = apiProduct.lowest_price.price || 0
@@ -411,46 +476,72 @@ export const apiService = {
             }
         }
 
-        const mapOffersToVendors = (offers: ApiOffer[] | undefined) => {
-            if (!offers) return []
-            return offers.map(offer => {
-                const priceObj = offer.prices["USD"] || offer.prices["EUR"] || Object.values(offer.prices)[0]
+        const mapOffersToVendors = (offersList: ApiOffer[]) => {
+            return offersList.map(offer => {
+                let price = 0;
+                let originalPrice = 0;
+
+                if (offer.prices) {
+                    const priceObj = offer.prices["USD"] || offer.prices["EUR"] || Object.values(offer.prices)[0]
+                    price = priceObj ? priceObj.price : 0
+                } else if ((offer as any).retail_price) {
+                    price = parseFloat((offer as any).retail_price)
+                } else if ((offer as any).price) {
+                    price = (offer as any).price
+                }
+
+                originalPrice = price > 0 ? price * 1.2 : 0;
+
                 return {
                     id: offer.seller.id,
                     name: offer.seller.store_name,
-                    price: priceObj ? priceObj.price : 0,
+                    price: price,
                     rating: offer.seller.rating,
                     reviews: offer.seller.total_sales,
                     isVerified: offer.seller.is_verified,
-                    originalPrice: 0,
-                    discount: 0,
-                    stock: offer.stock,
-                    isPromoted: offer.promoted,
+                    originalPrice: originalPrice,
+                    discount: 20,
+                    stock: offer.stock || 0,
+                    isPromoted: offer.promoted || (offer as any).is_promoted || false,
                     logo: getImageUrl(offer.seller.logo)
                 }
             })
         }
 
+        const variations = (apiProduct.attributes || []).map(attr => ({
+            value: attr.value,
+            price: bestPrice // Since API doesn't specify price per attribute yet
+        }))
+
+        if (variations.length === 0) {
+            variations.push({ value: "Standard Edition", price: bestPrice })
+        }
+
         return {
-            id: apiProduct.id.toString(),
-            title: apiProduct.title,
+            id: (apiProduct.id || 0).toString(),
+            title: apiProduct.title || "Unknown Product",
             category: apiProduct.categories?.[0]?.name || "Uncategorized",
             description: apiProduct.description || "",
             image: getImageUrl(apiProduct.cover_image),
+            gallery: (apiProduct.gallery || []).map(img => getImageUrl(img)),
             platform: apiProduct.platforms?.[0]?.name || apiProduct.platforms?.[0]?.slug || "Steam",
             region: apiProduct.regions?.[0]?.name || "Global",
             type: (apiProduct.types?.[0]?.slug as any) || "game",
-            rating: 4.5, // Default as API doesn't provide rating yet
-            reviews: Math.floor(Math.random() * 2000) + 500, // Mock reviews count
+            rating: 4.5,
+            reviews: Math.floor(Math.random() * 2000) + 500,
             isNew: true,
             isTrending: true,
-            originalPrice: bestPrice > 0 ? bestPrice * 1.2 : 0, // Fake original price
+            originalPrice: bestPrice > 0 ? bestPrice * 1.2 : 0,
             salePrice: bestPrice,
             discount: 20,
-            variations: [],
-            vendors: mapOffersToVendors(apiProduct.offers),
+            deliveryType: (apiProduct as any).delivery_type || "Instant Delivery",
+            variations: variations,
+            vendors: mapOffersToVendors(finalOffers),
+            systemRequirements: apiProduct.system_requirements,
+            developer: apiProduct.developer,
+            publisher: apiProduct.publisher,
             customerReviews: [],
-            releaseDate: new Date().toISOString().split('T')[0],
+            releaseDate: (apiProduct as any).created_at ? new Date((apiProduct as any).created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         }
     }
 }

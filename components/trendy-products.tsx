@@ -20,7 +20,7 @@ export function TrendyProducts() {
         // Take some products and simulate ranking
         const mappedProducts = response.data.products
           .slice(0, 8)
-          .map(apiService.mapApiProductToProduct)
+          .map(p => apiService.mapApiProductToProduct(p))
           .map((p, index) => ({ ...p, trendingRank: index + 1 }))
         setProductsList(mappedProducts)
       }
