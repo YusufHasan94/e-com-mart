@@ -14,6 +14,8 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { products } from "@/lib/products"
+import { CurrencyDropdown } from "@/components/currency-dropdown"
+import { Globe } from "lucide-react"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -50,7 +52,7 @@ export function Header() {
         const categoryMatch = product.category.toLowerCase().includes(query)
         const platformMatch = product.platform?.toLowerCase().includes(query)
         const descriptionMatch = product.description.toLowerCase().includes(query)
-        
+
         return titleMatch || categoryMatch || platformMatch || descriptionMatch
       })
       .slice(0, 8) // Limit to 8 suggestions
@@ -161,7 +163,7 @@ export function Header() {
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault()
-        setSelectedIndex((prev) => 
+        setSelectedIndex((prev) =>
           prev < searchSuggestions.length - 1 ? prev + 1 : prev
         )
         break
@@ -188,12 +190,11 @@ export function Header() {
 
   return (
     <>
-      <header 
-        className={`sticky top-0 z-50 w-full border-b transition-all duration-300 ${
-          isScrolled 
-            ? 'bg-[#2A2A2A]/95 backdrop-blur-md supports-[backdrop-filter]:bg-[#2A2A2A]/40' 
-            : 'bg-[#2A2A2A]/95 backdrop-blur supports-[backdrop-filter]:bg-[#2A2A2A]/60'
-        }`}
+      <header
+        className={`sticky top-0 z-50 w-full border-b transition-all duration-300 ${isScrolled
+          ? 'bg-[#2A2A2A]/95 backdrop-blur-md supports-[backdrop-filter]:bg-[#2A2A2A]/40'
+          : 'bg-[#2A2A2A]/95 backdrop-blur supports-[backdrop-filter]:bg-[#2A2A2A]/60'
+          }`}
       >
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex h-14 sm:h-16 items-center justify-between">
@@ -230,10 +231,10 @@ export function Header() {
             <div className="hidden lg:flex flex-1 max-w-md mx-4 xl:mx-6">
               <div className="relative w-full" ref={searchRef}>
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 z-10" />
-                <Input 
+                <Input
                   ref={searchInputRef}
                   type="text"
-                  placeholder="Search for games..." 
+                  placeholder="Search for games..."
                   value={searchQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
                   onKeyDown={handleKeyDown}
@@ -242,9 +243,9 @@ export function Header() {
                       setShowSuggestions(true)
                     }
                   }}
-                  className="pl-10 bg-muted/50 border-border/50 focus:border-primary" 
+                  className="pl-10 bg-muted/50 border-border/50 focus:border-primary"
                 />
-                
+
                 {/* Search Suggestions Dropdown */}
                 {showSuggestions && searchSuggestions.length > 0 && (
                   <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg z-50 max-h-[400px] overflow-y-auto custom-scrollbar">
@@ -258,13 +259,12 @@ export function Header() {
                             setShowSuggestions(false)
                             setSelectedIndex(-1)
                           }}
-                          className={`flex items-center gap-3 px-3 py-2 hover:bg-accent cursor-pointer transition-colors ${
-                            index === selectedIndex ? "bg-accent" : ""
-                          }`}
+                          className={`flex items-center gap-3 px-3 py-2 hover:bg-accent cursor-pointer transition-colors ${index === selectedIndex ? "bg-accent" : ""
+                            }`}
                         >
                           <div className="flex-shrink-0 w-10 h-10 rounded overflow-hidden bg-muted">
-                            <img 
-                              src={product.image} 
+                            <img
+                              src={product.image}
                               alt={product.title}
                               className="w-full h-full object-cover"
                               onError={(e) => {
@@ -305,6 +305,20 @@ export function Header() {
 
             {/* Right Actions */}
             <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-3">
+              {/* Language - Mock for now to match image */}
+              <div className="hidden sm:flex items-center">
+                <Button variant="ghost" size="sm" className="h-8 px-2 text-xs text-white/80 hover:text-white hover:bg-white/10">
+                  <Globe className="h-4 w-4 mr-1 opacity-70" />
+                  EN
+                  <ChevronRight className="h-3 w-3 ml-1 rotate-90 opacity-50" />
+                </Button>
+              </div>
+
+              {/* Currency */}
+              <div className="hidden sm:flex items-center">
+                <CurrencyDropdown />
+              </div>
+
               <ThemeToggle />
 
               {/* Cart */}
@@ -318,9 +332,9 @@ export function Header() {
               </Button>
 
               <div className="relative" data-user-menu>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className="p-2 sm:p-2.5 cursor-pointer focus:outline-none hover:bg-muted/50"
                   type="button"
                   aria-label="User menu"
@@ -364,8 +378,8 @@ export function Header() {
                         </div>
                         <div className="p-1">
                           {user.role === "admin" && (
-                            <Link 
-                              href="/admin/dashboard" 
+                            <Link
+                              href="/admin/dashboard"
                               className="flex items-center px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
                               onClick={() => setIsUserMenuOpen(false)}
                             >
@@ -374,8 +388,8 @@ export function Header() {
                             </Link>
                           )}
                           {user.role === "seller" && (
-                            <Link 
-                              href="/seller/dashboard" 
+                            <Link
+                              href="/seller/dashboard"
                               className="flex items-center px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
                               onClick={() => setIsUserMenuOpen(false)}
                             >
@@ -383,22 +397,22 @@ export function Header() {
                               Seller Dashboard
                             </Link>
                           )}
-                          <Link 
-                            href="/account" 
+                          <Link
+                            href="/account"
                             className="flex items-center px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
                             onClick={() => setIsUserMenuOpen(false)}
                           >
                             My Account
                           </Link>
-                          <Link 
-                            href="/account" 
+                          <Link
+                            href="/account"
                             className="flex items-center px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
                             onClick={() => setIsUserMenuOpen(false)}
                           >
                             My Orders
                           </Link>
-                          <Link 
-                            href="/account" 
+                          <Link
+                            href="/account"
                             className="flex items-center px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
                             onClick={() => setIsUserMenuOpen(false)}
                           >
@@ -421,15 +435,15 @@ export function Header() {
                     ) : (
                       <>
                         <div className="p-1">
-                          <Link 
-                            href="/login" 
+                          <Link
+                            href="/login"
                             className="flex items-center px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
                             onClick={() => setIsUserMenuOpen(false)}
                           >
                             Sign In
                           </Link>
-                          <Link 
-                            href="/register" 
+                          <Link
+                            href="/register"
                             className="flex items-center px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
                             onClick={() => setIsUserMenuOpen(false)}
                           >
@@ -469,20 +483,20 @@ export function Header() {
               <div className="flex flex-col space-y-4">
                 <div className="relative" ref={searchRef}>
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 z-10" />
-                  <Input 
+                  <Input
                     type="text"
-                    placeholder="Search for games..." 
+                    placeholder="Search for games..."
                     value={searchQuery}
                     onChange={(e) => handleSearchChange(e.target.value)}
                     onKeyDown={handleKeyDown}
                     onFocus={() => {
-                    if (searchQuery.length >= 2) {
-                      setShowSuggestions(true)
-                    }
-                  }}
-                    className="pl-10 bg-muted/50" 
+                      if (searchQuery.length >= 2) {
+                        setShowSuggestions(true)
+                      }
+                    }}
+                    className="pl-10 bg-muted/50"
                   />
-                  
+
                   {/* Mobile Search Suggestions Dropdown */}
                   {showSuggestions && searchSuggestions.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg z-50 max-h-[300px] overflow-y-auto custom-scrollbar">
@@ -497,13 +511,12 @@ export function Header() {
                               setSelectedIndex(-1)
                               setIsMenuOpen(false)
                             }}
-                            className={`flex items-center gap-3 px-3 py-2 hover:bg-accent cursor-pointer transition-colors ${
-                              index === selectedIndex ? "bg-accent" : ""
-                            }`}
+                            className={`flex items-center gap-3 px-3 py-2 hover:bg-accent cursor-pointer transition-colors ${index === selectedIndex ? "bg-accent" : ""
+                              }`}
                           >
                             <div className="flex-shrink-0 w-10 h-10 rounded overflow-hidden bg-muted">
-                              <img 
-                                src={product.image} 
+                              <img
+                                src={product.image}
                                 alt={product.title}
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
@@ -560,13 +573,17 @@ export function Header() {
                 </nav>
 
                 <div className="flex items-center justify-between pt-2">
+                  <span className="text-sm font-medium">Currency</span>
+                  <CurrencyDropdown />
+                </div>
+                <div className="flex items-center justify-between pt-2">
                   <span className="text-sm font-medium">Theme</span>
                   <ThemeToggle />
                 </div>
               </div>
             </div>
           )}
-          
+
           {/* Mega Menu Compact for Mobile */}
           <MegaMenuCompact isOpen={isMegaMenuOpen && isMenuOpen} onClose={() => setIsMegaMenuOpen(false)} />
         </div>

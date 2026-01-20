@@ -5,6 +5,7 @@ import { GeistMono } from "geist/font/mono"
 import { Suspense } from "react"
 import { CartProvider } from "@/contexts/cart-context"
 import { AuthProvider } from "@/contexts/auth-context"
+import { CurrencyProvider } from "@/contexts/currency-context"
 import { ThemeProvider } from "@/contexts/theme-context"
 import { TopLoader } from "@/components/top-loader"
 import { Header } from "@/components/header"
@@ -27,10 +28,12 @@ export default function RootLayout({
         <TopLoader />
         <ThemeProvider>
           <AuthProvider>
-            <CartProvider>
-              <Header />
-              <Suspense fallback={null}>{children}</Suspense>
-            </CartProvider>
+            <CurrencyProvider>
+              <CartProvider>
+                <Header />
+                <Suspense fallback={null}>{children}</Suspense>
+              </CartProvider>
+            </CurrencyProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
