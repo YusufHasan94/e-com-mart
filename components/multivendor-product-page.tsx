@@ -7,6 +7,8 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -41,7 +43,13 @@ import {
   Cpu,
   HardDrive,
   MemoryStick,
-  Loader2
+  Loader2,
+  Info,
+  ThumbsUp,
+  ThumbsDown,
+  Key,
+  MapPin,
+  LayoutGrid,
 } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { apiService, type AppProduct } from "@/lib/api-service"
@@ -218,7 +226,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
               <div className="flex items-center justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <Badge className={`${featuredVendor.isPromoted ? 'bg-purple-600 hover:bg-purple-700' : 'bg-blue-600 hover:bg-blue-700'} text-xs uppercase tracking-wider`}>
+                    <Badge className={`${featuredVendor.isPromoted ? 'bg-primary hover:bg-primary/80' : 'bg-primary hover:bg-primary/80'} text-xs uppercase tracking-wider`}>
                       {featuredVendor.isPromoted ? 'Promoted Deal' : 'Best Offer'}
                     </Badge>
                     <div className="text-lg font-bold text-primary">${featuredVendor.price}</div>
@@ -278,61 +286,91 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                   </Button>
                 </div>
 
-                <div className="flex-1">
-                  {/* Product Information - Simple */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
-                    {/* Activation */}
-                    <div className="flex items-start gap-3">
-                      <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1">
-                        <div className="font-medium text-sm mb-1">Activation</div>
-                        <p className="text-sm text-muted-foreground">Can be activated in Global</p>
-                        <Button variant="link" size="sm" className="p-0 h-auto text-xs mt-1">Check Restrictions</Button>
+                <div className="flex-1 space-y-6">
+                  {/* Activation Alert */}
+                  <div className="flex items-center gap-2 text-green-500 font-bold">
+                    <CheckCircle className="h-5 w-5" />
+                    <span>Can be activated in {product.region || 'BANGLADESH'}</span>
+                  </div>
+
+                  {/* Attributes Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 py-4">
+                    {/* Column 1 */}
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <div className="font-bold text-sm capitalize">{product?.deliveryType}</div>
+                          <div className="text-xs text-muted-foreground">Delivery</div>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <div className="font-bold text-sm">{product.region || 'Global'}</div>
+                          {/* <button className="text-xs text-orange-500 font-bold hover:underline">Check restrictions</button> */}
+                        </div>
                       </div>
                     </div>
 
-                    {/* Region */}
-                    <div className="flex items-start gap-3">
-                      <Globe className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1">
-                        <div className="font-medium text-sm mb-1">Region</div>
-                        <p className="text-sm text-muted-foreground">{product.region || 'Global'}</p>
-                        <Button variant="link" size="sm" className="p-0 h-auto text-xs mt-1">Change Region</Button>
+                    {/* Column 2 */}
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <Key className="h-5 w-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <div className="font-bold text-sm">{product.type === 'gift-card' ? 'Key' : 'Digital product'}</div>
+                          <div className="text-xs text-muted-foreground">Digital product</div>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <Monitor className="h-5 w-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <div className="font-bold text-sm">{product.platform || 'Steam'}</div>
+                          {/* <button className="text-xs text-orange-500 font-bold hover:underline">How to activate</button> */}
+                        </div>
                       </div>
                     </div>
 
-                    {/* Platform */}
-                    <div className="flex items-start gap-3">
-                      <Monitor className="h-4 w-4 text-purple-500 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1">
-                        <div className="font-medium text-sm mb-1">Platform</div>
-                        <p className="text-sm text-muted-foreground">{product.platform || 'Digital'}</p>
-                        <Button variant="link" size="sm" className="p-0 h-auto text-xs mt-1">Activation Guide</Button>
+                    {/* Column 3 */}
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <LayoutGrid className="h-5 w-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <div className="font-bold text-sm">{selectedVariation?.value || product.variations[0]?.value || 'Standard'}</div>
+                          <div className="text-xs text-muted-foreground">Edition</div>
+                        </div>
                       </div>
-                    </div>
-
-                    {/* Compatibility */}
-                    <div className="flex items-start gap-3">
-                      <Cpu className="h-4 w-4 text-orange-500 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1">
-                        <div className="font-medium text-sm mb-1">Compatibility</div>
-                        <p className="text-sm text-muted-foreground">Windows</p>
-                        <Button variant="link" size="sm" className="p-0 h-auto text-xs mt-1">System Requirements</Button>
+                      <div className="flex items-start gap-3">
+                        <Globe className="h-5 w-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <div className="font-bold text-sm truncate max-w-[120px]">
+                            {product.languages && product.languages.length > 0
+                              ? product.languages.join(', ')
+                              : 'Multilanguage'}
+                          </div>
+                          {/* <button className="text-xs text-orange-500 font-bold hover:underline">See all languages</button> */}
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Variations/Editions Selector */}
+                  {/* Important Information Footer */}
+                  {/* <button className="flex items-center gap-2 text-sm font-bold hover:text-primary transition-colors py-2">
+                    <Info className="h-4 w-4 text-orange-500" />
+                    <span>See important information</span>
+                  </button> */}
+
+                  {/* Variations/Editions Selector - Repositioned if needed, but keeping it for now if there are many */}
                   {product.variations.length > 1 && (
-                    <div className="mb-6">
-                      <div className="font-medium text-sm mb-3">Select Edition</div>
+                    <div className="pt-4 border-t">
+                      <div className="font-bold text-sm mb-3">Select Edition</div>
                       <div className="flex flex-wrap gap-2">
                         {product.variations.map((v) => (
                           <Button
                             key={v.value}
                             variant={selectedVariation?.value === v.value ? "default" : "outline"}
                             size="sm"
-                            className="text-xs"
+                            className="text-xs font-bold"
                             onClick={() => setSelectedVariation(v)}
                           >
                             {v.value}
@@ -341,33 +379,14 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                       </div>
                     </div>
                   )}
-
-                  {/* Service Features */}
-                  <div className="mb-4 sm:mb-6">
-                    <div className="font-medium text-sm mb-3">Service Features</div>
-                    <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-                      <div className="flex items-center gap-2">
-                        <Truck className="h-4 w-4 text-green-500" />
-                        <span className="text-sm">Instant Delivery</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <MessageCircle className="h-4 w-4 text-blue-500" />
-                        <span className="text-sm">24/7 Support</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <ShieldCheck className="h-4 w-4 text-purple-500" />
-                        <span className="text-sm">{product.deliveryType}</span>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
 
             {/* Offers Section */}
             <div className="mb-6 sm:mb-8">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-4">
-                <h2 className="text-xl sm:text-2xl font-bold">All Offers</h2>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-end mb-4 sm:mb-6 gap-4">
+
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" className="gap-2">
@@ -390,13 +409,13 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                     <div className="flex items-center gap-2">
                       <div className="h-6 w-1 bg-purple-600 rounded-full" />
                       <h3 className="font-bold text-lg sm:text-xl">Promoted Offers</h3>
-                      <Badge variant="secondary" className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                      <Badge variant="secondary" className="bg-primary text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
                         Top Choice
                       </Badge>
                     </div>
                     <div className="space-y-3">
                       {promotedOffers.map((vendor) => (
-                        <Card key={vendor.id} className={`relative dark:glass-effect dark:card-hover border-purple-100 dark:border-purple-900/30 ${vendor.id === featuredVendor?.id ? 'border-primary/50' : ''}`}>
+                        <Card key={vendor.id} className={`relative dark:glass-effect dark:card-hover border-primary dark:border-purple-900/30 ${vendor.id === featuredVendor?.id ? 'border-primary/50' : ''}`}>
                           <CardContent className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                             <div className="flex items-center gap-3 sm:gap-4 flex-1 w-full sm:w-auto">
                               <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center flex-shrink-0 relative overflow-hidden">
@@ -414,7 +433,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-center gap-2">
                                   <h3 className="font-semibold text-sm sm:text-base truncate">{vendor.name}</h3>
-                                  <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                                  <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-primary text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
                                     Promoted
                                   </Badge>
                                 </div>
@@ -497,126 +516,188 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
 
 
 
-            {/* Product Details Cards */}
-            <div className="mb-6 sm:mb-8 space-y-4 sm:space-y-6">
+            {/* Product Details Sections */}
+            <div className="mb-6 sm:mb-8 space-y-12">
 
-              {/* Description Card */}
-              <Card className="dark:glass-effect">
-                <CardHeader className="p-4 sm:p-6 pb-3 sm:pb-4">
-                  <CardTitle className="text-lg sm:text-xl font-semibold">Description</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 sm:p-6 pt-0">
-                  <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">{product.title}</h3>
-                  <div className="flex flex-wrap items-center gap-2 mb-4">
-                    {product.category && <Badge variant="outline">{product.category}</Badge>}
-                    {product.platform && <Badge variant="outline">{product.platform}</Badge>}
-                    {product.region && <Badge variant="outline">{product.region}</Badge>}
-                  </div>
-                  <p className="text-muted-foreground mb-4">
-                    {product.description}
-                  </p>
-                  <Button variant="link" className="p-0 h-auto">Read more</Button>
-                </CardContent>
-              </Card>
-
-              {/* Reviews Card */}
-              <Card className="dark:glass-effect">
-                <CardHeader className="p-4 sm:p-6 pb-3 sm:pb-4">
-                  <CardTitle className="text-lg sm:text-xl font-semibold">Reviews</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 sm:p-6 pt-0">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 sm:mb-6">
-                    <div className="flex items-center gap-1 sm:gap-2">
-                      <Star className="h-5 w-5 sm:h-6 sm:w-6 fill-yellow-400 text-yellow-400" />
-                      <Star className="h-5 w-5 sm:h-6 sm:w-6 fill-yellow-400 text-yellow-400" />
-                      <Star className="h-5 w-5 sm:h-6 sm:w-6 fill-yellow-400 text-yellow-400" />
-                      <Star className="h-5 w-5 sm:h-6 sm:w-6 fill-yellow-400 text-yellow-400" />
-                      <Star className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
-                      <span className="text-lg sm:text-xl font-bold ml-2">4.0</span>
+              {/* About the product section */}
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold">About the product</h2>
+                <div className="bg-muted/30 dark:bg-muted/10 rounded-xl p-6 border border-border">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-12 text-sm">
+                    <div className="flex items-center gap-4">
+                      <span className="font-bold w-28 flex-shrink-0">Developer:</span>
+                      <span className="text-muted-foreground">{product.developer?.name || 'N/A'}</span>
                     </div>
-                    <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs sm:text-sm">Leave a review</Button>
+                    <div className="flex items-center gap-4">
+                      <span className="font-bold w-28 flex-shrink-0">Publisher:</span>
+                      <span className="text-muted-foreground">{product.publisher?.name || 'N/A'}</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="font-bold w-28 flex-shrink-0">Release date:</span>
+                      <span className="text-muted-foreground">{product.releaseDate}</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="font-bold w-28 flex-shrink-0">Restrictions:</span>
+                      <Badge variant="outline" className="text-[10px] py-0 h-5 font-bold">ESRB TEEN</Badge>
+                    </div>
+                    <div className="flex items-center gap-4 col-span-1 md:col-span-2">
+                      <span className="font-bold w-28 flex-shrink-0">Languages:</span>
+                      <div className="flex flex-wrap gap-2 text-muted-foreground">
+                        {product.languages && product.languages.length > 0
+                          ? product.languages.join(', ')
+                          : 'English, German, French, Italian, Polish, Japanese, Korean, Brazilian, Russian, Chinese, Spanish'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="prose dark:prose-invert max-w-none space-y-6 text-muted-foreground">
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground mb-4">Why should you buy {product.title}:</h3>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Dynamic features and immersive gameplay experience</li>
+                      <li>Highly praised by the community and critics</li>
+                      <li>Regular updates and new content drops</li>
+                    </ul>
                   </div>
 
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground mb-4">{product.title} highlights</h3>
+                    <p className="leading-relaxed">
+                      {product.description}
+                    </p>
+                  </div>
+                  <Button variant="link" className="p-0 text-primary font-bold h-auto">Read more</Button>
+                </div>
+              </div>
+
+              {/* Requirements section */}
+              <div className="pt-8 border-t border-border">
+                <h2 className="text-2xl font-bold mb-8">Requirements</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                   <div className="space-y-6">
-                    {product.customerReviews.map((review, index) => (
-                      <div key={index} className="border-b border-border pb-4 last:border-b-0">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="font-semibold">{review.user}</div>
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                            <span>{review.rating}</span>
+                    <h3 className="font-bold text-lg">Minimum</h3>
+                    <div className="space-y-4">
+                      {product.systemRequirements?.minimum.map((req, idx) => (
+                        <div key={idx} className="flex gap-1 text-sm">
+                          <span className="text-muted-foreground">{req.key}</span>
+                          <span className="text-muted-foreground">:</span>
+                          <span className="font-bold">{req.value}</span>
+                        </div>
+                      )) || <p className="text-muted-foreground text-sm">Not specified</p>}
+                    </div>
+                  </div>
+                  <div className="space-y-6">
+                    <h3 className="font-bold text-lg">Recommended</h3>
+                    <div className="space-y-4">
+                      {product.systemRequirements?.recommended.map((req, idx) => (
+                        <div key={idx} className="flex gap-1 text-sm">
+                          <span className="text-muted-foreground">{req.key}</span>
+                          <span className="text-muted-foreground">:</span>
+                          <span className="font-bold">{req.value}</span>
+                        </div>
+                      )) || <p className="text-muted-foreground text-sm">Not specified</p>}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Reviews section */}
+              <div className="pt-8 border-t border-border">
+                <h2 className="text-2xl font-bold mb-8">Reviews</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                  {/* Review Sidebar Summary */}
+                  <div className="lg:col-span-4 space-y-6">
+                    <div className="bg-muted/30 dark:bg-muted/10 rounded-xl p-8 border border-border flex flex-col items-center text-center">
+                      <div className="text-5xl font-base mb-2">{product.rating}/5</div>
+                      <div className="flex items-center gap-1 mb-2">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`h-6 w-6 ${i < Math.floor(product.rating) ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />
+                        ))}
+                      </div>
+                      <div className="text-sm text-muted-foreground mb-8">({product.reviews} reviews)</div>
+
+                      <div className="w-full space-y-4 mb-8 text-left">
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm font-base uppercase tracking-wider">
+                            <span>Gameplay</span>
+                            <span>5/5</span>
+                          </div>
+                          <Progress value={100} className="h-2 bg-muted-foreground/10" />
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm font-base uppercase tracking-wider">
+                            <span>Graphics</span>
+                            <span>4/5</span>
+                          </div>
+                          <Progress value={80} className="h-2 bg-muted-foreground/10" />
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm font-base uppercase tracking-wider">
+                            <span>Audio</span>
+                            <span>5/5</span>
+                          </div>
+                          <Progress value={100} className="h-2 bg-muted-foreground/10" />
+                        </div>
+                      </div>
+
+                      <Button className="w-full h-12 bg-primary hover:bg-primary/80 text-white font-base text-sm uppercase tracking-widest shadow-lg shadow-primary/20">
+                        Write a review
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Reviews List */}
+                  <div className="lg:col-span-8 space-y-8">
+                    {product.customerReviews.length > 0 ? (
+                      product.customerReviews.map((review, index) => (
+                        <div key={index} className="space-y-4 pb-8 border-b border-border last:border-0 last:pb-0">
+                          <div className="flex justify-between items-start">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-foreground">{review.user}</span>
+                                <span className="text-xs text-muted-foreground">{review.date}</span>
+                              </div>
+                              <div className="text-xs text-muted-foreground italic">
+                                User bought {product.title} Global from Kinguin
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {[...Array(5)].map((_, i) => (
+                                <Star key={i} className={`h-3 w-3 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />
+                              ))}
+                              <span className="text-xs font-bold ml-1">{review.rating}/5</span>
+                            </div>
+                          </div>
+                          <p className="text-muted-foreground text-sm leading-relaxed">
+                            {review.comment || "Must play for anyone, very fun"}
+                          </p>
+                          <div className="flex items-center gap-6 text-muted-foreground">
+                            <button className="flex items-center gap-1.5 hover:text-foreground transition-colors group">
+                              <ThumbsUp className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                              <span className="text-xs font-medium">0</span>
+                            </button>
+                            <button className="flex items-center gap-1.5 hover:text-foreground transition-colors group">
+                              <ThumbsDown className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                              <span className="text-xs font-medium">0</span>
+                            </button>
                           </div>
                         </div>
-                        <p className="text-muted-foreground">{review.comment}</p>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* System Requirements Card */}
-              <Card className="dark:glass-effect">
-                <CardHeader className="p-4 sm:p-6 pb-3 sm:pb-4">
-                  <CardTitle className="text-lg sm:text-xl font-semibold">System Requirements</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 sm:p-6 pt-0">
-                  <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">System: Windows</h3>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="font-semibold mb-3">Minimum System Requirements</h4>
-                      <div className="space-y-2 text-sm">
-                        {product.systemRequirements?.minimum.map((req, idx) => (
-                          <div key={idx} className="flex items-center gap-2">
-                            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-                            <span><strong>{req.key}:</strong> {req.value}</span>
-                          </div>
-                        )) || <p className="text-muted-foreground">Not specified</p>}
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 className="font-semibold mb-3">Recommended System Requirements</h4>
-                      <div className="space-y-2 text-sm">
-                        {product.systemRequirements?.recommended.map((req, idx) => (
-                          <div key={idx} className="flex items-center gap-2">
-                            <Star className="h-4 w-4 text-muted-foreground" />
-                            <span><strong>{req.key}:</strong> {req.value}</span>
-                          </div>
-                        )) || <p className="text-muted-foreground">Not specified</p>}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Other Details Card */}
-              <Card className="dark:glass-effect">
-                <CardHeader className="p-4 sm:p-6 pb-3 sm:pb-4">
-                  <CardTitle className="text-lg sm:text-xl font-semibold">Other Details</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 sm:p-6 pt-0">
-                  <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Additional Information</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
-                      <span>Release Date: {new Date(product.releaseDate).toLocaleDateString()}</span>
-                    </div>
-                    {product.developer?.name && (
-                      <div className="flex items-center gap-2">
-                        <Award className="h-4 w-4" />
-                        <span>Developer: {product.developer.name}</span>
-                      </div>
-                    )}
-                    {product.publisher?.name && (
-                      <div className="flex items-center gap-2">
-                        <Globe className="h-4 w-4" />
-                        <span>Publisher: {product.publisher.name}</span>
+                      ))
+                    ) : (
+                      <div className="space-y-4 flex flex-col items-center justify-center py-20 bg-muted/5 rounded-xl border border-dashed text-center">
+                        <MessageCircle className="h-12 w-12 text-muted-foreground/30" />
+                        <div className="space-y-1">
+                          <p className="font-bold text-muted-foreground">No reviews yet</p>
+                          <p className="text-xs text-muted-foreground max-w-[250px]">
+                            Be the first to share your experience with the community!
+                          </p>
+                        </div>
                       </div>
                     )}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -625,7 +706,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
             {featuredVendor ? (
               <Card className="dark:glass-effect p-4 sm:p-5">
                 <div className="mb-3 sm:mb-4">
-                  <Badge className={`${featuredVendor.isPromoted ? 'bg-purple-600 hover:bg-purple-700' : 'bg-blue-600 hover:bg-blue-700'} mb-2 text-xs sm:text-sm uppercase tracking-wider`}>
+                  <Badge className={`${featuredVendor.isPromoted ? 'bg-primary hover:bg-primary/80' : 'bg-blue-600 hover:bg-blue-700'} mb-2 text-xs sm:text-sm uppercase tracking-wider`}>
                     {featuredVendor.isPromoted ? 'Promoted Deal' : 'Featured Offer'}
                   </Badge>
                   <div className="text-2xl sm:text-3xl font-bold text-primary mb-1">${featuredVendor.price}</div>
@@ -710,6 +791,6 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
       <div className="container mx-auto px-4 py-12 border-t border-border mt-12 mb-20">
         <RelatedProducts currentProductId={productId || ""} />
       </div>
-    </div>
+    </div >
   )
 }
