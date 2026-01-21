@@ -244,10 +244,12 @@ function SidebarContent({
   )
 }
 
-export function AccountDashboard() {
+import { ProfileSettings } from "@/components/profile-settings"
+
+export function AccountDashboard({ initialTab = "offers-list" }: { initialTab?: string }) {
   const { user, isLoading } = useAuth()
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState("offers-list")
+  const [activeTab, setActiveTab] = useState(initialTab)
   const [purchasesTab, setPurchasesTab] = useState("games")
   const [wishlist, setWishlist] = useState<Product[]>([])
   const [searchQuery, setSearchQuery] = useState("")
@@ -3576,8 +3578,18 @@ export function AccountDashboard() {
             </div>
           )}
 
+          {activeTab === "settings" && (
+            <div className="space-y-4 sm:space-y-5 md:space-y-6">
+              <div className="flex items-center gap-2">
+                <Settings className="h-5 w-5 text-primary" />
+                <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Account Settings</h1>
+              </div>
+              <ProfileSettings />
+            </div>
+          )}
+
           {/* Other Sections Placeholder */}
-          {activeTab !== "purchases" && activeTab !== "wishlist" && activeTab !== "credit" && activeTab !== "offers-list" && activeTab !== "sales-history" && activeTab !== "requested-products" && activeTab !== "wholesale" && activeTab !== "wholesale-bids" && activeTab !== "support" && (
+          {activeTab !== "purchases" && activeTab !== "wishlist" && activeTab !== "credit" && activeTab !== "offers-list" && activeTab !== "sales-history" && activeTab !== "requested-products" && activeTab !== "wholesale" && activeTab !== "wholesale-bids" && activeTab !== "support" && activeTab !== "settings" && (
             <div className="space-y-3 sm:space-y-4 md:space-y-6">
               <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold capitalize">{activeTab.replace(/([A-Z])/g, ' $1').trim()}</h1>
               <div className="bg-card border border-border rounded-lg p-6 sm:p-8 md:p-12 text-center">

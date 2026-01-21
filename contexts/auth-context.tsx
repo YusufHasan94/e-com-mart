@@ -37,16 +37,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (storedToken) {
           // Verify token with 'me' endpoint
-          const response = await apiService.getProfile(storedToken)
+          const response = await apiService.getMe(storedToken)
           if (response.success && response.data) {
-            const apiUser = response.data
+            const apiUser: any = response.data
+            const userObj = apiUser.user || apiUser.data || apiUser
             const safeUser: User = {
-              id: apiUser.id || Date.now().toString(),
-              email: apiUser.email,
-              name: apiUser.name,
-              avatar: apiUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${apiUser.email}`,
-              role: apiUser.role || "user",
-              createdAt: apiUser.createdAt || new Date().toISOString(),
+              id: String(userObj.id || Date.now()),
+              email: userObj.email,
+              name: userObj.name,
+              avatar: userObj.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userObj.email}`,
+              role: userObj.role || "user",
+              createdAt: userObj.createdAt || userObj.created_at || new Date().toISOString(),
             }
             setUser(safeUser)
             // Update stored user just in case
@@ -94,17 +95,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem("token", accessToken)
 
         // Fetch full profile using token
-        const meResponse = await apiService.getProfile(accessToken)
+        const meResponse = await apiService.getMe(accessToken)
 
         if (meResponse.success && meResponse.data) {
-          const fullUser = meResponse.data
+          const apiUser: any = meResponse.data
+          const userObj = apiUser.user || apiUser.data || apiUser
           const safeUser: User = {
-            id: fullUser.id,
-            email: fullUser.email,
-            name: fullUser.name,
-            avatar: fullUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${fullUser.email}`,
-            role: fullUser.role || "user",
-            createdAt: fullUser.createdAt || new Date().toISOString(),
+            id: String(userObj.id),
+            email: userObj.email,
+            name: userObj.name,
+            avatar: userObj.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userObj.email}`,
+            role: userObj.role || "user",
+            createdAt: userObj.createdAt || userObj.created_at || new Date().toISOString(),
           }
           setUser(safeUser)
           localStorage.setItem("user", JSON.stringify(safeUser))
