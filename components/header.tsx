@@ -13,9 +13,9 @@ import { MegaMenu, MegaMenuCompact } from "@/components/megamenu"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { products } from "@/lib/products"
 import { CurrencyDropdown } from "@/components/currency-dropdown"
-import { Globe } from "lucide-react"
+import { Globe, Loader2 } from "lucide-react"
+import { apiService, AppProduct } from "@/lib/api-service"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -32,6 +32,8 @@ export function Header() {
   const router = useRouter()
   const { state, setOpenCartDrawer } = useCart()
   const { user, logout } = useAuth()
+  const [apiSuggestions, setApiSuggestions] = useState<AppProduct[]>([])
+  const [isSearching, setIsSearching] = useState(false)
 
   // Register cart drawer open callback
   useEffect(() => {
@@ -39,33 +41,37 @@ export function Header() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Search suggestions
-  const searchSuggestions = useMemo(() => {
-    if (!searchQuery.trim() || searchQuery.length < 2) {
-      return []
-    }
-
-    const query = searchQuery.toLowerCase().trim()
-    return products
-      .filter((product) => {
-        const titleMatch = product.title.toLowerCase().includes(query)
-        const categoryMatch = product.category.toLowerCase().includes(query)
-        const platformMatch = product.platform?.toLowerCase().includes(query)
-        const descriptionMatch = product.description.toLowerCase().includes(query)
-
-        return titleMatch || categoryMatch || platformMatch || descriptionMatch
-      })
-      .slice(0, 8) // Limit to 8 suggestions
-  }, [searchQuery])
-
-  // Update suggestions visibility when searchSuggestions change
+  // Search suggestions from API
   useEffect(() => {
-    if (searchQuery.length >= 2) {
-      setShowSuggestions(searchSuggestions.length > 0)
+    if (searchQuery.trim().length >= 2) {
+      setShowSuggestions(true)
     } else {
       setShowSuggestions(false)
+      setApiSuggestions([])
+      return
     }
-  }, [searchSuggestions, searchQuery])
+
+    const timer = setTimeout(async () => {
+      setIsSearching(true)
+      try {
+        const response = await apiService.searchProducts(searchQuery)
+        if (response.success && response.data) {
+          const mapped = response.data.map(p => apiService.mapApiProductToProduct(p))
+          setApiSuggestions(mapped)
+          // Always keep showSuggestions true if length >= 2 so user sees "No results"
+        } else {
+          setApiSuggestions([])
+        }
+      } catch (error) {
+        console.error("Search error:", error)
+        setApiSuggestions([])
+      } finally {
+        setIsSearching(false)
+      }
+    }, 400) // 400ms debounce
+
+    return () => clearTimeout(timer)
+  }, [searchQuery])
 
   // Close search suggestions when clicking outside
   useEffect(() => {
@@ -153,7 +159,7 @@ export function Header() {
 
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!showSuggestions || searchSuggestions.length === 0) {
+    if (!showSuggestions || apiSuggestions.length === 0) {
       if (e.key === "Enter") {
         handleSearchSubmit()
       }
@@ -164,7 +170,7 @@ export function Header() {
       case "ArrowDown":
         e.preventDefault()
         setSelectedIndex((prev) =>
-          prev < searchSuggestions.length - 1 ? prev + 1 : prev
+          prev < apiSuggestions.length - 1 ? prev + 1 : prev
         )
         break
       case "ArrowUp":
@@ -173,8 +179,8 @@ export function Header() {
         break
       case "Enter":
         e.preventDefault()
-        if (selectedIndex >= 0 && selectedIndex < searchSuggestions.length) {
-          handleSearchSubmit(searchSuggestions[selectedIndex].title)
+        if (selectedIndex >= 0 && selectedIndex < apiSuggestions.length) {
+          handleSearchSubmit(apiSuggestions[selectedIndex].title)
         } else {
           handleSearchSubmit()
         }
@@ -247,57 +253,66 @@ export function Header() {
                 />
 
                 {/* Search Suggestions Dropdown */}
-                {showSuggestions && searchSuggestions.length > 0 && (
+                {showSuggestions && (
                   <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg z-50 max-h-[400px] overflow-y-auto custom-scrollbar">
-                    <div className="py-1">
-                      {searchSuggestions.map((product, index) => (
-                        <Link
-                          key={product.id}
-                          href={`/products?search=${encodeURIComponent(product.title)}`}
-                          onClick={() => {
-                            setSearchQuery("")
-                            setShowSuggestions(false)
-                            setSelectedIndex(-1)
-                          }}
-                          className={`flex items-center gap-3 px-3 py-2 hover:bg-accent cursor-pointer transition-colors ${index === selectedIndex ? "bg-accent" : ""
-                            }`}
-                        >
-                          <div className="flex-shrink-0 w-10 h-10 rounded overflow-hidden bg-muted">
-                            <img
-                              src={product.image}
-                              alt={product.title}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = "/placeholder.jpg"
-                              }}
-                            />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-popover-foreground truncate">
-                              {product.title}
+                    {isSearching ? (
+                      <div className="flex items-center justify-center py-6">
+                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                        <span className="ml-2 text-sm text-muted-foreground">Searching...</span>
+                      </div>
+                    ) : apiSuggestions.length > 0 ? (
+                      <div className="py-1">
+                        {apiSuggestions.map((product, index) => (
+                          <Link
+                            key={product.id}
+                            href={`/product/${product.id}`}
+                            onClick={() => {
+                              setSearchQuery("")
+                              setShowSuggestions(false)
+                              setSelectedIndex(-1)
+                            }}
+                            className={`flex items-center gap-3 px-3 py-2 hover:bg-accent cursor-pointer transition-colors ${index === selectedIndex ? "bg-accent" : ""
+                              }`}
+                          >
+                            <div className="flex-shrink-0 w-10 h-10 rounded overflow-hidden bg-muted">
+                              <img
+                                src={product.image}
+                                alt={product.title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = "/placeholder.jpg"
+                                }}
+                              />
                             </div>
-                            <div className="text-xs text-muted-foreground truncate">
-                              {product.category} {product.platform ? `• ${product.platform}` : ""}
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium text-popover-foreground truncate">
+                                {product.title}
+                              </div>
+                              <div className="text-xs text-muted-foreground truncate">
+                                {product.category} {product.platform ? `• ${product.platform}` : ""}
+                              </div>
                             </div>
-                          </div>
-                          {product.salePrice && (
-                            <div className="flex-shrink-0 text-sm font-semibold text-primary">
-                              ${product.salePrice}
-                            </div>
-                          )}
-                        </Link>
-                      ))}
-                    </div>
-                    {searchQuery.length >= 2 && (
-                      <div className="border-t px-3 py-2">
-                        <button
-                          onClick={() => handleSearchSubmit()}
-                          className="text-sm text-primary hover:underline font-medium w-full text-left"
-                        >
-                          View all results for "{searchQuery}"
-                        </button>
+                            {product.salePrice && (
+                              <div className="flex-shrink-0 text-sm font-semibold text-primary">
+                                ${product.salePrice}
+                              </div>
+                            )}
+                          </Link>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="py-6 text-center text-sm text-muted-foreground">
+                        No products found for "{searchQuery}"
                       </div>
                     )}
+                    <div className="border-t px-3 py-2 bg-muted/30">
+                      <button
+                        onClick={() => handleSearchSubmit()}
+                        className="text-sm text-primary hover:underline font-medium w-full text-left"
+                      >
+                        {isSearching ? 'Search all products...' : `View all results for "${searchQuery}"`}
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -397,6 +412,14 @@ export function Header() {
                               Seller Dashboard
                             </Link>
                           )}
+                          <Link
+                            href="/profile"
+                            className="flex items-center px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            <User className="mr-2 h-4 w-4" />
+                            My Profile
+                          </Link>
                           <Link
                             href="/account"
                             className="flex items-center px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
@@ -498,61 +521,70 @@ export function Header() {
                   />
 
                   {/* Mobile Search Suggestions Dropdown */}
-                  {showSuggestions && searchSuggestions.length > 0 && (
+                  {showSuggestions && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg z-50 max-h-[300px] overflow-y-auto custom-scrollbar">
-                      <div className="py-1">
-                        {searchSuggestions.map((product, index) => (
-                          <Link
-                            key={product.id}
-                            href={`/products?search=${encodeURIComponent(product.title)}`}
-                            onClick={() => {
-                              setSearchQuery("")
-                              setShowSuggestions(false)
-                              setSelectedIndex(-1)
-                              setIsMenuOpen(false)
-                            }}
-                            className={`flex items-center gap-3 px-3 py-2 hover:bg-accent cursor-pointer transition-colors ${index === selectedIndex ? "bg-accent" : ""
-                              }`}
-                          >
-                            <div className="flex-shrink-0 w-10 h-10 rounded overflow-hidden bg-muted">
-                              <img
-                                src={product.image}
-                                alt={product.title}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = "/placeholder.jpg"
-                                }}
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-sm font-medium text-popover-foreground truncate">
-                                {product.title}
+                      {isSearching ? (
+                        <div className="flex items-center justify-center py-6">
+                          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                          <span className="ml-2 text-sm text-muted-foreground">Searching...</span>
+                        </div>
+                      ) : apiSuggestions.length > 0 ? (
+                        <div className="py-1">
+                          {apiSuggestions.map((product, index) => (
+                            <Link
+                              key={product.id}
+                              href={`/product/${product.id}`}
+                              onClick={() => {
+                                setSearchQuery("")
+                                setShowSuggestions(false)
+                                setSelectedIndex(-1)
+                                setIsMenuOpen(false)
+                              }}
+                              className={`flex items-center gap-3 px-3 py-2 hover:bg-accent cursor-pointer transition-colors ${index === selectedIndex ? "bg-accent" : ""
+                                }`}
+                            >
+                              <div className="flex-shrink-0 w-10 h-10 rounded overflow-hidden bg-muted">
+                                <img
+                                  src={product.image}
+                                  alt={product.title}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = "/placeholder.jpg"
+                                  }}
+                                />
                               </div>
-                              <div className="text-xs text-muted-foreground truncate">
-                                {product.category} {product.platform ? `• ${product.platform}` : ""}
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-medium text-popover-foreground truncate">
+                                  {product.title}
+                                </div>
+                                <div className="text-xs text-muted-foreground truncate">
+                                  {product.category} {product.platform ? `• ${product.platform}` : ""}
+                                </div>
                               </div>
-                            </div>
-                            {product.salePrice && (
-                              <div className="flex-shrink-0 text-sm font-semibold text-primary">
-                                ${product.salePrice}
-                              </div>
-                            )}
-                          </Link>
-                        ))}
-                      </div>
-                      {searchQuery.length >= 2 && (
-                        <div className="border-t px-3 py-2">
-                          <button
-                            onClick={() => {
-                              handleSearchSubmit()
-                              setIsMenuOpen(false)
-                            }}
-                            className="text-sm text-primary hover:underline font-medium w-full text-left"
-                          >
-                            View all results for "{searchQuery}"
-                          </button>
+                              {product.salePrice && (
+                                <div className="flex-shrink-0 text-sm font-semibold text-primary">
+                                  ${product.salePrice}
+                                </div>
+                              )}
+                            </Link>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="py-6 text-center text-sm text-muted-foreground">
+                          No products found for "{searchQuery}"
                         </div>
                       )}
+                      <div className="border-t px-3 py-2 bg-muted/30">
+                        <button
+                          onClick={() => {
+                            handleSearchSubmit()
+                            setIsMenuOpen(false)
+                          }}
+                          className="text-sm text-primary hover:underline font-medium w-full text-left"
+                        >
+                          {isSearching ? 'Search all products...' : `View all results for "${searchQuery}"`}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

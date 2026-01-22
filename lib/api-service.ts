@@ -22,6 +22,20 @@ export interface ApiCurrency {
     status: number
 }
 
+export interface ApiCategory {
+    id: number
+    name: string
+    slug: string
+    products_count?: number
+}
+
+export interface ApiPlatform {
+    id: number
+    name: string
+    slug: string
+    products_count?: number
+}
+
 export interface ApiOffer {
     id: number
     seller: {
@@ -109,10 +123,12 @@ export interface AppProduct {
     id: string
     title: string
     category: string
+    categorySlug: string
     description: string
     image: string
     gallery: string[]
     platform: string
+    platformSlug: string
     region: string
     type: string
     rating: number
@@ -226,11 +242,48 @@ export const apiService = {
     },
 
     /**
-     * Get current user profile
+     * Get basic authenticated user (Verify token)
      */
-    getProfile: async (token: string): Promise<ApiResponse<ApiUser>> => {
+    getMe: async (token: string): Promise<ApiResponse<ApiUser>> => {
         try {
             const response = await fetch(`${BASE_URL}/auth/me`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+            console.log("API Auth Me Result:", result)
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to verify session",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data || result, // Extract user object correctly
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getMe):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Get full user profile
+     */
+    getProfile: async (token: string): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/profile`, {
                 method: "GET",
                 headers: {
                     "Authorization": `Bearer ${token}`,
@@ -250,11 +303,50 @@ export const apiService = {
 
             return {
                 success: true,
-                data: result.data?.user || result.data || result, // Extract user object correctly
+                data: result.data || result,
                 message: result.message,
             }
         } catch (error) {
             console.error("API Error (getProfile):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Update user profile
+     */
+    updateProfile: async (token: string, profileData: any): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/profile`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                body: JSON.stringify(profileData),
+            })
+
+            const result = await response.json()
+            console.log("API Update Profile Result:", result)
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to update profile",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data || result,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (updateProfile):", error)
             return {
                 success: false,
                 error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
@@ -335,18 +427,42 @@ export const apiService = {
     },
 
     /**
-     * Fetch all products
+     * Fetch all products with filtering and search options
      */
-    getProducts: async (page: number = 1): Promise<ApiResponse<ApiProductsResponse["data"]>> => {
+    getProducts: async (options: {
+        search?: string,
+        category_id?: number | string,
+        platform_id?: number | string,
+        type_id?: number | string,
+        region_id?: number | string,
+        language_id?: number | string,
+        works_on_id?: number | string,
+        per_page?: number,
+        page?: number
+    } = {}): Promise<ApiResponse<ApiProductsResponse["data"]>> => {
         try {
-            const response = await fetch(`${BASE_URL}/products`, {
+            const queryParams = new URLSearchParams()
+            if (options.search) queryParams.append("search", options.search)
+            if (options.category_id) queryParams.append("category_id", String(options.category_id))
+            if (options.platform_id) queryParams.append("platform_id", String(options.platform_id))
+            if (options.type_id) queryParams.append("type_id", String(options.type_id))
+            if (options.region_id) queryParams.append("region_id", String(options.region_id))
+            if (options.language_id) queryParams.append("language_id", String(options.language_id))
+            if (options.works_on_id) queryParams.append("works_on_id", String(options.works_on_id))
+            if (options.per_page) queryParams.append("per_page", String(options.per_page))
+            if (options.page) queryParams.append("page", String(options.page))
+
+            const queryString = queryParams.toString()
+            const url = `${BASE_URL}/products${queryString ? `?${queryString}` : ""}`
+
+            const response = await fetch(url, {
                 method: "GET",
                 headers: {
                     "Accept": "application/json",
                 },
             })
 
-            console.log("API Get Products Result:", response);
+            console.log("API Get Products URL:", url);
 
             const result = await response.json()
             console.log("API Get Products JSON:", result)
@@ -359,14 +475,40 @@ export const apiService = {
             }
 
             // Normalize data: ensure we return an object with a products array
-            let productsData = result.data;
-            if (Array.isArray(result.data)) {
-                productsData = { products: result.data, current_page: 1, last_page: 1, total: result.data.length };
+            let normalizedData: ApiProductsResponse["data"] = {
+                products: [],
+                currency: null,
+                pagination: {
+                    total: 0,
+                    per_page: options.per_page ? Number(options.per_page) : 12,
+                    current_page: options.page ? Number(options.page) : 1,
+                    last_page: 1
+                }
+            };
+
+            // Heuristically find the product array and pagination info
+            if (result.data) {
+                if (Array.isArray(result.data)) {
+                    normalizedData.products = result.data;
+                    normalizedData.pagination.total = result.data.length;
+                } else if (typeof result.data === 'object') {
+                    normalizedData.products = result.data.products || result.data.data || result.data.items || [];
+                    normalizedData.pagination.current_page = result.data.current_page || result.data.pagination?.current_page || 1;
+                    normalizedData.pagination.last_page = result.data.last_page || result.data.pagination?.last_page || 1;
+                    normalizedData.pagination.total = result.data.total || result.data.pagination?.total || normalizedData.products.length;
+                    normalizedData.currency = result.data.currency || result.currency;
+                }
+            } else if (Array.isArray(result)) {
+                normalizedData.products = result;
+                normalizedData.pagination.total = result.length;
+            } else if (result.products && Array.isArray(result.products)) {
+                normalizedData.products = result.products;
+                normalizedData.pagination.total = result.total || result.products.length;
             }
 
             return {
                 success: true,
-                data: productsData,
+                data: normalizedData,
                 message: result.message,
             }
         } catch (error) {
@@ -491,6 +633,110 @@ export const apiService = {
     },
 
     /**
+     * Fetch all product categories
+     */
+    getCategories: async (): Promise<ApiResponse<ApiCategory[]>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/product-attributes/categories`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+            console.log("API Categories Result:", result)
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch categories",
+                }
+            }
+
+            return {
+                success: true,
+                data: Array.isArray(result.data) ? result.data : result.data?.categories || [],
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getCategories):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Fetch all product platforms
+     */
+    getPlatforms: async (): Promise<ApiResponse<ApiPlatform[]>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/product-attributes/platforms`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+            console.log("API Platforms Result:", result)
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch platforms",
+                }
+            }
+
+            return {
+                success: true,
+                data: Array.isArray(result.data) ? result.data : result.data?.platforms || [],
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getPlatforms):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Search products by keyword
+     */
+    searchProducts: async (query: string): Promise<ApiResponse<ApiProduct[]>> => {
+        try {
+            if (!query || query.length < 2) {
+                return { success: true, data: [] }
+            }
+
+            const response = await apiService.getProducts({ search: query })
+
+            if (!response.success) {
+                return {
+                    success: false,
+                    error: response.error || "Search failed",
+                }
+            }
+
+            return {
+                success: true,
+                data: response.data?.products || [],
+                message: response.message,
+            }
+        } catch (error) {
+            console.error("API Error (searchProducts):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
      * Map API Product to App Product format
      */
     mapApiProductToProduct: (apiProduct: ApiProduct, apiOffers: ApiOffer[] = []): AppProduct => {
@@ -602,7 +848,9 @@ export const apiService = {
             publisher: attrs.publisher,
             customerReviews: [],
             releaseDate: apiProduct.created_at ? new Date(apiProduct.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-            languages: attrs.languages?.map(l => l.name) || []
+            languages: attrs.languages?.map(l => l.name) || [],
+            categorySlug: attrs.categories?.[0]?.slug || "",
+            platformSlug: attrs.platforms?.[0]?.slug || ""
         }
     }
 }

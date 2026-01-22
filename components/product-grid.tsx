@@ -29,19 +29,62 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
   const itemsPerPage = 12
   const { addItem } = useCart()
 
+  const [categories, setCategories] = useState<any[]>([])
+  const [platforms, setPlatforms] = useState<any[]>([])
+
+  // Fetch metadata for ID mapping
+  useEffect(() => {
+    const fetchMetadata = async () => {
+      const [catRes, platRes] = await Promise.all([
+        apiService.getCategories(),
+        apiService.getPlatforms()
+      ])
+      if (catRes.success && catRes.data) setCategories(catRes.data)
+      if (platRes.success && platRes.data) setPlatforms(platRes.data)
+    }
+    fetchMetadata()
+  }, [])
+
   useEffect(() => {
     const fetchProducts = async () => {
       setIsLoading(true)
-      const response = await apiService.getProducts()
-      if (response.success && response.data?.products) {
-        const mappedProducts = response.data.products.map(p => apiService.mapApiProductToProduct(p))
-        setProducts(mappedProducts)
+      try {
+        // Map slugs to IDs
+        const category_id = categories.find(c => c.slug === filters.category)?.id
+        const platform_id = platforms.find(p => p.slug === filters.platform)?.id
+
+        const response = await apiService.getProducts({
+          search: filters.search,
+          category_id,
+          platform_id,
+          page: currentPage,
+          per_page: itemsPerPage
+        })
+
+        if (response.success && response.data) {
+          let dataArray: any[] = [];
+          if (Array.isArray(response.data)) {
+            dataArray = response.data;
+          } else if (response.data && typeof response.data === 'object' && "products" in response.data) {
+            dataArray = (response.data as any).products;
+          }
+
+          const mappedProducts = dataArray.map(p => apiService.mapApiProductToProduct(p))
+          setProducts(mappedProducts)
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error)
+      } finally {
+        setIsLoading(false)
       }
-      setIsLoading(false)
     }
 
-    fetchProducts()
-  }, [])
+    const timer = setTimeout(() => {
+      fetchProducts()
+    }, 400)
+
+    return () => clearTimeout(timer)
+  }, [filters.search, filters.category, filters.platform, currentPage, categories, platforms])
 
   console.log("all products: ", products);
 
@@ -68,15 +111,8 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
     if (!products || products.length === 0) return []
 
     const filtered = products.filter((product) => {
-      // Search filter
-      if (filters.search && filters.search.trim() !== "") {
-        const searchTerm = filters.search.toLowerCase().trim()
-        const productTitle = product.title?.toLowerCase() || ""
-        if (!productTitle.includes(searchTerm)) return false
-      }
-
       // Category filter - only filter if specific category selected and not "all"
-      if (filters.category && filters.category !== "all" && product.category !== filters.category) return false
+      if (filters.category && filters.category !== "" && filters.category !== "all" && product.categorySlug !== filters.category) return false
 
       // Price range filter - ensure valid numbers
       if (filters.priceRange && filters.priceRange.length === 2) {
@@ -88,7 +124,7 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
       if (filters.rating > 0 && (product.rating || 0) < filters.rating) return false
 
       // Platform filter
-      if (filters.platform && filters.platform !== "all" && product.platform !== filters.platform) return false
+      if (filters.platform && filters.platform !== "" && filters.platform !== "all" && product.platformSlug !== filters.platform) return false
 
       // Genre filter
       if (filters.genre && filters.genre !== "all" && product.genre !== filters.genre) return false
