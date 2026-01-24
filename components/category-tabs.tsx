@@ -3,356 +3,112 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Star, ChevronRight, Check } from "lucide-react"
+import { Star, ChevronRight, Check, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
+import { apiService, type ApiCategory, type AppProduct } from "@/lib/api-service"
 
-const categories = [
-  { id: "bags-accessories", name: "Bags & Accessories" },
-  { id: "electronic-digital", name: "Electronic & Digital", active: true },
-  { id: "garden-kitchen", name: "Garden & Kitchen" },
-  { id: "home-kitchen", name: "Home & Kitchen", featured: true },
-]
-
-const categoryProducts = {
-  "bags-accessories": [
-    {
-      id: "leather-backpack",
-      title: "Premium Genuine Leather Backpack with Laptop Compartment",
-      category: "Bags",
-      price: 89.99,
-      originalPrice: 129.99,
-      discount: 31,
-      rating: 4.5,
-      reviews: 2,
-      image: "/placeholder.jpg",
-      inStock: true,
-      onSale: true,
-    },
-    {
-      id: "wireless-headphones",
-      title: "Sony WH-1000XM5 Noise Cancelling Wireless Headphones",
-      category: "Accessories",
-      price: 199.99,
-      originalPrice: null,
-      discount: 0,
-      rating: 4.5,
-      reviews: 2,
-      image: "/placeholder.jpg",
-      inStock: true,
-      onSale: false,
-    },
-    {
-      id: "smart-watch-band",
-      title: "Apple Watch Sport Band Silicone Replacement Strap",
-      category: "Accessories",
-      price: 29.99,
-      originalPrice: 39.99,
-      discount: 25,
-      rating: 4.5,
-      reviews: 2,
-      image: "/placeholder.jpg",
-      inStock: true,
-      onSale: true,
-    },
-    {
-      id: "laptop-sleeve",
-      title: "Protective Neoprene Laptop Sleeve 15.6 Inch",
-      category: "Bags",
-      price: 45.99,
-      originalPrice: null,
-      discount: 0,
-      rating: 4.5,
-      reviews: 2,
-      image: "/placeholder.jpg",
-      inStock: true,
-      onSale: false,
-    },
-    {
-      id: "phone-case",
-      title: "Clear Crystal Clear Phone Case iPhone 15 Pro Max",
-      category: "Accessories",
-      price: 19.99,
-      originalPrice: 29.99,
-      discount: 33,
-      rating: 4.5,
-      reviews: 2,
-      image: "/placeholder.jpg",
-      inStock: true,
-      onSale: true,
-    },
-    {
-      id: "camera-bag",
-      title: "Professional DSLR Camera Bag Waterproof",
-      category: "Bags",
-      price: 79.99,
-      originalPrice: 99.99,
-      discount: 20,
-      rating: 4.5,
-      reviews: 2,
-      image: "/placeholder.jpg",
-      inStock: true,
-      onSale: true,
-    },
-  ],
-  "electronic-digital": [
-    {
-      id: "red-smartphone",
-      title: "iPhone 15 Pro Max 256GB Deep Purple",
-      category: "Smartphones",
-      price: 699.00,
-      originalPrice: null,
-      discount: 0,
-      rating: 4.5,
-      reviews: 2,
-      image: "/windows-11-operating-system.jpg",
-      inStock: true,
-      onSale: false,
-    },
-    {
-      id: "white-smartwatch",
-      title: "Apple Watch Series 9 GPS 45mm Midnight",
-      category: "Smartwatches",
-      price: 550.00,
-      priceRange: { min: 550.00, max: 650.00 },
-      originalPrice: null,
-      discount: 0,
-      rating: 4.5,
-      reviews: 2,
-      image: "/notion-productivity-workspace-software.jpg",
-      inStock: true,
-      onSale: false,
-    },
-    {
-      id: "rose-gold-smartwatch",
-      title: "Samsung Galaxy Watch 6 Classic 47mm Rose Gold",
-      category: "Smartwatches",
-      price: 550.00,
-      priceRange: { min: 550.00, max: 650.00 },
-      originalPrice: null,
-      discount: 0,
-      rating: 4.5,
-      reviews: 2,
-      image: "/placeholder.jpg",
-      inStock: true,
-      onSale: false,
-    },
-    {
-      id: "silver-desktop",
-      title: "MacBook Pro 16-inch M3 Pro 512GB Silver",
-      category: "Desktop Computers",
-      price: 850.00,
-      originalPrice: 1119.00,
-      discount: 24,
-      rating: 4.5,
-      reviews: 2,
-      image: "/office-productivity-software.jpg",
-      inStock: true,
-      onSale: true,
-    },
-    {
-      id: "dual-smartphones",
-      title: "Samsung Galaxy S24 Ultra 256GB Titanium Black",
-      category: "Smartphones",
-      price: 464.00,
-      originalPrice: 774.00,
-      discount: 40,
-      rating: 4.5,
-      reviews: 2,
-      image: "/placeholder.jpg",
-      inStock: true,
-      onSale: true,
-    },
-    {
-      id: "pink-tablet",
-      title: "iPad Air 5th Gen 64GB WiFi Rose Gold",
-      category: "Tablets",
-      price: 750.00,
-      originalPrice: 1204.00,
-      discount: 38,
-      rating: 4.5,
-      reviews: 2,
-      image: "/figma-design-collaboration-software.jpg",
-      inStock: true,
-      onSale: true,
-    },
-  ],
-  "garden-kitchen": [
-    {
-      id: "smart-garden-kit",
-      title: "Smart Garden Growing Kit with LED Grow Lights",
-      category: "Garden",
-      price: 149.99,
-      originalPrice: 199.99,
-      discount: 25,
-      rating: 4.5,
-      reviews: 2,
-      image: "/creative-design-software.jpg",
-      inStock: true,
-      onSale: true,
-    },
-    {
-      id: "bluetooth-speaker",
-      title: "JBL Charge 5 Waterproof Bluetooth Speaker",
-      category: "Kitchen",
-      price: 79.99,
-      originalPrice: null,
-      discount: 0,
-      rating: 4.5,
-      reviews: 2,
-      image: "/placeholder.jpg",
-      inStock: true,
-      onSale: false,
-    },
-    {
-      id: "smart-thermometer",
-      title: "Digital Meat Thermometer with Bluetooth",
-      category: "Kitchen",
-      price: 39.99,
-      originalPrice: 59.99,
-      discount: 33,
-      rating: 4.5,
-      reviews: 2,
-      image: "/placeholder.jpg",
-      inStock: true,
-      onSale: true,
-    },
-    {
-      id: "plant-monitor",
-      title: "Smart Plant Monitor with Soil Sensor",
-      category: "Garden",
-      price: 89.99,
-      originalPrice: null,
-      discount: 0,
-      rating: 4.5,
-      reviews: 2,
-      image: "/placeholder.jpg",
-      inStock: true,
-      onSale: false,
-    },
-    {
-      id: "coffee-grinder",
-      title: "Electric Burr Coffee Grinder Professional",
-      category: "Kitchen",
-      price: 129.99,
-      originalPrice: 179.99,
-      discount: 28,
-      rating: 4.5,
-      reviews: 2,
-      image: "/adobe-photoshop-software.jpg",
-      inStock: true,
-      onSale: true,
-    },
-    {
-      id: "garden-tools",
-      title: "Professional Garden Tool Set 12 Piece",
-      category: "Garden",
-      price: 199.99,
-      originalPrice: 249.99,
-      discount: 20,
-      rating: 4.5,
-      reviews: 2,
-      image: "/placeholder.jpg",
-      inStock: true,
-      onSale: true,
-    },
-  ],
-  "home-kitchen": [
-    {
-      id: "smart-home-hub",
-      title: "Smart Home Control Hub with Voice Assistant",
-      category: "Home",
-      price: 299.99,
-      originalPrice: 399.99,
-      discount: 25,
-      rating: 4.5,
-      reviews: 2,
-      image: "/chatgpt-ai-assistant-software.jpg",
-      inStock: true,
-      onSale: true,
-    },
-    {
-      id: "air-fryer",
-      title: "Digital Air Fryer 6 Quart Capacity",
-      category: "Kitchen",
-      price: 159.99,
-      originalPrice: null,
-      discount: 0,
-      rating: 4.5,
-      reviews: 2,
-      image: "/placeholder.jpg",
-      inStock: true,
-      onSale: false,
-    },
-    {
-      id: "robot-vacuum",
-      title: "Smart Robot Vacuum with Mapping Technology",
-      category: "Home",
-      price: 399.99,
-      originalPrice: 499.99,
-      discount: 20,
-      rating: 4.5,
-      reviews: 2,
-      image: "/steam-gift-card-gaming.jpg",
-      inStock: true,
-      onSale: true,
-    },
-    {
-      id: "smart-thermostat",
-      title: "WiFi Smart Thermostat Programmable",
-      category: "Home",
-      price: 249.99,
-      originalPrice: null,
-      discount: 0,
-      rating: 4.5,
-      reviews: 2,
-      image: "/placeholder.jpg",
-      inStock: true,
-      onSale: false,
-    },
-    {
-      id: "instant-pot",
-      title: "Multi-Function Pressure Cooker 8 Quart",
-      category: "Kitchen",
-      price: 179.99,
-      originalPrice: 229.99,
-      discount: 22,
-      rating: 4.5,
-      reviews: 2,
-      image: "/placeholder.jpg",
-      inStock: true,
-      onSale: true,
-    },
-    {
-      id: "smart-lighting",
-      title: "Smart LED Light Strip RGB Color Changing",
-      category: "Home",
-      price: 49.99,
-      originalPrice: 79.99,
-      discount: 38,
-      rating: 4.5,
-      reviews: 2,
-      image: "/placeholder.jpg",
-      inStock: true,
-      onSale: true,
-    },
-  ],
+interface CategoryWithCount extends ApiCategory {
+  productCount: number
 }
 
 export function CategoryTabs() {
-  const [activeCategory, setActiveCategory] = useState("electronic-digital")
+  const [categories, setCategories] = useState<CategoryWithCount[]>([])
+  const [activeCategory, setActiveCategory] = useState<string>("")
+  const [products, setProducts] = useState<AppProduct[]>([])
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true)
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
   const [swiperKey, setSwiperKey] = useState(0)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
 
-  const handleCategoryChange = (categoryId: string) => {
-    if (categoryId === activeCategory) return
+  // Fetch categories and their product counts on mount
+  useEffect(() => {
+    const fetchCategoriesWithCounts = async () => {
+      setIsLoadingCategories(true)
+
+      // Fetch all categories
+      const categoriesResponse = await apiService.getCategories()
+      if (!categoriesResponse.success || !categoriesResponse.data) {
+        setIsLoadingCategories(false)
+        return
+      }
+
+      // Fetch product counts for each category
+      const categoriesWithCounts: CategoryWithCount[] = []
+
+      for (const category of categoriesResponse.data) {
+        const productsResponse = await apiService.getProducts({
+          category_id: category.id,
+          per_page: 1 // Just to get the count
+        })
+
+        const count = productsResponse.success && productsResponse.data
+          ? (productsResponse.data as any).pagination?.total || 0
+          : 0
+
+        // Only include categories with products
+        if (count > 0) {
+          categoriesWithCounts.push({
+            ...category,
+            productCount: count
+          })
+        }
+      }
+
+      if (categoriesWithCounts.length > 0) {
+        setCategories(categoriesWithCounts)
+        // Set first category with products as active
+        setActiveCategory(categoriesWithCounts[0].slug)
+      }
+
+      setIsLoadingCategories(false)
+    }
+
+    fetchCategoriesWithCounts()
+  }, [])
+
+  // Fetch latest 10 products when active category changes
+  useEffect(() => {
+    if (!activeCategory) return
+
+    const fetchProducts = async () => {
+      setIsLoadingProducts(true)
+
+      // Find category ID from slug
+      const category = categories.find(c => c.slug === activeCategory)
+      if (!category) {
+        setIsLoadingProducts(false)
+        return
+      }
+
+      const response = await apiService.getProducts({
+        category_id: category.id,
+        per_page: 10,
+        sort: 'latest' // Request latest products
+      })
+
+      if (response.success && response.data) {
+        const productsArray = response.data.products || []
+        const mappedProducts = productsArray.map(p => apiService.mapApiProductToProduct(p))
+        setProducts(mappedProducts)
+      }
+
+      setIsLoadingProducts(false)
+    }
+
+    fetchProducts()
+  }, [activeCategory, categories])
+
+  const handleCategoryChange = (categorySlug: string) => {
+    if (categorySlug === activeCategory) return
 
     setIsAnimating(true)
-    setActiveCategory(categoryId)
+    setActiveCategory(categorySlug)
 
     // Reset swiper to first slide when category changes
     setSwiperKey(prev => prev + 1)
@@ -363,83 +119,22 @@ export function CategoryTabs() {
     }, 500)
   }
 
-  const currentProducts = categoryProducts[activeCategory as keyof typeof categoryProducts] || []
+  const activeCategoryData = categories.find(c => c.slug === activeCategory)
 
-  const renderProducts = () => {
-    return currentProducts.map((product, index) => (
-      <SwiperSlide key={`${product.id}-${swiperKey}`}>
-        <Link href={`/product/${product.id}`}>
-          <Card
-            className={`group hover:shadow-xl transition-all duration-500 overflow-hidden dark:card-hover cursor-pointer min-h-[420px] rounded-lg ${isAnimating ? 'animate-fade-in-up' : ''
-              }`}
-            style={{
-              animationDelay: `${index * 100}ms`,
-              animationFillMode: 'both'
-            }}
-          >
-            <CardContent className="h-full flex flex-col p-0">
-              <div className="relative mb-3 sm:mb-4 p-0 pb-0">
-                <img
-                  src={product.image || "/placeholder.svg"}
-                  alt={product.title}
-                  className="w-full h-32 sm:h-36 lg:h-40 xl:h-48 object-cover transition-transform duration-300"
-                />
-                {product.onSale && (
-                  <Badge className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-red-600 hover:bg-red-700 text-white animate-pulse text-xs sm:text-sm">
-                    ON SALE
-                  </Badge>
-                )}
-              </div>
+  if (isLoadingCategories) {
+    return (
+      <section className="py-8 sm:py-12 lg:py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        </div>
+      </section>
+    )
+  }
 
-              <div className="flex-1 flex flex-col p-3 sm:p-4 pt-0">
-                <div className="space-y-2 sm:space-y-3 flex-1 flex flex-col">
-                  <div className="min-h-[2.4em]">
-                    <h3 className="font-semibold text-xs sm:text-sm mb-1 overflow-hidden" style={{
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      lineHeight: '1.2em',
-                      maxHeight: '2.4em'
-                    }}>{product.title}</h3>
-                  </div>
-
-                  <div className="flex items-center gap-1">
-                    <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400" />
-                    <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400" />
-                    <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400" />
-                    <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400" />
-                    <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-xs sm:text-sm text-muted-foreground ml-1">({product.reviews} reviews)</span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
-                    <span className="text-xs sm:text-sm text-foreground">In Stock</span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    {(product as any).priceRange ? (
-                      <div className="flex items-start gap-0 flex-col">
-                        <span className="text-sm text-muted-foreground">from</span>
-                        <span className="text-xl font-bold text-primary">${product.price.toFixed(2)}</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-start gap-0 flex-col">
-                        <span className="text-sm text-muted-foreground">from</span>
-                        <span className="text-xl font-bold text-primary">${product.price.toFixed(2)}</span>
-                      </div>
-                    )}
-
-                  </div>
-
-
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-      </SwiperSlide>
-    ))
+  if (categories.length === 0) {
+    return null
   }
 
   return (
@@ -447,18 +142,24 @@ export function CategoryTabs() {
       <div className="container mx-auto px-4">
         {/* Category Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 sm:mb-8 gap-4 lg:gap-8">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 lg:gap-8">
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold uppercase">Electronic & Digital</h2>
-
-            {/* Category Tabs */}
-            <div className="flex flex-wrap gap-2 sm:gap-3 lg:gap-4">
+          <div className="w-full">
+            {/* Category Tabs - Horizontal Scrollable */}
+            <div
+              ref={scrollContainerRef}
+              className="flex gap-2 sm:gap-3 lg:gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-2 -mx-4 px-4"
+              style={{
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+                WebkitOverflowScrolling: 'touch'
+              }}
+            >
               {categories.map((category) => (
                 <button
                   key={category.id}
-                  onClick={() => handleCategoryChange(category.id)}
-                  className={`px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium transition-all duration-300 transform hover:scale-105 rounded-[4px] ${activeCategory === category.id
-                    ? 'bg-muted text-foreground'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                  onClick={() => handleCategoryChange(category.slug)}
+                  className={`px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium transition-all duration-300 transform hover:scale-105 rounded-[4px] whitespace-nowrap flex-shrink-0 ${activeCategory === category.slug
+                    ? 'bg-primary text-foreground'
+                    : 'text-foreground hover:text-foreground hover:bg-primary bg-muted/50'
                     }`}
                 >
                   {category.name}
@@ -466,63 +167,146 @@ export function CategoryTabs() {
               ))}
             </div>
           </div>
+
+          {/* <Link href={`/products?category=${activeCategory}`}>
+            <Button variant="outline" className="w-full sm:w-auto rounded-[4px]">
+              View All
+            </Button>
+          </Link> */}
         </div>
 
         {/* Product Grid */}
-        <div className="relative">
-          <Swiper
-            key={swiperKey}
-            modules={[Navigation]}
-            spaceBetween={12}
-            slidesPerView={1.2}
-            navigation={{
-              nextEl: '.category-swiper-button-next',
-              prevEl: '.category-swiper-button-prev',
-            }}
-            breakpoints={{
-              480: {
-                slidesPerView: 1.5,
-                spaceBetween: 12,
-              },
-              640: {
-                slidesPerView: 2.5,
-                spaceBetween: 16,
-              },
-              768: {
-                slidesPerView: 3.5,
-                spaceBetween: 16,
-              },
-              1024: {
-                slidesPerView: 4,
-                spaceBetween: 16,
-              },
-              1280: {
-                slidesPerView: 5,
-                spaceBetween: 16,
-              },
-            }}
-            className="category-swiper"
-          >
-            {renderProducts()}
-          </Swiper>
+        {isLoadingProducts ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">No products found in this category.</p>
+          </div>
+        ) : (
+          <div className="relative">
+            <Swiper
+              key={swiperKey}
+              modules={[Navigation]}
+              spaceBetween={12}
+              slidesPerView={1.2}
+              navigation={{
+                nextEl: '.category-swiper-button-next',
+                prevEl: '.category-swiper-button-prev',
+              }}
+              breakpoints={{
+                480: {
+                  slidesPerView: 1.5,
+                  spaceBetween: 12,
+                },
+                640: {
+                  slidesPerView: 2.5,
+                  spaceBetween: 16,
+                },
+                768: {
+                  slidesPerView: 3.5,
+                  spaceBetween: 16,
+                },
+                1024: {
+                  slidesPerView: 4,
+                  spaceBetween: 16,
+                },
+                1280: {
+                  slidesPerView: 5,
+                  spaceBetween: 16,
+                },
+              }}
+              className="category-swiper"
+            >
+              {products.map((product, index) => (
+                <SwiperSlide key={`${product.id}-${swiperKey}`}>
+                  <Link href={`/product/${product.id}`}>
+                    <Card
+                      className={`group hover:shadow-xl transition-all duration-500 overflow-hidden dark:card-hover cursor-pointer min-h-[420px] rounded-lg ${isAnimating ? 'animate-fade-in-up' : ''
+                        }`}
+                      style={{
+                        animationDelay: `${index * 100}ms`,
+                        animationFillMode: 'both'
+                      }}
+                    >
+                      <CardContent className="h-full flex flex-col p-0">
+                        <div className="relative mb-3 sm:mb-4 p-0 pb-0">
+                          <img
+                            src={product.image || "/placeholder.svg"}
+                            alt={product.title}
+                            className="w-full h-32 sm:h-36 lg:h-40 xl:h-48 object-cover transition-transform duration-300"
+                          />
+                          {product.discount > 0 && (
+                            <Badge className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-red-600 hover:bg-red-700 text-white animate-pulse text-xs sm:text-sm">
+                              -{product.discount}% OFF
+                            </Badge>
+                          )}
+                        </div>
 
-          {/* Navigation Arrow */}
-          <Button
-            variant="outline"
-            size="icon"
-            className="category-swiper-button-next absolute right-0 top-1/2 -translate-y-1/2 -translate-x-1 sm:-translate-x-2 bg-white/90 hover:bg-white z-10 rounded-full"
-          >
-            <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
-          </Button>
+                        <div className="flex-1 flex flex-col p-3 sm:p-4 pt-0">
+                          <div className="space-y-2 sm:space-y-3 flex-1 flex flex-col">
+                            <div className="min-h-[2.4em]">
+                              <h3 className="font-semibold text-xs sm:text-sm mb-1 overflow-hidden" style={{
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical',
+                                lineHeight: '1.2em',
+                                maxHeight: '2.4em'
+                              }}>{product.title}</h3>
+                            </div>
 
-          <Button
-            variant="outline"
-            size="icon"
-            className="category-swiper-button-prev absolute left-0 top-1/2 -translate-y-1/2 translate-x-1 sm:translate-x-2 bg-white/90 hover:bg-white z-10 rounded-full"
-          >
-            <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 rotate-180" />
-          </Button>
-        </div>
+                            <div className="flex items-center gap-1">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`h-3 w-3 sm:h-4 sm:w-4 ${i < Math.floor(product.rating)
+                                    ? 'fill-yellow-400 text-yellow-400'
+                                    : 'text-muted-foreground'
+                                    }`}
+                                />
+                              ))}
+                              <span className="text-xs sm:text-sm text-muted-foreground ml-1">({product.reviews} reviews)</span>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
+                              <span className="text-xs sm:text-sm text-foreground">In Stock</span>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <div className="flex items-start gap-0 flex-col">
+                                <span className="text-sm text-muted-foreground">from</span>
+                                <span className="text-xl font-bold text-primary">${product.salePrice.toFixed(2)}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+
+            {/* Navigation Arrows */}
+            <Button
+              variant="outline"
+              size="icon"
+              className="category-swiper-button-next absolute right-0 top-1/2 -translate-y-1/2 -translate-x-1 sm:-translate-x-2 bg-white/90 hover:bg-white z-10 rounded-full"
+            >
+              <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
+            </Button>
+
+            <Button
+              variant="outline"
+              size="icon"
+              className="category-swiper-button-prev absolute left-0 top-1/2 -translate-y-1/2 translate-x-1 sm:translate-x-2 bg-white/90 hover:bg-white z-10 rounded-full"
+            >
+              <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 rotate-180" />
+            </Button>
+          </div>
+        )}
       </div>
     </section>
   )

@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Star, ShoppingCart, Heart, Eye, Loader2 } from "lucide-react"
+import { Star, ShoppingCart, Heart, Eye, Loader2, Monitor, Globe, Gamepad2, Layers } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { apiService } from "@/lib/api-service"
 import Link from "next/link"
@@ -17,30 +17,63 @@ interface ProductGridProps {
     priceRange: number[]
     rating: number
     platform: string
-    genre: string
+    type: string
+    region: string
+    language: string
+    works_on: string
+    developer: string
   }
   sortBy: string
+  onTotalChange?: (total: number) => void
 }
 
-export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
+export function ProductGrid({ viewMode, filters, sortBy, onTotalChange }: ProductGridProps) {
   const [currentPage, setCurrentPage] = useState(1)
   const [products, setProducts] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const itemsPerPage = 12
   const { addItem } = useCart()
 
-  const [categories, setCategories] = useState<any[]>([])
-  const [platforms, setPlatforms] = useState<any[]>([])
+  const [metadata, setMetadata] = useState<{
+    categories: any[]
+    platforms: any[]
+    types: any[]
+    regions: any[]
+    languages: any[]
+    worksOn: any[]
+    developers: any[]
+  }>({
+    categories: [],
+    platforms: [],
+    types: [],
+    regions: [],
+    languages: [],
+    worksOn: [],
+    developers: []
+  })
 
   // Fetch metadata for ID mapping
   useEffect(() => {
     const fetchMetadata = async () => {
-      const [catRes, platRes] = await Promise.all([
+      const [catRes, platRes, typeRes, regRes, langRes, worksRes, devRes] = await Promise.all([
         apiService.getCategories(),
-        apiService.getPlatforms()
+        apiService.getPlatforms(),
+        apiService.getTypes(),
+        apiService.getRegions(),
+        apiService.getLanguages(),
+        apiService.getWorksOn(),
+        apiService.getDevelopers()
       ])
-      if (catRes.success && catRes.data) setCategories(catRes.data)
-      if (platRes.success && platRes.data) setPlatforms(platRes.data)
+
+      setMetadata({
+        categories: catRes.success && catRes.data ? catRes.data : [],
+        platforms: platRes.success && platRes.data ? platRes.data : [],
+        types: typeRes.success && typeRes.data ? typeRes.data : [],
+        regions: regRes.success && regRes.data ? regRes.data : [],
+        languages: langRes.success && langRes.data ? langRes.data : [],
+        worksOn: worksRes.success && worksRes.data ? worksRes.data : [],
+        developers: devRes.success && devRes.data ? devRes.data : []
+      })
     }
     fetchMetadata()
   }, [])
@@ -50,13 +83,23 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
       setIsLoading(true)
       try {
         // Map slugs to IDs
-        const category_id = categories.find(c => c.slug === filters.category)?.id
-        const platform_id = platforms.find(p => p.slug === filters.platform)?.id
+        const category_id = metadata.categories.find(c => c.slug === filters.category)?.id
+        const platform_id = metadata.platforms.find(p => p.slug === filters.platform)?.id
+        const type_id = metadata.types.find(t => t.slug === filters.type)?.id
+        const region_id = metadata.regions.find(r => r.slug === filters.region)?.id
+        const language_id = metadata.languages.find(l => l.slug === filters.language)?.id
+        const works_on_id = metadata.worksOn.find(w => w.slug === filters.works_on)?.id
+        const developer_id = metadata.developers.find(d => d.slug === filters.developer)?.id
 
         const response = await apiService.getProducts({
           search: filters.search,
           category_id,
           platform_id,
+          type_id,
+          region_id,
+          language_id,
+          works_on_id,
+          developer_id,
           page: currentPage,
           per_page: itemsPerPage
         })
@@ -71,6 +114,11 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
 
           const mappedProducts = dataArray.map(p => apiService.mapApiProductToProduct(p))
           setProducts(mappedProducts)
+
+          if (onTotalChange) {
+            const total = (response.data as any).pagination?.total ?? mappedProducts.length
+            onTotalChange(total)
+          }
         }
       } catch (error) {
         console.error("Error fetching products:", error)
@@ -84,7 +132,18 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
     }, 400)
 
     return () => clearTimeout(timer)
-  }, [filters.search, filters.category, filters.platform, currentPage, categories, platforms])
+  }, [
+    filters.search,
+    filters.category,
+    filters.platform,
+    filters.type,
+    filters.region,
+    filters.language,
+    filters.works_on,
+    filters.developer,
+    currentPage,
+    metadata
+  ])
 
   console.log("all products: ", products);
 
@@ -126,8 +185,20 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
       // Platform filter
       if (filters.platform && filters.platform !== "" && filters.platform !== "all" && product.platformSlug !== filters.platform) return false
 
-      // Genre filter
-      if (filters.genre && filters.genre !== "all" && product.genre !== filters.genre) return false
+      // Genre filter (now Type)
+      if (filters.type && filters.type !== "" && filters.type !== "all" && product.typeSlug !== filters.type) return false
+
+      // Region filter
+      if (filters.region && filters.region !== "" && filters.region !== "all" && product.regionSlug !== filters.region) return false
+
+      // Language filter
+      if (filters.language && filters.language !== "" && filters.language !== "all" && !product.languages?.includes(filters.language)) return false
+
+      // Works On filter
+      if (filters.works_on && filters.works_on !== "" && !product.worksOnSlugs?.includes(filters.works_on)) return false
+
+      // Developer filter
+      if (filters.developer && filters.developer !== "" && product.developerSlug !== filters.developer) return false
 
       return true
     })
@@ -173,7 +244,7 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
   )
 
   const ProductCard = ({ product }: { product: any }) => (
-    <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden">
+    <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col h-full">
       <div className="relative">
         <Link href={`/product/${product.id}`}>
           <img
@@ -182,7 +253,7 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
             className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
           />
         </Link>
-        <div className="absolute top-3 left-3 flex gap-2">
+        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
           {product.isNew && <Badge className="bg-green-600 hover:bg-green-700">New</Badge>}
           {product.isBestseller && <Badge className="bg-orange-600 hover:bg-orange-700">Bestseller</Badge>}
           {product.discount > 0 && <Badge variant="destructive">-{product.discount}%</Badge>}
@@ -197,29 +268,63 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
         </div>
       </div>
 
-      <CardContent className="p-4 space-y-3">
+      <CardContent className="p-4 space-y-3 flex-1 flex flex-col">
         <div className="space-y-1">
-          <p className="text-sm text-muted-foreground capitalize">{product.category}</p>
+          <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+            <span className="capitalize">{product.category}</span>
+            <span className="flex items-center gap-1">
+              <Globe className="h-3 w-3" />
+              {product.region}
+            </span>
+          </div>
           <Link href={`/product/${product.id}`}>
-            <h3 className="font-semibold text-lg group-hover:text-primary transition-colors min-h-[50px]">{product.title}</h3>
+            <h3 className="font-semibold text-lg group-hover:text-primary transition-colors line-clamp-2 min-h-[56px]">{product.title}</h3>
           </Link>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1">
-            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <span className="text-sm font-medium">{product.rating}</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+              <span className="text-sm font-medium">{product.rating}</span>
+            </div>
+            <span className="text-xs text-muted-foreground">({product.reviews})</span>
           </div>
-          <span className="text-sm text-muted-foreground">({product.reviews} reviews)</span>
+          {product.platform && (
+            <Badge variant="outline" className="text-[10px] h-5 px-1.5 font-normal border-primary/30 text-primary">
+              {product.platform}
+            </Badge>
+          )}
         </div>
 
-        <div className="flex flex-col gap-4 items-center justify-between">
-          <div className="space-y-1 text-start w-full">
+        <div className="flex flex-wrap gap-1.5 py-1">
+          {product.type && (
+            <Badge variant="secondary" className="text-[10px] h-5 px-1.5 font-normal flex items-center gap-1">
+              <Layers className="h-3 w-3" />
+              {product.type}
+            </Badge>
+          )}
+          {product.worksOnSlugs?.includes('windows') && (
+            <Badge variant="secondary" className="text-[10px] h-5 px-1.5 font-normal flex items-center gap-1" title="Windows Support">
+              <Monitor className="h-3 w-3" />
+              PC
+            </Badge>
+          )}
+          {product.languageSlugs?.length > 0 && (
+            <Badge variant="secondary" className="text-[10px] h-5 px-1.5 font-normal flex items-center gap-1" title={product.languages?.join(', ')}>
+              <Globe className="h-3 w-3" />
+              {product.languageSlugs.length > 1 ? `${product.languageSlugs.length} Lang` : product.languages?.[0]}
+            </Badge>
+          )}
+        </div>
+
+        <div className="mt-auto pt-3 space-y-3">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
+              <span className="text-xl font-bold text-primary">${product.salePrice}</span>
               {product.discount > 0 && (
                 <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>
               )}
-              <span className="text-xl font-bold text-primary">${product.salePrice}</span>
             </div>
           </div>
           <Button size="sm" className="gap-2 w-full" onClick={() => handleAddToCart(product)}>
@@ -234,52 +339,81 @@ export function ProductGrid({ viewMode, filters, sortBy }: ProductGridProps) {
   const ProductListItem = ({ product }: { product: any }) => (
     <Card className="group hover:shadow-lg transition-all duration-300">
       <CardContent className="p-4">
-        <div className="flex gap-4">
-          <Link href={`/product/${product.id}`} className="relative w-32 h-24 flex-shrink-0">
+        <div className="flex gap-4 sm:gap-6">
+          <Link href={`/product/${product.id}`} className="relative w-32 sm:w-48 h-24 sm:h-32 flex-shrink-0">
             <img
               src={product.image || "/placeholder.svg"}
               alt={product.title}
               className="w-full h-full object-cover rounded group-hover:scale-105 transition-transform duration-300"
             />
-            <div className="absolute top-1 left-1 flex gap-1">
-              {product.isNew && <Badge className="bg-green-600 hover:bg-green-700 text-xs">New</Badge>}
-              {product.isBestseller && <Badge className="bg-orange-600 hover:bg-orange-700 text-xs">Bestseller</Badge>}
+            <div className="absolute top-1 left-1 flex flex-wrap gap-1">
+              {product.isNew && <Badge className="bg-green-600 hover:bg-green-700 text-[10px] px-1 h-4">New</Badge>}
+              {product.isBestseller && <Badge className="bg-orange-600 hover:bg-orange-700 text-[10px] px-1 h-4">Bestseller</Badge>}
               {product.discount > 0 && (
-                <Badge variant="destructive" className="text-xs">
+                <Badge variant="destructive" className="text-[10px] px-1 h-4">
                   -{product.discount}%
                 </Badge>
               )}
             </div>
           </Link>
 
-          <div className="flex-1 space-y-2">
-            <div>
-              <p className="text-sm text-muted-foreground capitalize">{product.category}</p>
-              <Link href={`/product/${product.id}`}>
-                <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">{product.title}</h3>
-              </Link>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-sm font-medium">{product.rating}</span>
+          <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
+            <div className="space-y-1">
+              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                <span className="capitalize">{product.category}</span>
+                <span className="flex items-center gap-1">
+                  <Globe className="h-3 w-3" />
+                  {product.region}
+                </span>
+                {product.type && (
+                  <span className="flex items-center gap-1">
+                    <Layers className="h-3 w-3" />
+                    {product.type}
+                  </span>
+                )}
               </div>
-              <span className="text-sm text-muted-foreground">({product.reviews} reviews)</span>
-            </div>
-          </div>
+              <Link href={`/product/${product.id}`}>
+                <h3 className="font-semibold text-lg group-hover:text-primary transition-colors line-clamp-1">{product.title}</h3>
+              </Link>
 
-          <div className="flex flex-col items-end justify-between">
-            <div className="text-right">
-              {product.discount > 0 && (
-                <div className="text-sm text-muted-foreground line-through">${product.originalPrice}</div>
-              )}
-              <div className="text-xl font-bold text-primary">${product.salePrice}</div>
+              <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  <span className="font-medium">{product.rating}</span>
+                  <span className="text-muted-foreground font-normal">({product.reviews})</span>
+                </div>
+                {product.platform && (
+                  <Badge variant="outline" className="text-[10px] h-4 px-1.5 font-normal border-primary/30 text-primary">
+                    {product.platform}
+                  </Badge>
+                )}
+                {product.worksOnSlugs?.includes('windows') && (
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Monitor className="h-3.5 w-3.5" />
+                    <span>PC</span>
+                  </div>
+                )}
+                {product.languageSlugs?.length > 0 && (
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground" title={product.languages?.join(', ')}>
+                    <Globe className="h-3.5 w-3.5" />
+                    <span>{product.languageSlugs.length > 1 ? `${product.languageSlugs.length} Languages` : product.languages?.[0]}</span>
+                  </div>
+                )}
+              </div>
             </div>
-            <Button size="sm" className="gap-2" onClick={() => handleAddToCart(product)}>
-              <ShoppingCart className="h-4 w-4" />
-              Add to Cart
-            </Button>
+
+            <div className="flex items-center justify-between pt-2">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl font-bold text-primary">${product.salePrice}</span>
+                {product.discount > 0 && (
+                  <span className="text-base text-muted-foreground line-through">${product.originalPrice}</span>
+                )}
+              </div>
+              <Button size="sm" className="gap-2" onClick={() => handleAddToCart(product)}>
+                <ShoppingCart className="h-4 w-4" />
+                Add to Cart
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>

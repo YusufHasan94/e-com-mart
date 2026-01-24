@@ -36,6 +36,41 @@ export interface ApiPlatform {
     products_count?: number
 }
 
+export interface ApiType {
+    id: number
+    name: string
+    slug: string
+    products_count?: number
+}
+
+export interface ApiRegion {
+    id: number
+    name: string
+    slug: string
+    products_count?: number
+}
+
+export interface ApiLanguage {
+    id: number
+    name: string
+    slug: string
+    products_count?: number
+}
+
+export interface ApiWorksOn {
+    id: number
+    name: string
+    slug: string
+    products_count?: number
+}
+
+export interface ApiDeveloper {
+    id: number
+    name: string
+    slug: string
+    products_count?: number
+}
+
 export interface ApiOffer {
     id: number
     seller: {
@@ -56,7 +91,8 @@ export interface ApiProduct {
     id: number
     title: string
     slug: string
-    cover_image: string | null
+    image?: string | null
+    cover_image?: string | null
     gallery?: string[] | null
     sku?: string
     description?: string
@@ -112,6 +148,75 @@ export interface ApiProductDetailsResponse {
     }
 }
 
+export interface ApiReview {
+    id: number
+    product_id: number
+    user_id: number
+    rating: number
+    title: string
+    review: string
+    status: "approved" | "pending" | "rejected"
+    is_verified_purchase: number
+    ip_address?: string
+    user_agent?: string
+    created_at: string
+    updated_at: string
+    user: {
+        id: number
+        name: string
+        avatar?: string
+    }
+}
+
+export interface ApiReviewsResponse {
+    current_page: number
+    data: ApiReview[]
+    first_page_url: string
+    from: number
+    last_page: number
+    last_page_url: string
+    links: { url: string | null; label: string; page: number | null; active: boolean }[]
+    next_page_url: string | null
+    path: string
+    per_page: number
+    prev_page_url: string | null
+    to: number
+    total: number
+}
+
+export interface ApiProductRequest {
+    id: number
+    user_id: number
+    product_name: string
+    description?: string
+    status: "pending" | "approved" | "rejected" | "completed"
+    admin_notes?: string
+    created_at: string
+    updated_at: string
+    user?: {
+        id: number
+        name: string
+        email?: string
+        avatar?: string
+    }
+}
+
+export interface ApiProductRequestsResponse {
+    current_page: number
+    data: ApiProductRequest[]
+    first_page_url: string
+    from: number
+    last_page: number
+    last_page_url: string
+    links: { url: string | null; label: string; page: number | null; active: boolean }[]
+    next_page_url: string | null
+    path: string
+    per_page: number
+    prev_page_url: string | null
+    to: number
+    total: number
+}
+
 export interface ApiResponse<T> {
     success: boolean
     data?: T
@@ -130,7 +235,9 @@ export interface AppProduct {
     platform: string
     platformSlug: string
     region: string
+    regionSlug: string
     type: string
+    typeSlug: string
     rating: number
     reviews: number
     isNew: boolean
@@ -162,6 +269,9 @@ export interface AppProduct {
     customerReviews: { user: string; rating: number; comment: string; date: string }[]
     releaseDate: string
     languages: string[]
+    languageSlugs: string[]
+    worksOnSlugs: string[]
+    developerSlug: string
 }
 
 export const apiService = {
@@ -437,8 +547,10 @@ export const apiService = {
         region_id?: number | string,
         language_id?: number | string,
         works_on_id?: number | string,
+        developer_id?: number | string,
         per_page?: number,
-        page?: number
+        page?: number,
+        sort?: string
     } = {}): Promise<ApiResponse<ApiProductsResponse["data"]>> => {
         try {
             const queryParams = new URLSearchParams()
@@ -449,8 +561,10 @@ export const apiService = {
             if (options.region_id) queryParams.append("region_id", String(options.region_id))
             if (options.language_id) queryParams.append("language_id", String(options.language_id))
             if (options.works_on_id) queryParams.append("works_on_id", String(options.works_on_id))
+            if (options.developer_id) queryParams.append("developer_id", String(options.developer_id))
             if (options.per_page) queryParams.append("per_page", String(options.per_page))
             if (options.page) queryParams.append("page", String(options.page))
+            if (options.sort) queryParams.append("sort", options.sort)
 
             const queryString = queryParams.toString()
             const url = `${BASE_URL}/products${queryString ? `?${queryString}` : ""}`
@@ -521,6 +635,29 @@ export const apiService = {
     },
 
     /**
+     * Fetch all products (for client-side count aggregation)
+     */
+    getAllProducts: async (limit: number = 100): Promise<ApiResponse<ApiProduct[]>> => {
+        try {
+            const response = await apiService.getProducts({ per_page: limit })
+            if (!response.success || !response.data) {
+                return { success: false, error: response.error || "Failed to fetch all products" }
+            }
+            return {
+                success: true,
+                data: response.data.products || [],
+                message: response.message
+            }
+        } catch (error) {
+            console.error("API Error (getAllProducts):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`
+            }
+        }
+    },
+
+    /**
      * Fetch product details by ID
      */
     getProductById: async (id: string | number): Promise<ApiResponse<ApiProductDetailsResponse["data"]>> => {
@@ -583,6 +720,154 @@ export const apiService = {
             }
         } catch (error) {
             console.error("API Error (getRelatedProducts):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Fetch reviews for a specific product
+     */
+    getProductReviews: async (productId: string | number, page: number = 1, perPage: number = 10): Promise<ApiResponse<ApiReviewsResponse>> => {
+        try {
+            const queryParams = new URLSearchParams()
+            queryParams.append("page", String(page))
+            if (perPage !== 10) queryParams.append("per_page", String(perPage))
+
+            const queryString = queryParams.toString()
+            const url = `${BASE_URL}/products/${productId}/reviews${queryString ? `?${queryString}` : ""}`
+
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+            console.log("API Product Reviews Result:", result)
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch product reviews",
+                }
+            }
+
+            return {
+                success: true,
+                data: result,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getProductReviews):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Fetch product requests (requires authentication)
+     */
+    getProductRequests: async (
+        token: string,
+        options: {
+            status?: "pending" | "approved" | "rejected" | "completed",
+            page?: number,
+            per_page?: number
+        } = {}
+    ): Promise<ApiResponse<ApiProductRequestsResponse>> => {
+        try {
+            const queryParams = new URLSearchParams()
+            if (options.status) queryParams.append("status", options.status)
+            if (options.page) queryParams.append("page", String(options.page))
+            if (options.per_page) queryParams.append("per_page", String(options.per_page))
+
+            const queryString = queryParams.toString()
+            const url = `${BASE_URL}/product-requests${queryString ? `?${queryString}` : ""}`
+
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+            console.log("API Product Requests Result:", result)
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch product requests",
+                }
+            }
+
+            return {
+                success: true,
+                data: result,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getProductRequests):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Submit a new product request (requires authentication)
+     */
+    submitProductRequest: async (
+        token: string,
+        requestData: {
+            category_id: number
+            platform_id: number
+            type_id: number
+            region_id: number
+            language_id: number
+            works_on_id: number
+            title: string
+            description: string
+            source_url?: string
+        }
+    ): Promise<ApiResponse<{ id: number; status: string }>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/product-requests`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                body: JSON.stringify(requestData),
+            })
+
+            const result = await response.json()
+            console.log("API Submit Product Request Result:", result)
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to submit product request",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message || "Product request submitted successfully",
+            }
+        } catch (error) {
+            console.error("API Error (submitProductRequest):", error)
             return {
                 success: false,
                 error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
@@ -697,6 +982,176 @@ export const apiService = {
             }
         } catch (error) {
             console.error("API Error (getPlatforms):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Fetch all product types
+     */
+    getTypes: async (): Promise<ApiResponse<ApiType[]>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/product-attributes/types`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch types",
+                }
+            }
+
+            return {
+                success: true,
+                data: Array.isArray(result.data) ? result.data : result.data?.types || [],
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getTypes):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Fetch all product regions
+     */
+    getRegions: async (): Promise<ApiResponse<ApiRegion[]>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/product-attributes/regions`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch regions",
+                }
+            }
+
+            return {
+                success: true,
+                data: Array.isArray(result.data) ? result.data : result.data?.regions || [],
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getRegions):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Fetch all product languages
+     */
+    getLanguages: async (): Promise<ApiResponse<ApiLanguage[]>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/product-attributes/languages`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch languages",
+                }
+            }
+
+            return {
+                success: true,
+                data: Array.isArray(result.data) ? result.data : result.data?.languages || [],
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getLanguages):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Fetch all product works_on
+     */
+    getWorksOn: async (): Promise<ApiResponse<ApiWorksOn[]>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/product-attributes/works-on`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch works_on",
+                }
+            }
+
+            return {
+                success: true,
+                data: Array.isArray(result.data) ? result.data : result.data?.works_on || [],
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getWorksOn):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Fetch all product developers
+     */
+    getDevelopers: async (): Promise<ApiResponse<ApiDeveloper[]>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/product-attributes/developers`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch developers",
+                }
+            }
+
+            return {
+                success: true,
+                data: Array.isArray(result.data) ? result.data : result.data?.developers || [],
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getDevelopers):", error)
             return {
                 success: false,
                 error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
@@ -828,7 +1283,7 @@ export const apiService = {
             title: apiProduct.title || "Unknown Product",
             category: attrs.categories?.[0]?.name || "Uncategorized",
             description: apiProduct.description || "",
-            image: getImageUrl(apiProduct.cover_image),
+            image: getImageUrl(apiProduct.image || apiProduct.cover_image),
             gallery: (apiProduct.gallery || []).map(img => getImageUrl(img)),
             platform: attrs.platforms?.[0]?.name || attrs.platforms?.[0]?.slug || "Steam",
             region: attrs.regions?.[0]?.name || "Global",
@@ -850,7 +1305,12 @@ export const apiService = {
             releaseDate: apiProduct.created_at ? new Date(apiProduct.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
             languages: attrs.languages?.map(l => l.name) || [],
             categorySlug: attrs.categories?.[0]?.slug || "",
-            platformSlug: attrs.platforms?.[0]?.slug || ""
+            platformSlug: attrs.platforms?.[0]?.slug || "",
+            typeSlug: attrs.types?.[0]?.slug || "",
+            regionSlug: attrs.regions?.[0]?.slug || "",
+            languageSlugs: attrs.languages?.map(l => l.slug) || [],
+            worksOnSlugs: attrs.works_on?.map(w => w.slug) || [],
+            developerSlug: attrs.developer?.slug || ""
         }
     }
 }

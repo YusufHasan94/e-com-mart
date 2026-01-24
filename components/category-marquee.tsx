@@ -3,16 +3,16 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { 
-  Gamepad2, 
-  Coins, 
-  Plus, 
-  Gift, 
-  CreditCard, 
-  Monitor, 
-  Shield, 
-  Smartphone, 
-  Wifi, 
+import {
+  Gamepad2,
+  Coins,
+  Plus,
+  Gift,
+  CreditCard,
+  Monitor,
+  Shield,
+  Smartphone,
+  Wifi,
   Wallet,
   TrendingUp
 } from "lucide-react"
@@ -134,7 +134,7 @@ export function CategoryMarquee() {
         </div>
 
         {/* Marquee Container */}
-        <div 
+        <div
           className="relative overflow-hidden"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
@@ -144,10 +144,9 @@ export function CategoryMarquee() {
           <div className="absolute right-0 top-0 bottom-0 w-20 bg-background z-10 pointer-events-none"></div>
 
           {/* Marquee */}
-          <div 
-            className={`flex gap-4 transition-all duration-300 ${
-              isHovered ? 'animate-pause' : 'animate-marquee'
-            }`}
+          <div
+            className={`flex gap-4 transition-all duration-300 ${isHovered ? 'animate-pause' : 'animate-marquee'
+              }`}
             style={{
               animationDuration: '30s',
               animationTimingFunction: 'linear',
@@ -157,7 +156,7 @@ export function CategoryMarquee() {
             {duplicatedCategories.map((category, index) => {
               const Icon = category.icon
               return (
-                <Card 
+                <Card
                   key={`${category.id}-${index}`}
                   className={`${category.bgColor} border-border/30 hover:border-border/60 transition-all duration-300 hover:shadow-lg hover:scale-105 flex-shrink-0 min-w-[200px] sm:min-w-[220px] group cursor-pointer`}
                 >

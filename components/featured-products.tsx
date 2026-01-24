@@ -25,7 +25,9 @@ export function FeaturedProducts() {
       setIsLoading(true)
       const response = await apiService.getTrendingProducts()
       if (response.success && Array.isArray(response.data)) {
+        console.log("response.data", response.data);
         const mappedProducts = response.data.map(p => apiService.mapApiProductToProduct(p))
+        console.log("mappedProducts", mappedProducts);
         setProductsList(mappedProducts)
       }
       setIsLoading(false)

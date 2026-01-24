@@ -20,9 +20,14 @@ export function ProductCatalog() {
     priceRange: [0, 300],
     rating: 0,
     platform: "",
-    genre: "",
+    type: "",
+    region: "",
+    language: "",
+    works_on: "",
+    developer: "",
   })
   const [sortBy, setSortBy] = useState("featured")
+  const [totalProducts, setTotalProducts] = useState<number | null>(null)
 
   // Update search filter when URL search param changes
   useEffect(() => {
@@ -33,16 +38,15 @@ export function ProductCatalog() {
   }, [searchParams, filters.search])
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${
-      theme === 'dark' 
-        ? 'bg-background text-foreground' 
-        : 'bg-background text-foreground'
-    }`}>
+    <div className={`min-h-screen transition-colors duration-300 ${theme === 'dark'
+      ? 'bg-background text-foreground'
+      : 'bg-background text-foreground'
+      }`}>
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-foreground">
-            All Products
+            All Products {totalProducts !== null ? `(${totalProducts})` : ""}
           </h1>
           <p className="text-muted-foreground text-sm sm:text-base">
             Discover thousands of games, software, and digital content
@@ -52,10 +56,10 @@ export function ProductCatalog() {
         {/* Controls */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8">
           <div className="flex items-center gap-3 sm:gap-4">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => setShowFilters(!showFilters)} 
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowFilters(!showFilters)}
               className="lg:hidden h-10 px-3 sm:px-4"
             >
               <Filter className="h-4 w-4 mr-2" />
@@ -63,18 +67,18 @@ export function ProductCatalog() {
             </Button>
 
             <div className="flex items-center gap-1 sm:gap-2">
-              <Button 
-                variant={viewMode === "grid" ? "default" : "outline"} 
-                size="sm" 
+              <Button
+                variant={viewMode === "grid" ? "default" : "outline"}
+                size="sm"
                 onClick={() => setViewMode("grid")}
                 className="h-10 w-10 sm:w-auto sm:px-3"
               >
                 <Grid className="h-4 w-4" />
                 <span className="hidden sm:inline ml-2">Grid</span>
               </Button>
-              <Button 
-                variant={viewMode === "list" ? "default" : "outline"} 
-                size="sm" 
+              <Button
+                variant={viewMode === "list" ? "default" : "outline"}
+                size="sm"
                 onClick={() => setViewMode("list")}
                 className="h-10 w-10 sm:w-auto sm:px-3"
               >
@@ -91,9 +95,8 @@ export function ProductCatalog() {
 
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Filters Sidebar */}
-          <div className={`${
-            showFilters ? "block" : "hidden"
-          } lg:block w-full lg:w-72 xl:w-80 flex-shrink-0`}>
+          <div className={`${showFilters ? "block" : "hidden"
+            } lg:block w-full lg:w-72 xl:w-80 flex-shrink-0`}>
             <div className="sticky top-4">
               <ProductFilters filters={filters} onFiltersChange={setFilters} />
             </div>
@@ -101,7 +104,12 @@ export function ProductCatalog() {
 
           {/* Product Grid */}
           <div className="flex-1 min-w-0">
-            <ProductGrid viewMode={viewMode} filters={filters} sortBy={sortBy} />
+            <ProductGrid
+              viewMode={viewMode}
+              filters={filters}
+              sortBy={sortBy}
+              onTotalChange={setTotalProducts}
+            />
           </div>
         </div>
       </div>
