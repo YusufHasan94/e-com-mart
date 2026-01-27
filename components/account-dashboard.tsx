@@ -80,25 +80,27 @@ function SidebarContent({
   onTabChange,
   onItemClick,
   expandedMenu,
-  setExpandedMenu
+  setExpandedMenu,
+  walletBalance
 }: {
   activeTab: string
   onTabChange: (tab: string) => void
   onItemClick?: () => void
   expandedMenu: string | null
   setExpandedMenu: (menu: string | null) => void
+  walletBalance?: string
 }) {
   const { user, logout } = useAuth()
 
   // Mock user reputation
   const userReputation = 96.48
-  // Mock credit balance
-  const creditBalance = 303.19
+  // Real credit balance
+  const creditBalance = walletBalance || "$0.00"
 
   const navigationItems = [
     { id: "purchases", label: "Purchases", icon: ShoppingBag, active: activeTab === "purchases" },
     { id: "wishlist", label: "Wishlist", icon: Heart, active: activeTab === "wishlist" },
-    { id: "credit", label: "Balance", icon: Wallet, active: activeTab === "credit", badge: `$${creditBalance.toFixed(2)}` },
+    { id: "credit", label: "Balance", icon: Wallet, active: activeTab === "credit" },
     {
       id: "offers",
       label: "Offers",
@@ -111,8 +113,8 @@ function SidebarContent({
         { id: "requested-products", label: "Requested products" }
       ]
     },
-    { id: "tax-report", label: "Tax report", icon: FileText, active: activeTab === "tax-report" },
-    { id: "retail", label: "Retail advertising", icon: Sparkles, active: activeTab === "retail" },
+    // { id: "tax-report", label: "Tax report", icon: FileText, active: activeTab === "tax-report" },
+    // { id: "retail", label: "Retail advertising", icon: Sparkles, active: activeTab === "retail" },
     {
       id: "wholesale",
       label: "Wholesale",
@@ -125,7 +127,12 @@ function SidebarContent({
     },
     { id: "support", label: "Customer service", icon: Headphones, active: activeTab === "support" },
     { id: "settings", label: "Account settings", icon: Settings, active: activeTab === "settings" },
-  ]
+  ].filter(item => {
+    if (["offers", "wholesale"].includes(item.id)) {
+      return user?.role === "seller"
+    }
+    return true
+  })
 
   const handleItemClick = (id: string) => {
     onTabChange(id)
@@ -194,7 +201,7 @@ function SidebarContent({
                     <Icon className="h-4 w-4 sm:h-4 sm:w-4 md:h-5 md:w-5 flex-shrink-0" />
                     <span className="font-medium truncate">{item.label}</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  {/* <div className="flex items-center gap-2">
                     {item.badge && (
                       <Badge className="bg-primary text-primary-foreground text-xs sm:text-xs md:text-sm px-1.5 sm:px-2 md:px-2 py-0.5 flex-shrink-0">
                         {item.badge}
@@ -203,7 +210,7 @@ function SidebarContent({
                     {hasSubMenu && (
                       <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                     )}
-                  </div>
+                  </div> */}
                 </button>
                 {hasSubMenu && isExpanded && subItems && (
                   <div className="ml-4 mt-1 space-y-0.5">
@@ -245,12 +252,15 @@ function SidebarContent({
 }
 
 import { ProfileSettings } from "@/components/profile-settings"
+import { apiService } from "@/lib/api-service"
 
 export function AccountDashboard({ initialTab = "offers-list" }: { initialTab?: string }) {
-  const { user, isLoading } = useAuth()
+  const { user, token, isLoading } = useAuth()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState(initialTab)
-  const [purchasesTab, setPurchasesTab] = useState("games")
+  const [wallet, setWallet] = useState<{ balance: number; currency: string } | null>(null)
+  const [orders, setOrders] = useState<any[]>([])
+  const [purchasesTab, setPurchasesTab] = useState("orders")
   const [wishlist, setWishlist] = useState<Product[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [filterType, setFilterType] = useState("all")
@@ -395,6 +405,33 @@ export function AccountDashboard({ initialTab = "offers-list" }: { initialTab?: 
     }
   }, [user, isLoading, router])
 
+  useEffect(() => {
+    const fetchWallet = async () => {
+      if (token) {
+        const response = await apiService.getWallet(token)
+        if (response.success && response.data) {
+          setWallet({
+            balance: Number(response.data.balance),
+            currency: response.data.currency
+          })
+        }
+      }
+    }
+    if (token) fetchWallet()
+
+    const fetchOrders = async () => {
+      if (token) {
+        const response = await apiService.getUserOrders(token)
+        if (response.success && response.data) {
+          // Handle response.data being array or object with data property
+          const ordersList = Array.isArray(response.data) ? response.data : (response.data as any).data || []
+          setOrders(ordersList)
+        }
+      }
+    }
+    if (token && activeTab === "purchases") fetchOrders()
+  }, [token, activeTab])
+
 
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>
@@ -407,61 +444,11 @@ export function AccountDashboard({ initialTab = "offers-list" }: { initialTab?: 
   // Mock credit balance
   const creditBalance = 303.19
   const availableBalance = 292.29
-  const gamivoBalance = 0.00
+  const GameHubBalance = 0.00
   const pendingBalance = 0.00
   const totalBalance = 292.29
 
-  // Mock purchases data
-  const mockPurchases = [
-    {
-      id: "1",
-      article: "Baldur's Gate 3",
-      image: "/baldurs-gate-3-fantasy-rpg-game.jpg",
-      date: "11/8/25, 5:49 PM",
-      price: "$59.99",
-      protection: true
-    },
-    {
-      id: "2",
-      article: "Cyberpunk 2077",
-      image: "/cyberpunk-futuristic-city-game.png",
-      date: "11/7/25, 3:20 PM",
-      price: "$39.99",
-      protection: true
-    },
-    {
-      id: "3",
-      article: "FIFA 24",
-      image: "/fifa-24-soccer-game.jpg",
-      date: "11/6/25, 10:15 AM",
-      price: "$49.99",
-      protection: true
-    },
-    {
-      id: "4",
-      article: "Adobe Photoshop",
-      image: "/adobe-photoshop-software.jpg",
-      date: "11/5/25, 2:30 PM",
-      price: "$29.99",
-      protection: true
-    },
-    {
-      id: "5",
-      article: "Windows 11 Pro",
-      image: "",
-      date: "11/4/25, 9:45 AM",
-      price: "$99.99",
-      protection: true
-    },
-    {
-      id: "6",
-      article: "Steam Gift Card",
-      image: "/steam-gift-card-gaming.jpg",
-      date: "11/3/25, 4:10 PM",
-      price: "$25.00",
-      protection: true
-    }
-  ]
+
 
   // Mock wholesale products data
   const mockWholesaleProducts = [
@@ -701,6 +688,7 @@ export function AccountDashboard({ initialTab = "offers-list" }: { initialTab?: 
               }}
               expandedMenu={expandedMenu}
               setExpandedMenu={setExpandedMenu}
+              walletBalance={wallet ? `${wallet.currency} ${wallet.balance.toFixed(2)}` : undefined}
             />
           </SheetContent>
         </Sheet>
@@ -713,6 +701,7 @@ export function AccountDashboard({ initialTab = "offers-list" }: { initialTab?: 
           onTabChange={setActiveTab}
           expandedMenu={expandedMenu}
           setExpandedMenu={setExpandedMenu}
+          walletBalance={wallet ? `${wallet.currency} ${wallet.balance.toFixed(2)}` : undefined}
         />
       </aside>
 
@@ -783,12 +772,6 @@ export function AccountDashboard({ initialTab = "offers-list" }: { initialTab?: 
               <Tabs value={purchasesTab} onValueChange={setPurchasesTab} className="w-full">
                 <TabsList className="bg-card border border-border p-0.5 sm:p-1 inline-flex w-full sm:w-auto h-9 sm:h-10">
                   <TabsTrigger
-                    value="games"
-                    className="flex-1 sm:flex-initial text-sm sm:text-base px-3 sm:px-4 h-8 sm:h-9 min-h-[32px] sm:min-h-[36px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                  >
-                    Games
-                  </TabsTrigger>
-                  <TabsTrigger
                     value="orders"
                     className="flex-1 sm:flex-initial text-sm sm:text-base px-3 sm:px-4 h-8 sm:h-9 min-h-[32px] sm:min-h-[36px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                   >
@@ -796,73 +779,7 @@ export function AccountDashboard({ initialTab = "offers-list" }: { initialTab?: 
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="games" className="mt-3 sm:mt-4 md:mt-6">
-                  <div className="bg-card border border-border rounded-lg overflow-hidden">
-                    <div className="overflow-x-auto -mx-1 sm:mx-0">
-                      <div className="inline-block min-w-full align-middle px-1 sm:px-0">
-                        <Table>
-                          <TableHeader>
-                            <TableRow className="border-border hover:bg-card">
-                              <TableHead className="text-muted-foreground font-medium text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3">Article</TableHead>
-                              <TableHead className="text-muted-foreground font-medium text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3">Protection</TableHead>
-                              <TableHead className="text-muted-foreground font-medium text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3">Purchase date</TableHead>
-                              <TableHead className="text-muted-foreground font-medium text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3">Price</TableHead>
-                              <TableHead className="text-muted-foreground font-medium text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3">Product review</TableHead>
-                              <TableHead className="text-muted-foreground font-medium text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3">Trustpilot</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {mockPurchases.length === 0 ? (
-                              <TableRow>
-                                <TableCell colSpan={6} className="text-center py-6 sm:py-8 md:py-12 text-muted-foreground px-2 sm:px-4">
-                                  No data
-                                </TableCell>
-                              </TableRow>
-                            ) : (
-                              mockPurchases.map((purchase) => {
-                                const firstLetter = purchase.article?.charAt(0).toUpperCase() || "?"
-                                const hasImage = purchase.image && purchase.image.trim() !== ""
 
-                                return (
-                                  <TableRow key={purchase.id} className="border-border hover:bg-accent">
-                                    <TableCell className="text-foreground text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">
-                                      <div className="flex items-center gap-3">
-                                        <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
-                                          {hasImage ? (
-                                            <AvatarImage src={purchase.image} alt={purchase.article} />
-                                          ) : null}
-                                          <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-sm sm:text-base">
-                                            {firstLetter}
-                                          </AvatarFallback>
-                                        </Avatar>
-                                        <span className="font-medium">{purchase.article}</span>
-                                      </div>
-                                    </TableCell>
-                                    <TableCell className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">
-                                      <Shield className="h-4 w-4 sm:h-4 sm:w-4 text-muted-foreground" />
-                                    </TableCell>
-                                    <TableCell className="text-muted-foreground text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">{purchase.date}</TableCell>
-                                    <TableCell className="text-foreground font-medium text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">{purchase.price}</TableCell>
-                                    <TableCell className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">
-                                      <Button variant="ghost" size="sm" className="text-primary hover:text-primary text-sm sm:text-sm md:text-sm h-8 sm:h-9 px-2 sm:px-3">
-                                        Review
-                                      </Button>
-                                    </TableCell>
-                                    <TableCell className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">
-                                      <Button variant="ghost" size="sm" className="text-primary hover:text-primary text-sm sm:text-sm md:text-sm h-8 sm:h-9 px-2 sm:px-3">
-                                        Review
-                                      </Button>
-                                    </TableCell>
-                                  </TableRow>
-                                )
-                              })
-                            )}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
 
                 <TabsContent value="orders" className="mt-3 sm:mt-4 md:mt-6">
                   <div className="bg-card border border-border rounded-lg overflow-hidden">
@@ -879,11 +796,31 @@ export function AccountDashboard({ initialTab = "offers-list" }: { initialTab?: 
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            <TableRow>
-                              <TableCell colSpan={5} className="text-center py-6 sm:py-8 md:py-12 text-muted-foreground px-2 sm:px-4">
-                                No data
-                              </TableCell>
-                            </TableRow>
+                            {orders.length === 0 ? (
+                              <TableRow>
+                                <TableCell colSpan={5} className="text-center py-6 sm:py-8 md:py-12 text-muted-foreground px-2 sm:px-4">
+                                  No orders found
+                                </TableCell>
+                              </TableRow>
+                            ) : (
+                              orders.map((order) => (
+                                <TableRow key={order.id} className="border-border hover:bg-accent">
+                                  <TableCell className="font-medium text-foreground text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">{order.order_number}</TableCell>
+                                  <TableCell className="text-muted-foreground text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">{new Date(order.created_at).toLocaleDateString()}</TableCell>
+                                  <TableCell className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">
+                                    <Badge variant={order.status === "completed" ? "default" : "secondary"}>
+                                      {order.status}
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell className="text-foreground font-medium text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">
+                                    {order.currency} {order.total}
+                                  </TableCell>
+                                  <TableCell className="text-muted-foreground text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">
+                                    {order.items?.length || 0} items
+                                  </TableCell>
+                                </TableRow>
+                              ))
+                            )}
                           </TableBody>
                         </Table>
                       </div>
@@ -951,7 +888,7 @@ export function AccountDashboard({ initialTab = "offers-list" }: { initialTab?: 
                 <Card className="bg-primary/10 border-primary/20">
                   <CardContent className="p-4 sm:p-5">
                     <div className="flex items-start justify-between mb-2">
-                      <p className="text-sm text-muted-foreground">GAMIVO balance</p>
+                      <p className="text-sm text-muted-foreground">GameHub balance</p>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button className="text-muted-foreground hover:text-foreground">
@@ -959,11 +896,11 @@ export function AccountDashboard({ initialTab = "offers-list" }: { initialTab?: 
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Balance in GAMIVO account</p>
+                          <p>Balance in GameHub account</p>
                         </TooltipContent>
                       </Tooltip>
                     </div>
-                    <p className="text-2xl sm:text-3xl font-bold text-primary">${gamivoBalance.toFixed(2)}</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-primary">${GameHubBalance.toFixed(2)}</p>
                   </CardContent>
                 </Card>
 
@@ -1285,34 +1222,34 @@ export function AccountDashboard({ initialTab = "offers-list" }: { initialTab?: 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1">
                           <p className="text-xs text-muted-foreground uppercase">Beneficiary name</p>
-                          <p className="text-sm font-medium text-foreground">Md. Al sharif hossain</p>
+                          <p className="text-sm font-medium text-foreground">Jhon dow</p>
                         </div>
                         <div className="space-y-1">
                           <p className="text-xs text-muted-foreground uppercase">Beneficiary address</p>
-                          <p className="text-sm font-medium text-foreground">pahirapukur, ghatnagar, porsha Naogaon 6540 Bangladesh</p>
+                          <p className="text-sm font-medium text-foreground">123 Main St, Anytown, USA</p>
                         </div>
                         <div className="space-y-1">
                           <p className="text-xs text-muted-foreground uppercase">Bank name</p>
-                          <p className="text-sm font-medium text-foreground">TransferWise Ltd.</p>
+                          <p className="text-sm font-medium text-foreground">Bank of America</p>
                         </div>
                         <div className="space-y-1">
                           <p className="text-xs text-muted-foreground uppercase">Bank address</p>
-                          <p className="text-sm font-medium text-foreground">56 Shoreditch High Street London E1 6JJ United Kingdom</p>
+                          <p className="text-sm font-medium text-foreground">123 Main St, Anytown, USA</p>
                         </div>
                         <div className="space-y-1">
                           <p className="text-xs text-muted-foreground uppercase">IBAN</p>
-                          <p className="text-sm font-medium text-foreground font-mono">BE19 9671 9785 5512</p>
+                          <p className="text-sm font-medium text-foreground font-mono">1234567890</p>
                         </div>
                         <div className="space-y-1">
                           <p className="text-xs text-muted-foreground uppercase">SWIFT</p>
-                          <p className="text-sm font-medium text-foreground font-mono">TRWIBEB1XXX</p>
+                          <p className="text-sm font-medium text-foreground font-mono">1234567890</p>
                         </div>
                       </div>
                     </div>
 
-                    {/* GAMIVO Fees */}
+                    {/* GameHub Fees */}
                     <div className="bg-card border border-border rounded-lg p-4 sm:p-6 space-y-4">
-                      <h3 className="text-lg font-semibold text-foreground">GAMIVO FEES</h3>
+                      <h3 className="text-lg font-semibold text-foreground">GameHub FEES</h3>
                       <div className="space-y-3">
                         <div className="flex items-center justify-between py-2 border-b border-border">
                           <span className="text-sm text-muted-foreground">Processing fee</span>
@@ -1333,7 +1270,7 @@ export function AccountDashboard({ initialTab = "offers-list" }: { initialTab?: 
                     <div className="bg-muted/30 border border-border rounded-lg p-4 sm:p-6">
                       <p className="text-sm text-muted-foreground leading-relaxed">
                         To change your payment details, please contact our customer service. To add additional payment methods,
-                        please contact <span className="text-primary font-medium">merchants@gamivo.com</span> with proof of ownership.
+                        please contact <span className="text-primary font-medium">merchants@GameHub.com</span> with proof of ownership.
                       </p>
                     </div>
 

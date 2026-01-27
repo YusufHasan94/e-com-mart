@@ -217,6 +217,79 @@ export interface ApiProductRequestsResponse {
     total: number
 }
 
+export interface ApiBillingAddress {
+    name: string
+    email: string
+    address: string
+    city: string
+    country: string
+    phone: string
+    postcode: string
+}
+
+export interface ApiOrderItem {
+    id: number
+    product_id: number
+    product_name: string
+    seller_offer_id: number
+    quantity: number
+    price: number
+    total: number
+}
+
+export interface ApiOrder {
+    id: number
+    order_number: string
+    user_id: number
+    status: "pending" | "processing" | "completed" | "cancelled"
+    payment_status: "pending" | "paid" | "failed" | "refunded"
+    total: number
+    currency: string
+    created_at: string
+    updated_at: string
+    items: ApiOrderItem[]
+    billing: ApiBillingAddress
+}
+
+export interface ApiCoupon {
+    id: number
+    code: string
+    type: "percentage" | "fixed"
+    value: number
+    min_purchase: number
+    max_discount?: number
+    expires_at?: string
+    usage_limit?: number
+    used_count: number
+}
+
+export interface ApiSeller {
+    id: number
+    store_name: string
+    slug: string
+    logo?: string
+    banner?: string
+    description?: string
+    is_verified: boolean
+    rating: number
+    total_sales: number
+    created_at: string
+}
+
+export interface ApiWallet {
+    balance: number
+    currency: string
+    pending_balance: number
+}
+
+export interface ApiWalletTransaction {
+    id: number
+    type: "credit" | "debit"
+    amount: number
+    description: string
+    created_at: string
+}
+
 export interface ApiResponse<T> {
     success: boolean
     data?: T
@@ -771,6 +844,1137 @@ export const apiService = {
     },
 
     /**
+     * Submit a product review
+     */
+    submitProductReview: async (
+        token: string,
+        productId: number,
+        reviewData: {
+            rating: number
+            title: string
+            review: string
+        }
+    ): Promise<ApiResponse<{ id: number }>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/products/${productId}/reviews`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                body: JSON.stringify(reviewData),
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to submit review",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (submitProductReview):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Update a review
+     */
+    updateProductReview: async (
+        token: string,
+        reviewId: number,
+        reviewData: {
+            rating: number
+            title: string
+            review: string
+        }
+    ): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/reviews/${reviewId}`, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                body: JSON.stringify(reviewData),
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to update review",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (updateProductReview):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Delete a review
+     */
+    deleteProductReview: async (token: string, reviewId: number): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/reviews/${reviewId}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to delete review",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (deleteProductReview):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Get review summary
+     */
+    getReviewSummary: async (productId: number): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/products/${productId}/reviews/summary`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch review summary",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getReviewSummary):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * List sellers
+     */
+    getSellers: async (page: number = 1): Promise<ApiResponse<{ data: ApiSeller[]; pagination: any }>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/sellers?page=${page}`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch sellers",
+                }
+            }
+
+            return {
+                success: true,
+                data: result,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getSellers):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Get seller details
+     */
+    getSellerDetails: async (slug: string): Promise<ApiResponse<ApiSeller>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/sellers/${slug}`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch seller details",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getSellerDetails):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Create seller store
+     */
+    createSellerStore: async (token: string, storeData: any): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/sellers`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                body: JSON.stringify(storeData),
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to create seller store",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (createSellerStore):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Update seller store
+     */
+    updateSellerStore: async (token: string, storeId: number, storeData: any): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/sellers/${storeId}`, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                body: JSON.stringify(storeData),
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to update seller store",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (updateSellerStore):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * List withdrawal requests
+     */
+    getSellerWithdrawals: async (token: string, page: number = 1): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/seller-withdrawals?page=${page}`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch withdrawals",
+                }
+            }
+
+            return {
+                success: true,
+                data: result,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getSellerWithdrawals):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Submit withdrawal request
+     */
+    submitSellerWithdrawal: async (token: string, data: { amount: number; method: string; details: string }): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/seller-withdrawals`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                body: JSON.stringify(data),
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to submit withdrawal",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (submitSellerWithdrawal):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Get wallet details
+     */
+    getWallet: async (token: string): Promise<ApiResponse<ApiWallet>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/wallet`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch wallet",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getWallet):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * List wallet transactions
+     */
+    getWalletTransactions: async (token: string, page: number = 1): Promise<ApiResponse<{ data: ApiWalletTransaction[]; pagination: any }>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/wallet/transactions?page=${page}`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch transactions",
+                }
+            }
+
+            return {
+                success: true,
+                data: result,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getWalletTransactions):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Get wallet settings
+     */
+    getWalletSettings: async (token: string): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/wallet/settings`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch wallet settings",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getWalletSettings):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * List transactions
+     */
+    getTransactions: async (token: string, page: number = 1): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/transactions?page=${page}`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch transactions",
+                }
+            }
+
+            return {
+                success: true,
+                data: result,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getTransactions):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Get user orders
+     */
+    getUserOrders: async (token: string): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/my-orders`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+            console.log("API User Orders Result:", result)
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch orders",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data || result,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getUserOrders):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Get transaction details
+     */
+    getTransactionDetails: async (token: string, id: number): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/transactions/${id}`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch transaction details",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getTransactionDetails):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * List payment methods
+     */
+    getPaymentMethods: async (): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/payment-methods`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch payment methods",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getPaymentMethods):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Get payment method details
+     */
+    getPaymentMethod: async (slug: string): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/payment-methods/${slug}`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch payment method details",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getPaymentMethod):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * List applicable taxes
+     */
+    getTaxes: async (): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/taxes`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch taxes",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getTaxes):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Calculate tax amount
+     */
+    calculateTax: async (amount: number, country: string): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/taxes/calculate`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                body: JSON.stringify({ amount, country }),
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to calculate tax",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (calculateTax):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Seller tax rules
+     */
+    getSellerTaxRules: async (token: string): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/taxes/seller-rules`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch seller tax rules",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getSellerTaxRules):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * List blogs
+     */
+    getBlogs: async (page: number = 1): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/blogs?page=${page}`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch blogs",
+                }
+            }
+
+            return {
+                success: true,
+                data: result,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getBlogs):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Get blog by slug
+     */
+    getBlogBySlug: async (slug: string): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/blogs/${slug}`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch blog details",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getBlogBySlug):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * List blog categories
+     */
+    getBlogCategories: async (): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/blog-categories`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch blog categories",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getBlogCategories):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Get blog category by slug
+     */
+    getCategoryBySlug: async (slug: string): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/blog-categories/${slug}`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch blog category details",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getCategoryBySlug):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * List blog comments
+     */
+    getBlogComments: async (blogId: number, page: number = 1): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/blog-comments?blog_id=${blogId}&page=${page}`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch blog comments",
+                }
+            }
+
+            return {
+                success: true,
+                data: result,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getBlogComments):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Submit blog comment
+     */
+    submitBlogComment: async (token: string, data: { blog_id: number; comment: string }): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/blog-comments`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                body: JSON.stringify(data),
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to submit blog comment",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (submitBlogComment):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * List pages
+     */
+    getPages: async (): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/pages`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch pages",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getPages):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Get page by slug
+     */
+    getPageBySlug: async (slug: string): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/pages/${slug}`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch page details",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getPageBySlug):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * List active sliders
+     */
+    getSliders: async (): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/sliders`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch sliders",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getSliders):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Get slider details
+     */
+    getSliderDetails: async (id: number): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/sliders/${id}`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch slider details",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getSliderDetails):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
      * Fetch product requests (requires authentication)
      */
     getProductRequests: async (
@@ -868,6 +2072,165 @@ export const apiService = {
             }
         } catch (error) {
             console.error("API Error (submitProductRequest):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Create a new order (checkout)
+     */
+    createOrder: async (
+        token: string,
+        orderData: {
+            currency: string
+            items: { seller_offer_id: number; quantity: number }[]
+            billing: ApiBillingAddress
+            payment_method: string
+            coupon_code?: string
+        }
+    ): Promise<ApiResponse<{ order_id: number; order_number: string; status: string }>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/orders`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                body: JSON.stringify(orderData),
+            })
+
+            const result = await response.json()
+            console.log("API Create Order Result:", result)
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to create order",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (createOrder):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Get order details
+     */
+    getOrderDetails: async (token: string, orderId: number): Promise<ApiResponse<ApiOrder>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/orders/${orderId}`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+            console.log("API Order Details Result:", result)
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch order details",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getOrderDetails):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+
+
+    /**
+     * List active coupons
+     */
+    getCoupons: async (): Promise<ApiResponse<ApiCoupon[]>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/coupons`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch coupons",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getCoupons):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Validate coupon
+     */
+    validateCoupon: async (code: string, total: number): Promise<ApiResponse<{ valid: boolean; discount: number }>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/coupons/validate`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                body: JSON.stringify({ code, total }),
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Invalid coupon",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (validateCoupon):", error)
             return {
                 success: false,
                 error: `Network error: ${error instanceof Error ? error.message : String(error)}`,

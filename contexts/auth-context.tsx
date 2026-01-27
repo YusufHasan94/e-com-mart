@@ -14,6 +14,7 @@ export interface User {
 
 interface AuthContextType {
   user: User | null
+  token: string | null
   login: (email: string, password: string) => Promise<boolean>
   demoLogin: (role: "user" | "seller" | "admin") => Promise<boolean>
   register: (email: string, password: string, password_confirmation: string, name: string, role?: "user" | "seller" | "admin") => Promise<boolean>
@@ -25,6 +26,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
+  const [token, setToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isHydrated, setIsHydrated] = useState(false)
 
@@ -36,6 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const storedUser = localStorage.getItem("user")
 
         if (storedToken) {
+          setToken(storedToken)
           // Verify token with 'me' endpoint
           const response = await apiService.getMe(storedToken)
           if (response.success && response.data) {
@@ -57,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             console.warn("Stored token invalid, clearing session")
             localStorage.removeItem("token")
             localStorage.removeItem("user")
+            setToken(null)
           }
         } else if (storedUser) {
           // Fallback to stored user if no token (legacy or offline) - but actually user wants token auth.
@@ -93,6 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (accessToken) {
         localStorage.setItem("token", accessToken)
+        setToken(accessToken)
 
         // Fetch full profile using token
         const meResponse = await apiService.getMe(accessToken)
@@ -203,6 +208,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     setUser(null)
+    setToken(null)
     if (typeof window !== "undefined") {
       localStorage.removeItem("user")
       localStorage.removeItem("token")
@@ -210,7 +216,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  return <AuthContext.Provider value={{ user, login, demoLogin, register, logout, isLoading }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ user, token, login, demoLogin, register, logout, isLoading }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {
