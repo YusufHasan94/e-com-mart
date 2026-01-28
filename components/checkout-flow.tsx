@@ -13,16 +13,20 @@ import { ShippingForm } from "@/components/shipping-form"
 import { PaymentForm } from "@/components/payment-form"
 import { OrderSummary } from "@/components/order-summary"
 import { OrderConfirmation } from "@/components/order-confirmation"
-import { ArrowLeft, ArrowRight } from "lucide-react"
+import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react"
+import { apiService } from "@/lib/api-service"
+import { useToast } from "@/components/ui/use-toast"
 
 export function CheckoutFlow() {
   const [currentStep, setCurrentStep] = useState(1)
-  const [shippingData, setShippingData] = useState(null)
-  const [paymentData, setPaymentData] = useState(null)
+  const [shippingData, setShippingData] = useState<any>(null)
+  const [paymentData, setPaymentData] = useState<any>(null)
   const [orderId, setOrderId] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const { state, clearCart } = useCart()
-  const { user } = useAuth()
+  const { user, token } = useAuth()
   const router = useRouter()
+  const { toast } = useToast()
 
   useEffect(() => {
     if (!user) {
@@ -54,11 +58,60 @@ export function CheckoutFlow() {
 
   const handlePaymentSubmit = (data: any) => {
     setPaymentData(data)
-    // Generate order ID
-    const newOrderId = `ORD-${Date.now()}`
-    setOrderId(newOrderId)
-    clearCart()
     handleNextStep()
+  }
+
+  const handlePlaceOrder = async () => {
+    if (!user || !token || !shippingData || !paymentData) return
+
+    setIsSubmitting(true)
+    try {
+      // Construct order payload
+      const orderData = {
+        currency: "USD", // TODO: Get from context/settings
+        items: state.items.map(item => ({
+          seller_offer_id: Number(item.id), // Assuming item.id works as offer ID for now
+          quantity: 1
+        })),
+        billing: {
+          name: `${shippingData.firstName} ${shippingData.lastName}`,
+          email: shippingData.email,
+          address: shippingData.address,
+          city: shippingData.city,
+          country: shippingData.country,
+          phone: shippingData.phone,
+          postcode: shippingData.zipCode
+        },
+        payment_method: paymentData.paymentMethod
+      }
+
+      const response = await apiService.createOrder(token, orderData)
+
+      if (response.success && response.data) {
+        setOrderId(response.data.order_number)
+        clearCart()
+        setCurrentStep(4) // Go to confirmation
+        toast({
+          title: "Order placed successfully!",
+          description: `Order #${response.data.order_number} has been created.`,
+        })
+      } else {
+        toast({
+          title: "Order failed",
+          description: response.error || "Please try again.",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      console.error("Checkout error:", error)
+      toast({
+        title: "Order failed",
+        description: "An unexpected error occurred.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (!user) {
@@ -115,7 +168,10 @@ export function CheckoutFlow() {
                   {/* Shipping Info */}
                   {shippingData && (
                     <div>
-                      <h3 className="font-semibold mb-2">Shipping Address</h3>
+                      <div className="flex justify-between items-center mb-2">
+                        <h3 className="font-semibold">Shipping Address</h3>
+                        <Button variant="ghost" size="sm" onClick={() => setCurrentStep(1)}>Edit</Button>
+                      </div>
                       <div className="text-sm text-muted-foreground space-y-1">
                         <p>
                           {shippingData.firstName} {shippingData.lastName}
@@ -134,10 +190,15 @@ export function CheckoutFlow() {
                   {/* Payment Info */}
                   {paymentData && (
                     <div>
-                      <h3 className="font-semibold mb-2">Payment Method</h3>
+                      <div className="flex justify-between items-center mb-2">
+                        <h3 className="font-semibold">Payment Method</h3>
+                        <Button variant="ghost" size="sm" onClick={() => setCurrentStep(2)}>Edit</Button>
+                      </div>
                       <div className="text-sm text-muted-foreground">
-                        <p>**** **** **** {paymentData.cardNumber.slice(-4)}</p>
-                        <p>{paymentData.cardName}</p>
+                        <p className="capitalize">{paymentData.paymentMethod}</p>
+                        {paymentData.cardNumber && (
+                          <p>**** **** **** {paymentData.cardNumber.slice(-4)}</p>
+                        )}
                       </div>
                     </div>
                   )}
@@ -171,13 +232,22 @@ export function CheckoutFlow() {
                   </div>
 
                   <div className="flex gap-4 pt-4">
-                    <Button variant="outline" onClick={handlePrevStep} className="flex-1 bg-transparent">
+                    <Button variant="outline" onClick={handlePrevStep} className="flex-1 bg-transparent" disabled={isSubmitting}>
                       <ArrowLeft className="mr-2 h-4 w-4" />
                       Back
                     </Button>
-                    <Button onClick={handlePaymentSubmit} className="flex-1">
-                      Place Order
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                    <Button onClick={handlePlaceOrder} className="flex-1" disabled={isSubmitting}>
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          Place Order
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </>
+                      )}
                     </Button>
                   </div>
                 </CardContent>
@@ -194,16 +264,6 @@ export function CheckoutFlow() {
             </div>
           )}
         </div>
-
-        {/* Navigation */}
-        {currentStep < 3 && currentStep > 1 && (
-          <div className="flex justify-between mt-8">
-            <Button variant="outline" onClick={handlePrevStep}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   )
