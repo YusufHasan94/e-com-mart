@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Star, TrendingUp, Flame, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { ProductCard } from "./product-card"
 import { apiService } from "@/lib/api-service"
 import { useState, useEffect } from "react"
 
@@ -60,55 +61,11 @@ export function TrendyProducts() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {productsList.map((product) => (
-            <Card
+            <ProductCard
               key={product.id}
-              className="group hover:shadow-xl transition-all duration-300 overflow-hidden"
-            >
-              <div className="relative">
-                <img
-                  src={product.image || "/placeholder.svg"}
-                  alt={product.title}
-                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute top-3 left-3 flex gap-2">
-                  {product.isNew && <Badge className="bg-green-600 hover:bg-green-700">New</Badge>}
-                  {product.discount > 0 && <Badge variant="destructive">-{product.discount}%</Badge>}
-                </div>
-                <div className="absolute top-3 right-3">
-                  <Badge className="bg-purple-600 hover:bg-purple-700 gap-1">
-                    <Flame className="h-3 w-3" />#{product.trendingRank} Trending
-                  </Badge>
-                </div>
-              </div>
-
-              <CardContent className="p-4 space-y-3">
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">{product.category}</p>
-                  <Link href={`/product/${product.id}`}>
-                    <h3 className="font-semibold text-lg group-hover:text-primary transition-colors cursor-pointer">{product.title}</h3>
-                  </Link>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-medium">{product.rating}</span>
-                  </div>
-                  <span className="text-sm text-muted-foreground">({product.reviews} reviews)</span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      {product.discount > 0 && (
-                        <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>
-                      )}
-                      <span className="text-xl font-bold text-primary">From ${product.salePrice}</span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              product={product}
+              showTrendingBadge={true}
+            />
           ))}
         </div>
       </div>

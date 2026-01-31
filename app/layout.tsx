@@ -1,7 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { GeistSans } from "geist/font/sans"
-import { GeistMono } from "geist/font/mono"
+import { Roboto, Roboto_Mono } from "next/font/google"
 import { Suspense } from "react"
 import { CartProvider } from "@/contexts/cart-context"
 import { AuthProvider } from "@/contexts/auth-context"
@@ -10,6 +9,17 @@ import { ThemeProvider } from "@/contexts/theme-context"
 import { TopLoader } from "@/components/top-loader"
 import { Header } from "@/components/header"
 import "./globals.css"
+
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: ["100", "300", "400", "500", "700", "900"],
+  variable: "--font-roboto",
+})
+
+const robotoMono = Roboto_Mono({
+  subsets: ["latin"],
+  variable: "--font-roboto-mono",
+})
 
 export const metadata: Metadata = {
   title: "GameHub - Premium Gaming Marketplace",
@@ -23,8 +33,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`font-sans ${roboto.variable} ${robotoMono.variable} antialiased`} suppressHydrationWarning>
         <TopLoader />
         <ThemeProvider>
           <AuthProvider>

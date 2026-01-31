@@ -25,7 +25,6 @@ interface ProductFiltersProps {
     search: string
     category: string
     priceRange: number[]
-    rating: number
     platform: string
     type: string
     region: string
@@ -59,16 +58,24 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
     regions: true,
     languages: true,
     worksOn: true,
-    developers: true,
-    counts: true
+    developers: true
   })
 
   useEffect(() => {
     const fetchData = async () => {
-      // Fetch all products for count calculation
+      // 1. Fetch products for counting
       const productsRes = await apiService.getAllProducts(200)
-      const allProducts = productsRes.success && productsRes.data ? productsRes.data : []
 
+
+
+      const allApiProducts = productsRes.success && productsRes.data ? productsRes.data : []
+
+      // Map API products to App products to get consistent slugs
+      const allProducts = allApiProducts.map(p => apiService.mapApiProductToProduct(p))
+
+
+
+      // 2. Initialize count objects
       const counts: Record<string, Record<string, number>> = {
         categories: {},
         platforms: {},
@@ -79,18 +86,24 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
         developers: {}
       }
 
+      // 3. Aggregate counts from actual products
       allProducts.forEach(p => {
-        const attrs = p.product_attributes || {}
-        attrs.categories?.forEach(attr => counts.categories[attr.slug] = (counts.categories[attr.slug] || 0) + 1)
-        attrs.platforms?.forEach(attr => counts.platforms[attr.slug] = (counts.platforms[attr.slug] || 0) + 1)
-        attrs.types?.forEach(attr => counts.types[attr.slug] = (counts.types[attr.slug] || 0) + 1)
-        attrs.regions?.forEach(attr => counts.regions[attr.slug] = (counts.regions[attr.slug] || 0) + 1)
-        attrs.languages?.forEach(attr => counts.languages[attr.slug] = (counts.languages[attr.slug] || 0) + 1)
-        attrs.works_on?.forEach(attr => counts.worksOn[attr.slug] = (counts.worksOn[attr.slug] || 0) + 1)
-        if (attrs.developer?.slug) counts.developers[attrs.developer.slug] = (counts.developers[attrs.developer.slug] || 0) + 1
+        if (p.categorySlug) counts.categories[p.categorySlug] = (counts.categories[p.categorySlug] || 0) + 1
+        if (p.platformSlug) counts.platforms[p.platformSlug] = (counts.platforms[p.platformSlug] || 0) + 1
+        if (p.typeSlug) counts.types[p.typeSlug] = (counts.types[p.typeSlug] || 0) + 1
+        if (p.regionSlug) counts.regions[p.regionSlug] = (counts.regions[p.regionSlug] || 0) + 1
+        if (p.developerSlug) counts.developers[p.developerSlug] = (counts.developers[p.developerSlug] || 0) + 1
+
+        p.languageSlugs?.forEach(slug => {
+          if (slug) counts.languages[slug] = (counts.languages[slug] || 0) + 1
+        })
+
+        p.worksOnSlugs?.forEach(slug => {
+          if (slug) counts.worksOn[slug] = (counts.worksOn[slug] || 0) + 1
+        })
       })
 
-      // Fetch attribute metadata
+      // 4. Fetch attribute metadata
       const [catRes, platRes, typeRes, regRes, langRes, worksRes, devRes] = await Promise.all([
         apiService.getCategories(),
         apiService.getPlatforms(),
@@ -234,63 +247,67 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
         </CardContent>
       </Card>
 
-      {/* Categories */}
-      <FilterCard title="Categories" options={categories} filterKey="category" loading={isLoading.categories} />
-
       {/* Price Range */}
-      <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] flex flex-col custom-scrollbar">
+      <Card className="border-border/50 shadow-sm flex flex-col">
         <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4 flex-shrink-0">
           <CardTitle className="text-sm sm:text-base font-semibold text-card-foreground">
             Price Range
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 pt-3 px-3 sm:px-4 pb-3 sm:pb-4 flex-1 overflow-y-auto">
+        <CardContent className="space-y-4 pt-3 px-3 sm:px-4 pb-3 sm:pb-4 flex-1">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="min-price" className="text-[10px] text-muted-foreground uppercase font-semibold">Min Price</Label>
+              <div className="relative">
+                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">$</span>
+                <Input
+                  id="min-price"
+                  type="number"
+                  value={filters.priceRange[0]}
+                  onChange={(e) => {
+                    const val = Math.min(Number(e.target.value), filters.priceRange[1] - 1)
+                    updateFilters("priceRange", [val, filters.priceRange[1]])
+                  }}
+                  className="pl-5 h-8 text-xs appearance-none"
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="max-price" className="text-[10px] text-muted-foreground uppercase font-semibold">Max Price</Label>
+              <div className="relative">
+                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">$</span>
+                <Input
+                  id="max-price"
+                  type="number"
+                  value={filters.priceRange[1]}
+                  onChange={(e) => {
+                    const val = Math.max(Number(e.target.value), filters.priceRange[0] + 1)
+                    updateFilters("priceRange", [filters.priceRange[0], val])
+                  }}
+                  className="pl-5 h-8 text-xs"
+                />
+              </div>
+            </div>
+          </div>
+
           <Slider
             value={filters.priceRange}
             onValueChange={(value) => updateFilters("priceRange", value)}
-            max={300}
-            step={5}
+            max={1000}
+            step={1}
             className="w-full"
           />
-          <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground font-medium">
-            <span>${filters.priceRange[0]}</span>
-            <span>${filters.priceRange[1]}</span>
+          <div className="flex items-center justify-between text-[10px] text-muted-foreground font-medium uppercase">
+            <span>Min: ${filters.priceRange[0]}</span>
+            <span>Max: ${filters.priceRange[1]}</span>
           </div>
         </CardContent>
       </Card>
 
-      {/* Rating */}
-      <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] flex flex-col custom-scrollbar">
-        <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4 flex-shrink-0">
-          <CardTitle className="text-sm sm:text-base font-semibold text-card-foreground">
-            Customer Rating
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0 px-3 sm:px-4 pb-3 sm:pb-4 flex-1 overflow-y-auto">
-          <RadioGroup
-            value={filters.rating.toString()}
-            onValueChange={(value) => updateFilters("rating", Number.parseInt(value))}
-            className="space-y-1.5 sm:space-y-2"
-          >
-            {[4, 3, 2, 1].map((rating) => (
-              <div key={rating} className="flex items-center space-x-2 sm:space-x-3 py-0.5 sm:py-1">
-                <RadioGroupItem value={rating.toString()} id={`rating-${rating}`} className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                <Label htmlFor={`rating-${rating}`} className="flex items-center gap-1 cursor-pointer text-card-foreground hover:text-primary transition-colors">
-                  <div className="flex">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-2.5 w-2.5 sm:h-3 sm:w-3 ${i < rating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-xs sm:text-sm font-medium">& Up</span>
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
-        </CardContent>
-      </Card>
+      {/* Categories */}
+      <FilterCard title="Categories" options={categories} filterKey="category" loading={isLoading.categories} />
+
+
 
       {/* Platforms */}
       <FilterCard title="Platforms" options={platforms} filterKey="platform" loading={isLoading.platforms} />

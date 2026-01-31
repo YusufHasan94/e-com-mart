@@ -17,8 +17,7 @@ export function ProductCatalog() {
   const [filters, setFilters] = useState({
     search: searchParams.get("search") || "",
     category: "",
-    priceRange: [0, 300],
-    rating: 0,
+    priceRange: [0, 1000],
     platform: "",
     type: "",
     region: "",

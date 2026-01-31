@@ -80,11 +80,11 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
       try {
         const response = await apiService.getProductById(productId)
         if (response.success && response.data) {
-          console.log("Raw Product API Response data:", response.data);
+
           try {
             const { product: apiProduct, offers: apiOffers } = response.data;
             const mappedProduct = apiService.mapApiProductToProduct(apiProduct, apiOffers)
-            console.log("Mapped Product:", mappedProduct);
+
             setProduct(mappedProduct)
             if (mappedProduct.variations && mappedProduct.variations.length > 0) {
               setSelectedVariation(mappedProduct.variations[0])

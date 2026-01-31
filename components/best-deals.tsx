@@ -10,6 +10,7 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, Autoplay } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
+import { ProductCard } from "./product-card"
 
 const hotDealsProducts = [
   {
@@ -211,57 +212,7 @@ export function BestDeals() {
               >
                 {hotDealsProducts.map((product) => (
                   <SwiperSlide key={product.id}>
-                    <Link href={`/product/${product.id}`}>
-                      <Card className="dark:glass-effect dark:card-hover cursor-pointer h-full rounded-lg">
-                        <CardContent className="h-full flex flex-col">
-                          <div className="relative mb-4">
-                            <img
-                              src={product.image || "/placeholder.svg"}
-                              alt={product.title}
-                              className="w-full h-48 object-cover"
-                            />
-                            <Badge className="absolute top-2 left-2 bg-red-600 hover:bg-red-700 text-white">
-                              ON SALE
-                            </Badge>
-                          </div>
-
-                          <div className="space-y-3 flex-1 flex flex-col p-4">
-                            <div>
-                              <h3 className="font-semibold text-lg mb-1">{product.title}</h3>
-                              <p className="text-sm text-muted-foreground">{product.category}</p>
-                            </div>
-
-                            <div className="flex items-center gap-1">
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <span className="text-sm text-muted-foreground ml-1">({product.reviews} reviews)</span>
-                            </div>
-
-
-
-                            <div className="space-y-2 mt-auto">
-                              <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">Sold: {product.sold}/{product.total} Products</span>
-                              </div>
-                              <div className="w-full bg-gray-200 rounded-full h-2">
-                                <div
-                                  className="bg-red-500 h-2 rounded-full transition-all duration-300"
-                                  style={{ width: `${(product.sold / product.total) * 100}%` }}
-                                ></div>
-                              </div>
-                            </div>
-
-                            <div className="flex items-start gap-0 flex-col">
-                              <span className="text-sm text-muted-foreground">from</span>
-                              <span className="text-xl font-bold text-primary">${product.salePrice.toFixed(2)}</span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
+                    <ProductCard product={product} showProgressBar={true} />
                   </SwiperSlide>
                 ))}
               </Swiper>

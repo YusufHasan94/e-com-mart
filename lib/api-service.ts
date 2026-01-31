@@ -276,6 +276,15 @@ export interface ApiSeller {
     created_at: string
 }
 
+export interface ApiPaymentMethod {
+    code: string
+    name: string
+    description?: string
+    logo?: string
+    is_active: boolean
+    id?: number
+}
+
 export interface ApiWallet {
     balance: number
     currency: string
@@ -347,6 +356,35 @@ export interface AppProduct {
     developerSlug: string
 }
 
+export interface ApiBlog {
+    id: number
+    title: string
+    slug: string
+    image?: string | null
+    excerpt?: string | null
+    content?: string | null
+    category_id?: number
+    user_id?: number
+    created_at: string
+    updated_at: string
+    category?: { name: string; slug: string }
+    user?: { name: string; avatar?: string }
+}
+
+export interface AppBlog {
+    id: string
+    title: string
+    slug: string
+    image: string
+    excerpt: string
+    content: string
+    category: string
+    categorySlug: string
+    author: string
+    authorAvatar: string
+    date: string
+}
+
 export const apiService = {
     /**
      * Register a new user
@@ -363,7 +401,7 @@ export const apiService = {
             })
 
             const result = await response.json()
-            console.log("API Registration Result:", result)
+
 
             if (!response.ok) {
                 return {
@@ -401,7 +439,7 @@ export const apiService = {
             })
 
             const result = await response.json()
-            console.log("API Login Result:", result)
+
 
             if (!response.ok) {
                 return {
@@ -438,7 +476,7 @@ export const apiService = {
             })
 
             const result = await response.json()
-            console.log("API Auth Me Result:", result)
+
 
             if (!response.ok) {
                 return {
@@ -475,7 +513,7 @@ export const apiService = {
             })
 
             const result = await response.json()
-            console.log("API Profile Result:", result)
+
 
             if (!response.ok) {
                 return {
@@ -514,7 +552,7 @@ export const apiService = {
             })
 
             const result = await response.json()
-            console.log("API Update Profile Result:", result)
+
 
             if (!response.ok) {
                 return {
@@ -586,7 +624,7 @@ export const apiService = {
             })
 
             const result = await response.json()
-            console.log("API Trending Products Result:", result)
+
 
             if (!response.ok) {
                 return {
@@ -649,10 +687,10 @@ export const apiService = {
                 },
             })
 
-            console.log("API Get Products URL:", url);
+
 
             const result = await response.json()
-            console.log("API Get Products JSON:", result)
+
 
             if (!response.ok) {
                 return {
@@ -713,6 +751,9 @@ export const apiService = {
     getAllProducts: async (limit: number = 100): Promise<ApiResponse<ApiProduct[]>> => {
         try {
             const response = await apiService.getProducts({ per_page: limit })
+
+
+
             if (!response.success || !response.data) {
                 return { success: false, error: response.error || "Failed to fetch all products" }
             }
@@ -801,6 +842,80 @@ export const apiService = {
     },
 
     /**
+     * Get available payment methods
+     */
+    getPaymentMethods: async (token: string): Promise<ApiResponse<ApiPaymentMethod[]>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/payment-methods`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch payment methods",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data || result,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getPaymentMethods):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Get payment method details
+     */
+    getPaymentMethodDetails: async (token: string, code: string): Promise<ApiResponse<ApiPaymentMethod>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/payment-methods/${code}`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch payment method details",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data || result,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getPaymentMethodDetails):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
      * Fetch reviews for a specific product
      */
     getProductReviews: async (productId: string | number, page: number = 1, perPage: number = 10): Promise<ApiResponse<ApiReviewsResponse>> => {
@@ -820,7 +935,7 @@ export const apiService = {
             })
 
             const result = await response.json()
-            console.log("API Product Reviews Result:", result)
+
 
             if (!response.ok) {
                 return {
@@ -1384,7 +1499,7 @@ export const apiService = {
             })
 
             const result = await response.json()
-            console.log("API User Orders Result:", result)
+
 
             if (!response.ok) {
                 return {
@@ -1444,76 +1559,6 @@ export const apiService = {
     },
 
     /**
-     * List payment methods
-     */
-    getPaymentMethods: async (): Promise<ApiResponse<any>> => {
-        try {
-            const response = await fetch(`${BASE_URL}/payment-methods`, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                },
-            })
-
-            const result = await response.json()
-
-            if (!response.ok) {
-                return {
-                    success: false,
-                    error: result.message || "Failed to fetch payment methods",
-                }
-            }
-
-            return {
-                success: true,
-                data: result.data,
-                message: result.message,
-            }
-        } catch (error) {
-            console.error("API Error (getPaymentMethods):", error)
-            return {
-                success: false,
-                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
-            }
-        }
-    },
-
-    /**
-     * Get payment method details
-     */
-    getPaymentMethod: async (slug: string): Promise<ApiResponse<any>> => {
-        try {
-            const response = await fetch(`${BASE_URL}/payment-methods/${slug}`, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                },
-            })
-
-            const result = await response.json()
-
-            if (!response.ok) {
-                return {
-                    success: false,
-                    error: result.message || "Failed to fetch payment method details",
-                }
-            }
-
-            return {
-                success: true,
-                data: result.data,
-                message: result.message,
-            }
-        } catch (error) {
-            console.error("API Error (getPaymentMethod):", error)
-            return {
-                success: false,
-                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
-            }
-        }
-    },
-
-    /**
      * List applicable taxes
      */
     getTaxes: async (): Promise<ApiResponse<any>> => {
@@ -1551,18 +1596,20 @@ export const apiService = {
     /**
      * Calculate tax amount
      */
-    calculateTax: async (amount: number, country: string): Promise<ApiResponse<any>> => {
+    calculateTax: async (token: string, data: { amount: number, seller_id?: number, country: string, state?: string, city?: string }): Promise<ApiResponse<{ tax_total: number }>> => {
         try {
             const response = await fetch(`${BASE_URL}/taxes/calculate`, {
                 method: "POST",
                 headers: {
+                    "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json",
                     "Accept": "application/json",
                 },
-                body: JSON.stringify({ amount, country }),
+                body: JSON.stringify(data),
             })
 
             const result = await response.json()
+
 
             if (!response.ok) {
                 return {
@@ -1573,7 +1620,7 @@ export const apiService = {
 
             return {
                 success: true,
-                data: result.data,
+                data: result.data || result,
                 message: result.message,
             }
         } catch (error) {
@@ -1762,11 +1809,11 @@ export const apiService = {
     },
 
     /**
-     * List blog comments
+     * Get blog comments
      */
-    getBlogComments: async (blogId: number, page: number = 1): Promise<ApiResponse<any>> => {
+    getBlogComments: async (blogId: string | number): Promise<ApiResponse<any[]>> => {
         try {
-            const response = await fetch(`${BASE_URL}/blog-comments?blog_id=${blogId}&page=${page}`, {
+            const response = await fetch(`${BASE_URL}/blogs/${blogId}/comments`, {
                 method: "GET",
                 headers: {
                     "Accept": "application/json",
@@ -1784,7 +1831,7 @@ export const apiService = {
 
             return {
                 success: true,
-                data: result,
+                data: result.data || result,
                 message: result.message,
             }
         } catch (error) {
@@ -1799,16 +1846,16 @@ export const apiService = {
     /**
      * Submit blog comment
      */
-    submitBlogComment: async (token: string, data: { blog_id: number; comment: string }): Promise<ApiResponse<any>> => {
+    submitBlogComment: async (token: string, data: { blog_id: string | number, comment: string }): Promise<ApiResponse<any>> => {
         try {
-            const response = await fetch(`${BASE_URL}/blog-comments`, {
+            const response = await fetch(`${BASE_URL}/blogs/${data.blog_id}/comments`, {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json",
                     "Accept": "application/json",
                 },
-                body: JSON.stringify(data),
+                body: JSON.stringify({ comment: data.comment }),
             })
 
             const result = await response.json()
@@ -1816,13 +1863,13 @@ export const apiService = {
             if (!response.ok) {
                 return {
                     success: false,
-                    error: result.message || "Failed to submit blog comment",
+                    error: result.message || "Failed to submit comment",
                 }
             }
 
             return {
                 success: true,
-                data: result.data,
+                data: result.data || result,
                 message: result.message,
             }
         } catch (error) {
@@ -1833,6 +1880,7 @@ export const apiService = {
             }
         }
     },
+
 
     /**
      * List pages
@@ -2004,7 +2052,7 @@ export const apiService = {
             })
 
             const result = await response.json()
-            console.log("API Product Requests Result:", result)
+
 
             if (!response.ok) {
                 return {
@@ -2056,7 +2104,7 @@ export const apiService = {
             })
 
             const result = await response.json()
-            console.log("API Submit Product Request Result:", result)
+
 
             if (!response.ok) {
                 return {
@@ -2104,7 +2152,7 @@ export const apiService = {
             })
 
             const result = await response.json()
-            console.log("API Create Order Result:", result)
+
 
             if (!response.ok) {
                 return {
@@ -2141,7 +2189,7 @@ export const apiService = {
             })
 
             const result = await response.json()
-            console.log("API Order Details Result:", result)
+
 
             if (!response.ok) {
                 return {
@@ -2251,7 +2299,7 @@ export const apiService = {
             })
 
             const result = await response.json()
-            console.log("API Currencies Result:", result)
+
 
             if (!response.ok) {
                 return {
@@ -2293,7 +2341,7 @@ export const apiService = {
             })
 
             const result = await response.json()
-            console.log("API Categories Result:", result)
+
 
             if (!response.ok) {
                 return {
@@ -2329,7 +2377,7 @@ export const apiService = {
             })
 
             const result = await response.json()
-            console.log("API Platforms Result:", result)
+
 
             if (!response.ok) {
                 return {
@@ -2527,7 +2575,7 @@ export const apiService = {
      */
     searchProducts: async (query: string): Promise<ApiResponse<ApiProduct[]>> => {
         try {
-            if (!query || query.length < 2) {
+            if (!query || query.length < 1) {
                 return { success: true, data: [] }
             }
 
@@ -2641,16 +2689,31 @@ export const apiService = {
 
         const attrs = apiProduct.product_attributes || {};
 
+        // Helper to get attribute arrays that might be at root or nested
+        const getAttrList = (key: string) => {
+            const list = (apiProduct as any)[key] || (attrs as any)[key];
+            return Array.isArray(list) ? list : [];
+        };
+
+        const categories = getAttrList('categories');
+        const platforms = getAttrList('platforms');
+        const regions = getAttrList('regions');
+        const types = getAttrList('types');
+        const languages = getAttrList('languages');
+        const worksOn = getAttrList('works_on');
+        const developer = (apiProduct as any).developer || attrs.developer;
+        const publisher = (apiProduct as any).publisher || attrs.publisher;
+
         return {
             id: (apiProduct.id || 0).toString(),
             title: apiProduct.title || "Unknown Product",
-            category: attrs.categories?.[0]?.name || "Uncategorized",
+            category: categories[0]?.name,
             description: apiProduct.description || "",
             image: getImageUrl(apiProduct.image || apiProduct.cover_image),
             gallery: (apiProduct.gallery || []).map(img => getImageUrl(img)),
-            platform: attrs.platforms?.[0]?.name || attrs.platforms?.[0]?.slug || "Steam",
-            region: attrs.regions?.[0]?.name || "Global",
-            type: (attrs.types?.[0]?.slug as any) || "game",
+            platform: platforms[0]?.name || platforms[0]?.slug,
+            region: regions[0]?.name,
+            type: (types[0]?.slug as any),
             rating: 4.5,
             reviews: Math.floor(Math.random() * 2000) + 500,
             isNew: true,
@@ -2662,18 +2725,77 @@ export const apiService = {
             variations: variations,
             vendors: mapOffersToVendors(finalOffers),
             systemRequirements: apiProduct.system_requirements,
-            developer: attrs.developer,
-            publisher: attrs.publisher,
+            developer: developer,
+            publisher: publisher,
             customerReviews: [],
             releaseDate: apiProduct.created_at ? new Date(apiProduct.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-            languages: attrs.languages?.map(l => l.name) || [],
-            categorySlug: attrs.categories?.[0]?.slug || "",
-            platformSlug: attrs.platforms?.[0]?.slug || "",
-            typeSlug: attrs.types?.[0]?.slug || "",
-            regionSlug: attrs.regions?.[0]?.slug || "",
-            languageSlugs: attrs.languages?.map(l => l.slug) || [],
-            worksOnSlugs: attrs.works_on?.map(w => w.slug) || [],
-            developerSlug: attrs.developer?.slug || ""
+            languages: languages.map((l: any) => l.name) || [],
+            categorySlug: categories[0]?.slug || "",
+            platformSlug: platforms[0]?.slug || "",
+            typeSlug: types[0]?.slug || "",
+            regionSlug: regions[0]?.slug || "",
+            languageSlugs: languages.map((l: any) => l.slug) || [],
+            worksOnSlugs: worksOn.map((w: any) => w.slug) || [],
+            developerSlug: developer?.slug || ""
+        }
+    },
+
+    /**
+     * Map API blog to app blog
+     */
+    mapApiBlogToBlog: (apiBlog: ApiBlog): AppBlog => {
+        if (!apiBlog) {
+            return {
+                id: "0",
+                title: "Invalid Blog",
+                slug: "invalid",
+                image: "/placeholder-blog.jpg",
+                excerpt: "",
+                content: "",
+                category: "Uncategorized",
+                categorySlug: "uncategorized",
+                author: "Admin",
+                authorAvatar: "/placeholder.svg",
+                date: new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+            }
+        }
+
+        const getImageUrl = (path: string | null | undefined) => {
+            if (!path || typeof path !== 'string') return "/placeholder.jpg"
+            if (path.startsWith("http")) return path
+            if (path.startsWith("blogs/")) return `https://gamehub.licensesender.com/storage/${path}`
+            return `https://gamehub.licensesender.com/${path}`
+        }
+
+        let blogDate = "Recently"
+        try {
+            const dateStr = (apiBlog as any).created_at || (apiBlog as any).published_at || (apiBlog as any).updated_at
+            if (dateStr) {
+                const d = new Date(dateStr)
+                if (!isNaN(d.getTime())) {
+                    blogDate = d.toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                    })
+                }
+            }
+        } catch (e) {
+            // fallback to default
+        }
+
+        return {
+            id: (apiBlog.id || 0).toString(),
+            title: apiBlog.title || "Untitled Post",
+            slug: apiBlog.slug || "",
+            image: getImageUrl(apiBlog.image),
+            excerpt: apiBlog.excerpt || "",
+            content: apiBlog.content || "",
+            category: apiBlog.category?.name || "Uncategorized",
+            categorySlug: apiBlog.category?.slug || "uncategorized",
+            author: (apiBlog as any).user?.name || "Admin",
+            authorAvatar: (apiBlog as any).user?.avatar || "/placeholder.svg",
+            date: blogDate,
         }
     }
 }

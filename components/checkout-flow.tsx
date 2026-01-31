@@ -23,6 +23,7 @@ export function CheckoutFlow() {
   const [paymentData, setPaymentData] = useState<any>(null)
   const [orderId, setOrderId] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [taxAmount, setTaxAmount] = useState(0)
   const { state, clearCart } = useCart()
   const { user, token } = useAuth()
   const router = useRouter()
@@ -51,8 +52,27 @@ export function CheckoutFlow() {
     }
   }
 
-  const handleShippingSubmit = (data: any) => {
+  const handleShippingSubmit = async (data: any) => {
     setShippingData(data)
+
+    if (token) {
+      try {
+        const taxResponse = await apiService.calculateTax(token, {
+          amount: state.total,
+          country: data.country,
+          state: data.state,
+          city: data.city,
+          seller_id: 1 // Default seller ID, or extract from items if available
+        })
+
+        if (taxResponse.success && taxResponse.data) {
+          setTaxAmount(taxResponse.data.tax_total)
+        }
+      } catch (error) {
+        console.error("Error calculating tax:", error)
+      }
+    }
+
     handleNextStep()
   }
 
@@ -154,7 +174,10 @@ export function CheckoutFlow() {
                   <CardTitle>Payment Method</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <PaymentForm onSubmit={handlePaymentSubmit} />
+                  <PaymentForm
+                    onSubmit={handlePaymentSubmit}
+                    selectedCountry={shippingData?.country}
+                  />
                 </CardContent>
               </Card>
             )}
@@ -260,7 +283,7 @@ export function CheckoutFlow() {
           {/* Order Summary Sidebar */}
           {currentStep < 4 && (
             <div className="lg:col-span-1">
-              <OrderSummary />
+              <OrderSummary taxAmount={taxAmount} />
             </div>
           )}
         </div>

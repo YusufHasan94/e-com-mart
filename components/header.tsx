@@ -43,7 +43,7 @@ export function Header() {
 
   // Search suggestions from API
   useEffect(() => {
-    if (searchQuery.trim().length >= 2) {
+    if (searchQuery.trim().length >= 1) {
       setShowSuggestions(true)
     } else {
       setShowSuggestions(false)
@@ -192,15 +192,12 @@ export function Header() {
     }
   }
 
-  console.log("Header - User state:", user)
+
 
   return (
     <>
       <header
-        className={`sticky top-0 z-50 w-full border-b transition-all duration-300 ${isScrolled
-          ? 'bg-[#2A2A2A]/95 backdrop-blur-md supports-[backdrop-filter]:bg-[#2A2A2A]/40'
-          : 'bg-[#2A2A2A]/95 backdrop-blur supports-[backdrop-filter]:bg-[#2A2A2A]/60'
-          }`}
+        className={`sticky top-0 z-50 w-full border-b transition-all duration-300 bg-[#2A2A2A]`}
       >
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex h-14 sm:h-16 items-center justify-between">
@@ -228,8 +225,8 @@ export function Header() {
               <Link href="/products" className="text-sm xl:text-base font-medium hover:text-primary transition-colors px-2 py-1 rounded-md hover:bg-muted/50">
                 All Products
               </Link>
-              <Link href="/deals" className="text-sm xl:text-base font-medium hover:text-primary transition-colors px-2 py-1 rounded-md hover:bg-muted/50">
-                Deals
+              <Link href="/blog" className="text-sm xl:text-base font-medium hover:text-primary transition-colors px-2 py-1 rounded-md hover:bg-muted/50">
+                Blog
               </Link>
             </nav>
 
@@ -245,11 +242,11 @@ export function Header() {
                   onChange={(e) => handleSearchChange(e.target.value)}
                   onKeyDown={handleKeyDown}
                   onFocus={() => {
-                    if (searchQuery.length >= 2) {
+                    if (searchQuery.length >= 1) {
                       setShowSuggestions(true)
                     }
                   }}
-                  className="pl-10 bg-muted/50 border-border/50 focus:border-primary"
+                  className="pl-10 bg-muted/50 border-primary"
                 />
 
                 {/* Search Suggestions Dropdown */}
@@ -513,7 +510,7 @@ export function Header() {
                     onChange={(e) => handleSearchChange(e.target.value)}
                     onKeyDown={handleKeyDown}
                     onFocus={() => {
-                      if (searchQuery.length >= 2) {
+                      if (searchQuery.length >= 1) {
                         setShowSuggestions(true)
                       }
                     }}
@@ -599,8 +596,8 @@ export function Header() {
                   <Link href="/products" className="text-sm font-medium hover:text-primary transition-colors py-2">
                     All Products
                   </Link>
-                  <Link href="/deals" className="text-sm font-medium hover:text-primary transition-colors py-2">
-                    Deals
+                  <Link href="/blog" className="text-sm font-medium hover:text-primary transition-colors py-2">
+                    Blog
                   </Link>
                 </nav>
 
