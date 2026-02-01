@@ -1,118 +1,125 @@
-import { Facebook, Twitter, Instagram, Youtube } from "lucide-react"
+"use client"
+
+import Link from "next/link"
+import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from "lucide-react"
 
 export function Footer() {
   return (
-    <footer className="bg-[#2A2A2A] text-white">
+    <footer className="bg-background border-t">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
-          <div className="space-y-4">
-            <div className="text-2xl font-bold text-primary">GameHub</div>
-            <p className="text-sm text-gray-300">
-              Your trusted gaming marketplace for digital games, software, and gift cards at the best prices.
+          <div>
+            <h3 className="font-bold text-lg mb-4">E-Com Mart</h3>
+            <p className="text-muted-foreground text-sm mb-4">
+              Your trusted marketplace for digital products and gaming keys.
             </p>
-            <div className="flex space-x-4">
-              <Facebook className="h-5 w-5 hover:text-primary cursor-pointer transition-colors" />
-              <Twitter className="h-5 w-5 hover:text-primary cursor-pointer transition-colors" />
-              <Instagram className="h-5 w-5 hover:text-primary cursor-pointer transition-colors" />
-              <Youtube className="h-5 w-5 hover:text-primary cursor-pointer transition-colors" />
+            <div className="flex gap-3">
+              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Facebook className="h-5 w-5" />
+              </Link>
+              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Twitter className="h-5 w-5" />
+              </Link>
+              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Instagram className="h-5 w-5" />
+              </Link>
+              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Youtube className="h-5 w-5" />
+              </Link>
             </div>
           </div>
 
-          {/* Products */}
-          <div className="space-y-4">
-            <h3 className="font-semibold">Products</h3>
-            <ul className="space-y-2 text-sm">
+          {/* Quick Links */}
+          <div>
+            <h3 className="font-bold text-lg mb-4">Quick Links</h3>
+            <ul className="space-y-2">
               <li>
-                <a href="#" className="hover:text-primary transition-colors">
-                  PC Games
-                </a>
+                <Link href="/about" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  About Us
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-primary transition-colors">
-                  Console Games
-                </a>
+                <Link href="/products" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Products
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-primary transition-colors">
-                  Software
-                </a>
+                <Link href="/blog" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Blog
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-primary transition-colors">
-                  Gift Cards
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-primary transition-colors">
-                  DLC & Add-ons
-                </a>
+                <Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Contact
+                </Link>
               </li>
             </ul>
           </div>
 
-          {/* Support */}
-          <div className="space-y-4">
-            <h3 className="font-semibold">Support</h3>
-            <ul className="space-y-2 text-sm">
+          {/* Customer Service */}
+          <div>
+            <h3 className="font-bold text-lg mb-4">Customer Service</h3>
+            <ul className="space-y-2">
               <li>
-                <a href="#" className="hover:text-primary transition-colors">
+                <Link href="/help" className="text-muted-foreground hover:text-primary transition-colors text-sm">
                   Help Center
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-primary transition-colors">
-                  Contact Us
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-primary transition-colors">
-                  Order Status
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-primary transition-colors">
+                <Link href="/returns" className="text-muted-foreground hover:text-primary transition-colors text-sm">
                   Returns
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-primary transition-colors">
+                <Link href="/shipping" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Shipping Info
+                </Link>
+              </li>
+              <li>
+                <Link href="/faq" className="text-muted-foreground hover:text-primary transition-colors text-sm">
                   FAQ
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
 
-          {/* Legal */}
-          <div className="space-y-4">
-            <h3 className="font-semibold">Legal</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a href="#" className="hover:text-primary transition-colors">
-                  Privacy Policy
-                </a>
+          {/* Contact Info */}
+          <div>
+            <h3 className="font-bold text-lg mb-4">Contact Us</h3>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                <span>123 Commerce Street, Digital City, DC 12345</span>
               </li>
-              <li>
-                <a href="#" className="hover:text-primary transition-colors">
-                  Terms of Service
-                </a>
+              <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Phone className="h-4 w-4 flex-shrink-0" />
+                <span>+1 (555) 123-4567</span>
               </li>
-              <li>
-                <a href="#" className="hover:text-primary transition-colors">
-                  Cookie Policy
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-primary transition-colors">
-                  Refund Policy
-                </a>
+              <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Mail className="h-4 w-4 flex-shrink-0" />
+                <span>support@ecommart.com</span>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-gray-600 mt-8 pt-8 text-center text-sm text-gray-300">
-          <p>&copy; 2025 GameHub. All rights reserved. Built with Next.js and Tailwind CSS.</p>
+        {/* Bottom Bar */}
+        <div className="border-t mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-muted-foreground">
+            © {new Date().getFullYear()} E-Com Mart. All rights reserved.
+          </p>
+          <div className="flex gap-6">
+            <Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              Terms of Service
+            </Link>
+            <Link href="/cookies" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              Cookie Policy
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

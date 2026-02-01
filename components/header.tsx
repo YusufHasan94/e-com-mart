@@ -197,7 +197,7 @@ export function Header() {
   return (
     <>
       <header
-        className={`sticky top-0 z-50 w-full border-b transition-all duration-300 bg-[#2A2A2A]`}
+        className={`sticky top-0 z-50 w-full border-b transition-all duration-300 bg-background`}
       >
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex h-14 sm:h-16 items-center justify-between">
@@ -246,12 +246,12 @@ export function Header() {
                       setShowSuggestions(true)
                     }
                   }}
-                  className="pl-10 bg-muted/50 border-primary"
+                  className="pl-10 bg-muted/50 border-primary rounded-[8px]"
                 />
 
                 {/* Search Suggestions Dropdown */}
                 {showSuggestions && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg z-50 max-h-[400px] overflow-y-auto custom-scrollbar">
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-[8px] shadow-lg z-50 max-h-[400px] overflow-y-auto custom-scrollbar">
                     {isSearching ? (
                       <div className="flex items-center justify-center py-6">
                         <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -319,7 +319,7 @@ export function Header() {
             <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-3">
               {/* Language - Mock for now to match image */}
               <div className="hidden sm:flex items-center">
-                <Button variant="ghost" size="sm" className="h-8 px-2 text-xs text-white/80 hover:text-white hover:bg-white/10">
+                <Button variant="ghost" size="sm" className="h-8 px-2 text-xs">
                   <Globe className="h-4 w-4 mr-1 opacity-70" />
                   EN
                   <ChevronRight className="h-3 w-3 ml-1 rotate-90 opacity-50" />

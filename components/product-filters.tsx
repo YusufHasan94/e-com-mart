@@ -257,7 +257,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
         <CardContent className="space-y-4 pt-3 px-3 sm:px-4 pb-3 sm:pb-4 flex-1">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="min-price" className="text-[10px] text-muted-foreground uppercase font-semibold">Min Price</Label>
+              <Label htmlFor="min-price" className="text-[14px] text-muted-foreground capitalize font-base">Min</Label>
               <div className="relative">
                 <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">$</span>
                 <Input
@@ -273,7 +273,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="max-price" className="text-[10px] text-muted-foreground uppercase font-semibold">Max Price</Label>
+              <Label htmlFor="max-price" className="text-[14px] text-muted-foreground capitalize font-base">Max</Label>
               <div className="relative">
                 <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">$</span>
                 <Input
@@ -297,10 +297,6 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
             step={1}
             className="w-full"
           />
-          <div className="flex items-center justify-between text-[10px] text-muted-foreground font-medium uppercase">
-            <span>Min: ${filters.priceRange[0]}</span>
-            <span>Max: ${filters.priceRange[1]}</span>
-          </div>
         </CardContent>
       </Card>
 

@@ -58,12 +58,12 @@ export default function BlogPage() {
 
             <main className="flex-1 bg-background">
                 {/* Banner */}
-                <div className="bg-[#2A2A2A] py-16 sm:py-24 border-b border-border/50">
+                <div className="bg-card py-16 sm:py-24 border-b border-border/50">
                     <div className="container mx-auto px-4 text-center">
-                        <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-6">
+                        <h1 className="text-4xl sm:text-5xl font-extrabold text-foreground mb-6">
                             Our <span className="text-primary">Blog</span>
                         </h1>
-                        <p className="text-white/70 text-lg max-w-2xl mx-auto mb-8">
+                        <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-8">
                             Stay updated with the latest gaming news, tips, and updates from the GameHub community.
                         </p>
 
@@ -73,7 +73,7 @@ export default function BlogPage() {
                             <Input
                                 type="text"
                                 placeholder="Search articles..."
-                                className="pl-12 h-12 bg-card/50 backdrop-blur-md border-border/50 text-white focus:border-primary rounded-full shadow-lg"
+                                className="pl-12 h-12 bg-background border-border focus:border-primary rounded-full shadow-lg"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />

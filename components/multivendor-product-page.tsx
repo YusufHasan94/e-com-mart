@@ -184,7 +184,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
         {/* Product Header - First on mobile only */}
         <div className="mb-6 sm:mb-8 lg:hidden">
           <div className="flex flex-wrap items-start gap-2 mb-3 sm:mb-4">
-            <Badge className="bg-green-600 hover:bg-green-700 text-xs sm:text-sm">{product.category}</Badge>
+            <Badge variant="secondary" className="text-xs sm:text-sm">{product.category}</Badge>
             <Badge variant="outline" className="text-xs sm:text-sm">{product.type === 'gift-card' ? 'Digital Key' : 'Digital Product'}</Badge>
           </div>
 
@@ -251,7 +251,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
             {/* Product Header - Desktop Only */}
             <div className="hidden lg:block mb-6 sm:mb-8">
               <div className="flex flex-wrap items-start gap-2 mb-3 sm:mb-4">
-                <Badge className="bg-green-600 hover:bg-green-700 text-xs sm:text-sm">{product.category}</Badge>
+                <Badge variant="secondary" className="text-xs sm:text-sm">{product.category}</Badge>
                 <Badge variant="outline" className="text-xs sm:text-sm">{product.type === 'gift-card' ? 'Digital Key' : 'Digital Product'}</Badge>
               </div>
 
@@ -409,7 +409,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                     <div className="flex items-center gap-2">
                       <div className="h-6 w-1 bg-purple-600 rounded-full" />
                       <h3 className="font-bold text-lg sm:text-xl">Promoted Offers</h3>
-                      <Badge variant="secondary" className="bg-primary text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                      <Badge variant="secondary" className="bg-primary/10 text-primary">
                         Top Choice
                       </Badge>
                     </div>
@@ -433,7 +433,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-center gap-2">
                                   <h3 className="font-semibold text-sm sm:text-base truncate">{vendor.name}</h3>
-                                  <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-primary text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                                  <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-primary/10 text-primary">
                                     Promoted
                                   </Badge>
                                 </div>
@@ -450,7 +450,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                                   <span className="text-[10px] text-red-500 font-medium">Only {vendor.stock} left</span>
                                 )}
                               </div>
-                              <Button onClick={() => handleAddToCart(vendor)} className="flex-shrink-0 text-xs sm:text-sm bg-purple-600 hover:bg-purple-700">Add to Cart</Button>
+                              <Button onClick={() => handleAddToCart(vendor)} className="flex-shrink-0 text-xs sm:text-sm">Add to Cart</Button>
                             </div>
                           </CardContent>
                         </Card>

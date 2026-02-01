@@ -31,9 +31,9 @@ export function FeaturedBlogs() {
 
     if (isLoading) {
         return (
-            <section className="py-16 bg-[#121212]">
+            <section className="py-16 bg-background">
                 <div className="container mx-auto px-4 text-center">
-                    <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto text-brand-500" />
                 </div>
             </section>
         )
@@ -42,16 +42,16 @@ export function FeaturedBlogs() {
     if (blogs.length === 0) return null
 
     return (
-        <section className="py-16 sm:py-24 bg-[#121212]">
+        <section className="py-16 sm:py-24 bg-background">
             <div className="container mx-auto px-4">
                 {/* Section Header - Centered Style */}
                 <div className="text-center mb-12 sm:mb-16">
-                    <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2">
-                        Blog <span className="text-primary uppercase">GameHub</span>
+                    <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-2">
+                        Blog <span className="text-brand-500 uppercase">GameHub</span>
                     </h2>
                     <Link
                         href="/blog"
-                        className="inline-flex items-center text-primary hover:text-primary/80 transition-colors text-sm font-semibold uppercase tracking-wider"
+                        className="inline-flex items-center text-brand-500 hover:text-brand-600 transition-colors text-sm font-semibold uppercase tracking-wider"
                     >
                         Show all news
                         <ChevronRight className="h-4 w-4 ml-1" />

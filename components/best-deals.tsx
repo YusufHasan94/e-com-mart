@@ -99,16 +99,16 @@ function CountdownTimer() {
     <div className="flex items-center gap-2">
       <span className="text-sm text-muted-foreground">Hurry Up! Offer ends in:</span>
       <div className="flex gap-1">
-        <div className="bg-primary text-primary-foreground px-2 py-1 rounded text-sm font-bold min-w-[32px] text-center">
+        <div className="bg-brand-500 text-white px-2 py-1 rounded text-sm font-bold min-w-[32px] text-center shadow-lg shadow-brand-500/20">
           {timeLeft.days.toString().padStart(2, '0')}
         </div>
-        <div className="bg-primary text-primary-foreground px-2 py-1 rounded text-sm font-bold min-w-[32px] text-center">
+        <div className="bg-brand-500 text-white px-2 py-1 rounded text-sm font-bold min-w-[32px] text-center shadow-lg shadow-brand-500/20">
           {timeLeft.hours.toString().padStart(2, '0')}
         </div>
-        <div className="bg-primary text-primary-foreground px-2 py-1 rounded text-sm font-bold min-w-[32px] text-center">
+        <div className="bg-brand-500 text-white px-2 py-1 rounded text-sm font-bold min-w-[32px] text-center shadow-lg shadow-brand-500/20">
           {timeLeft.minutes.toString().padStart(2, '0')}
         </div>
-        <div className="bg-primary text-primary-foreground px-2 py-1 rounded text-sm font-bold min-w-[32px] text-center">
+        <div className="bg-brand-500 text-white px-2 py-1 rounded text-sm font-bold min-w-[32px] text-center shadow-lg shadow-brand-500/20">
           {timeLeft.seconds.toString().padStart(2, '0')}
         </div>
       </div>
@@ -120,15 +120,13 @@ export function BestDeals() {
 
   return (
     <section className="py-8 sm:py-12 lg:py-16 bg-background relative">
-      {/* Gradient overlay to melt with top section */}
-      <div className="absolute top-0 left-0 right-0 h-32 bg-background" />
       <div className="container mx-auto px-4 relative z-10">
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
             <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-              <h2 className="text-2xl sm:text-3xl font-bold text-primary">HOT DEALS!</h2>
+              <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-brand-500" />
+              <h2 className="text-2xl sm:text-3xl font-bold text-brand-500">HOT DEALS!</h2>
             </div>
             <span className="text-muted-foreground text-sm sm:text-lg">GET OUR BEST PRICES</span>
           </div>
@@ -139,33 +137,32 @@ export function BestDeals() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Promotional Banner */}
           <div className="lg:col-span-1">
-            <Card className="relative overflow-hidden bg-primary h-[200px] sm:h-[250px] lg:h-full rounded-lg">
+            <Card className="relative overflow-hidden bg-brand-500 h-[200px] sm:h-[250px] lg:h-full rounded-lg shadow-2xl shadow-brand-500/20">
               <CardContent className="p-4 sm:p-6 lg:p-8 h-full flex flex-col justify-between relative">
                 {/* Sparkle Effects */}
                 <div className="absolute inset-0 overflow-hidden">
-                  <Sparkles className="absolute top-4 left-8 h-4 w-4 text-primary-foreground/60 opacity-60" />
-                  <Sparkles className="absolute top-12 right-12 h-3 w-3 text-primary-foreground/40 opacity-40" />
-                  <Sparkles className="absolute bottom-16 left-16 h-5 w-5 text-primary-foreground/50 opacity-50" />
-                  <Sparkles className="absolute bottom-8 right-8 h-4 w-4 text-primary-foreground/60 opacity-60" />
-                  <Sparkles className="absolute top-1/2 left-4 h-3 w-3 text-primary-foreground/30 opacity-30" />
+                  <Sparkles className="absolute top-4 left-8 h-4 w-4 text-white/40" />
+                  <Sparkles className="absolute top-12 right-12 h-3 w-3 text-white/30" />
+                  <Sparkles className="absolute bottom-16 left-16 h-5 w-5 text-white/20" />
+                  <Sparkles className="absolute bottom-8 right-8 h-4 w-4 text-white/40" />
+                  <Sparkles className="absolute top-1/2 left-4 h-3 w-3 text-white/10" />
                 </div>
 
                 <div className="relative z-10">
-                  <div className="text-primary-foreground text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-4">HURRY UP</div>
+                  <div className="text-white text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-4">HURRY UP</div>
 
                   <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
-                    <div className="text-primary-foreground text-sm sm:text-lg font-semibold writing-mode-vertical transform rotate-180 hidden sm:block">
+                    <div className="text-white text-sm sm:text-lg font-semibold writing-mode-vertical transform rotate-180 hidden sm:block">
                       SAVE UP TO
                     </div>
-                    <div className="text-primary-foreground text-4xl sm:text-6xl lg:text-8xl font-black">80%</div>
+                    <div className="text-white text-4xl sm:text-6xl lg:text-8xl font-black">80%</div>
                   </div>
 
-                  <div className="text-primary-foreground text-sm sm:text-lg mb-4 sm:mb-8">THIS WEEK ONLY SHOPPING DAYS</div>
+                  <div className="text-white text-sm sm:text-lg mb-4 sm:mb-8 opacity-90">THIS WEEK ONLY SHOPPING DAYS</div>
                 </div>
 
                 <div className="relative z-10">
-                  <div className="text-primary-foreground text-3xl sm:text-4xl lg:text-6xl font-black tracking-wider" style={{
-                    textShadow: '2px 2px 0px var(--primary), -2px -2px 0px var(--primary), 2px -2px 0px var(--primary), -2px 2px 0px var(--primary)',
+                  <div className="text-white text-3xl sm:text-4xl lg:text-6xl font-black tracking-wider" style={{
                     filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.3))'
                   }}>
                     12.12
@@ -221,17 +218,17 @@ export function BestDeals() {
               <Button
                 variant="outline"
                 size="icon"
-                className="swiper-button-next-custom absolute right-0 top-1/2 -translate-y-1/2 -translate-x-1 sm:-translate-x-2 bg-white/90 hover:bg-white z-10 rounded-full"
+                className="swiper-button-next-custom absolute right-0 top-1/2 -translate-y-1/2 -translate-x-1 sm:-translate-x-2 bg-background/90 hover:bg-background border-border/50 z-10 rounded-full shadow-lg backdrop-blur-sm"
               >
-                <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
+                <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 text-foreground" />
               </Button>
 
               <Button
                 variant="outline"
                 size="icon"
-                className="swiper-button-prev-custom absolute left-0 top-1/2 -translate-y-1/2 translate-x-1 sm:translate-x-2 bg-white/90 hover:bg-white z-10 rounded-full"
+                className="swiper-button-prev-custom absolute left-0 top-1/2 -translate-y-1/2 translate-x-1 sm:translate-x-2 bg-background/90 hover:bg-background border-border/50 z-10 rounded-full shadow-lg backdrop-blur-sm"
               >
-                <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 rotate-180" />
+                <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 rotate-180 text-foreground" />
               </Button>
             </div>
           </div>

@@ -159,8 +159,8 @@ export function CategoryTabs() {
                   key={category.id}
                   onClick={() => handleCategoryChange(category.slug)}
                   className={`px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium transition-all duration-300 transform hover:scale-105 rounded-[4px] whitespace-nowrap flex-shrink-0 ${activeCategory === category.slug
-                    ? 'bg-primary text-foreground'
-                    : 'text-foreground hover:text-foreground hover:bg-primary bg-muted/50'
+                    ? 'bg-primary text-[#f8f7f4]'
+                    : 'text-[#f8f7f4] hover:text-[#f8f7f4] hover:bg-primary bg-muted/50'
                     }`}
                 >
                   {category.name}
