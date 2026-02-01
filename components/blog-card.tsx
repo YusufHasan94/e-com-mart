@@ -9,7 +9,7 @@ interface BlogCardProps {
 export function BlogCard({ blog }: BlogCardProps) {
 
     return (
-        <div className="group bg-card border border-border rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-300 flex flex-col h-full">
+        <div className="group bg-card border border-border rounded-[8px] overflow-hidden hover:border-primary/50 transition-all duration-300 flex flex-col h-full">
             {/* Blog Image */}
             <div className="relative aspect-[16/9] overflow-hidden">
                 <img
@@ -26,7 +26,7 @@ export function BlogCard({ blog }: BlogCardProps) {
                     }}
                 />
                 <div className="absolute top-4 left-4">
-                    <span className="bg-primary/90 backdrop-blur-sm text-primary-foreground text-xs font-bold px-3 py-1 rounded-[4px] uppercase tracking-wider">
+                    <span className="bg-primary/90 backdrop-blur-sm text-primary-foreground text-sm font-base px-3 py-1 rounded-[4px] capitalize tracking-wider">
                         {blog.category}
                     </span>
                 </div>
