@@ -294,9 +294,14 @@ export interface ApiWallet {
 export interface ApiWalletTransaction {
     id: number
     type: "credit" | "debit"
-    amount: number
+    amount: number | string
     description: string
+    source?: string
+    order_id?: string
+    status?: string
+    expires_at?: string | null
     created_at: string
+    updated_at?: string
 }
 
 export interface ApiResponse<T> {
@@ -348,6 +353,7 @@ export interface AppProduct {
     }
     developer?: { id: number; name: string; slug: string }
     publisher?: { id: number; name: string; slug: string }
+    label?: { id: number; name: string; bg_color: string; text_color: string }
     customerReviews: { user: string; rating: number; comment: string; date: string }[]
     releaseDate: string
     languages: string[]
@@ -1349,7 +1355,7 @@ export const apiService = {
             const response = await fetch(`${BASE_URL}/wallet`, {
                 method: "GET",
                 headers: {
-                    "Authorization": `Bearer ${token}`,
+                    "Authorization": `Bearer Bearer ${token}`,
                     "Accept": "application/json",
                 },
             })
@@ -1380,12 +1386,30 @@ export const apiService = {
     /**
      * List wallet transactions
      */
-    getWalletTransactions: async (token: string, page: number = 1): Promise<ApiResponse<{ data: ApiWalletTransaction[]; pagination: any }>> => {
+    getWalletTransactions: async (
+        token: string,
+        options: {
+            page?: number
+            type?: "credit" | "debit"
+            source?: string
+            per_page?: number
+        } = {}
+    ): Promise<ApiResponse<{ data: ApiWalletTransaction[]; pagination: any }>> => {
         try {
-            const response = await fetch(`${BASE_URL}/wallet/transactions?page=${page}`, {
+            const queryParams = new URLSearchParams()
+            if (options.page) queryParams.append("page", String(options.page))
+            if (options.type) queryParams.append("type", options.type)
+            if (options.source) queryParams.append("source", options.source)
+            if (options.per_page) queryParams.append("per_page", String(options.per_page))
+
+            const queryString = queryParams.toString()
+            const url = `${BASE_URL}/wallet/transactions${queryString ? `?${queryString}` : ""}`
+
+            const response = await fetch(url, {
                 method: "GET",
                 headers: {
                     "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
                     "Accept": "application/json",
                 },
             })
@@ -1399,9 +1423,45 @@ export const apiService = {
                 }
             }
 
+            // Normalize response structure
+            let transactionsData: ApiWalletTransaction[] = []
+            let pagination: any = {}
+
+            if (result.data) {
+                if (Array.isArray(result.data)) {
+                    transactionsData = result.data
+                } else if (result.data.data && Array.isArray(result.data.data)) {
+                    transactionsData = result.data.data
+                    pagination = {
+                        current_page: result.data.current_page,
+                        last_page: result.data.last_page,
+                        per_page: result.data.per_page,
+                        total: result.data.total
+                    }
+                }
+            } else if (Array.isArray(result)) {
+                transactionsData = result
+            }
+
+            // If pagination info is at root level
+            if (result.current_page !== undefined) {
+                pagination = {
+                    current_page: result.current_page,
+                    last_page: result.last_page,
+                    per_page: result.per_page,
+                    total: result.total
+                }
+                if (Array.isArray(result.data)) {
+                    transactionsData = result.data
+                }
+            }
+
             return {
                 success: true,
-                data: result,
+                data: {
+                    data: transactionsData,
+                    pagination
+                },
                 message: result.message,
             }
         } catch (error) {
@@ -2703,6 +2763,7 @@ export const apiService = {
         const worksOn = getAttrList('works_on');
         const developer = (apiProduct as any).developer || attrs.developer;
         const publisher = (apiProduct as any).publisher || attrs.publisher;
+        const label = (apiProduct as any).label || attrs.label;
 
         return {
             id: (apiProduct.id || 0).toString(),
@@ -2727,6 +2788,7 @@ export const apiService = {
             systemRequirements: apiProduct.system_requirements,
             developer: developer,
             publisher: publisher,
+            label: label,
             customerReviews: [],
             releaseDate: apiProduct.created_at ? new Date(apiProduct.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
             languages: languages.map((l: any) => l.name) || [],

@@ -17,6 +17,7 @@ interface ProductCardProps {
         sold?: number
         total?: number
         trendingRank?: number
+        label?: { id: number; name: string; bg_color: string; text_color: string }
         [key: string]: any
         category?: string
     }
@@ -47,10 +48,21 @@ export function ProductCard({
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                     />
 
-                    {/* Left Badges (Discount) */}
-                    <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
+                    {/* Left Badges (Label/Discount) */}
+                    <div className="absolute top-3 left-3 z-10 flex flex-row-reverse gap-2">
+                        {product.label && (
+                            <Badge 
+                                className="border-0 rounded-md p-1 text-[16px] font-semibold shadow-lg"
+                                style={{ 
+                                    backgroundColor: product.label.bg_color, 
+                                    color: product.label.text_color 
+                                }}
+                            >
+                                {product.label.name}
+                            </Badge>
+                        )}
                         {product.discount !== undefined && product.discount > 0 && (
-                            <Badge className="bg-brand-500 hover:bg-brand-600 text-white border-0 rounded-md px-2.5 py-1 text-[18px] font-base shadow-lg">
+                            <Badge className="bg-brand-500 hover:bg-brand-600 text-white border-0 rounded-md p-1 text-[16px] font-base shadow-lg">
                                 -{product.discount}%
                             </Badge>
                         )}

@@ -184,6 +184,17 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
         {/* Product Header - First on mobile only */}
         <div className="mb-6 sm:mb-8 lg:hidden">
           <div className="flex flex-wrap items-start gap-2 mb-3 sm:mb-4">
+            {product.label && (
+              <Badge 
+                className="text-xs sm:text-sm font-semibold border-0"
+                style={{ 
+                  backgroundColor: product.label.bg_color, 
+                  color: product.label.text_color 
+                }}
+              >
+                {product.label.name}
+              </Badge>
+            )}
             <Badge variant="secondary" className="text-xs sm:text-sm">{product.category}</Badge>
             <Badge variant="outline" className="text-xs sm:text-sm">{product.type === 'gift-card' ? 'Digital Key' : 'Digital Product'}</Badge>
           </div>
@@ -251,6 +262,17 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
             {/* Product Header - Desktop Only */}
             <div className="hidden lg:block mb-6 sm:mb-8">
               <div className="flex flex-wrap items-start gap-2 mb-3 sm:mb-4">
+                {product.label && (
+                  <Badge 
+                    className="text-xs sm:text-sm font-semibold border-0"
+                    style={{ 
+                      backgroundColor: product.label.bg_color, 
+                      color: product.label.text_color 
+                    }}
+                  >
+                    {product.label.name}
+                  </Badge>
+                )}
                 <Badge variant="secondary" className="text-xs sm:text-sm">{product.category}</Badge>
                 <Badge variant="outline" className="text-xs sm:text-sm">{product.type === 'gift-card' ? 'Digital Key' : 'Digital Product'}</Badge>
               </div>
