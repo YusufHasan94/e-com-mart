@@ -25,6 +25,7 @@ interface ProductCardHorizontalProps {
         isNew?: boolean
         region?: string
         type?: string
+        label?: { id: number; name: string; bg_color: string; text_color: string }
         [key: string]: any
     }
     className?: string
@@ -49,7 +50,7 @@ export function ProductCardHorizontal({ product, className = "" }: ProductCardHo
     }
 
     return (
-        <Card className={`card-premium group overflow-hidden rounded-2xl ${className}`}>
+        <Card className={`card-premium group overflow-hidden rounded-[8px] ${className}`}>
             <CardContent className="p-0">
                 <div className="flex flex-col sm:flex-row h-full">
                     {/* Image Section */}
@@ -60,12 +61,22 @@ export function ProductCardHorizontal({ product, className = "" }: ProductCardHo
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                         />
                         <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+                            {product.label && (
+                                <Badge 
+                                    className="border-0 rounded-md px-2.5 py-1 text-[12px] font-semibold shadow-lg"
+                                    style={{ 
+                                        backgroundColor: product.label.bg_color, 
+                                        color: product.label.text_color 
+                                    }}
+                                >
+                                    {product.label.name}
+                                </Badge>
+                            )}
                             {product.discount !== undefined && product.discount > 0 && (
                                 <Badge className="bg-brand-500 hover:bg-brand-600 text-white border-0 rounded-md px-2.5 py-1 text-[12px] font-bold shadow-lg">
                                     -{product.discount}%
                                 </Badge>
                             )}
-
                         </div>
                     </Link>
 
@@ -109,7 +120,7 @@ export function ProductCardHorizontal({ product, className = "" }: ProductCardHo
                         <div className="flex items-center justify-between mt-4">
                             <div className="flex items-baseline gap-2">
                                 <span className="text-[12px] text-muted-foreground font-medium lowercase">from</span>
-                                <span className="text-2xl font-black text-foreground">${product.salePrice}</span>
+                                <span className="text-2xl font-semibold text-foreground">${product.salePrice}</span>
                                 {product.originalPrice && (
                                     <span className="text-[14px] text-muted-foreground/60 line-through font-medium ml-1">${product.originalPrice.toFixed(2)}</span>
                                 )}
@@ -117,7 +128,7 @@ export function ProductCardHorizontal({ product, className = "" }: ProductCardHo
 
                             <Button
                                 onClick={handleAddToCart}
-                                className="bg-brand-500 hover:bg-brand-600 text-white font-bold h-11 px-6 rounded-xl gap-2 shadow-lg shadow-brand-500/20 transition-all active:scale-95"
+                                className="bg-brand-500 hover:bg-brand-600 text-white font-semibold h-11 px-6 rounded-[8px] gap-2 shadow-lg shadow-brand-500/20 transition-all active:scale-95 text-base"
                             >
                                 <ShoppingCart className="h-5 w-5" />
                                 <span className="hidden sm:inline">Add to Cart</span>
