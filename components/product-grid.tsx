@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { Star, ShoppingCart, Heart, Eye, Loader2, Monitor, Globe, Gamepad2, Layers } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { apiService } from "@/lib/api-service"
+import { ProductCard } from "./product-card"
+import { ProductCardHorizontal } from "./product-card-horizontal"
 import Link from "next/link"
 
 interface ProductGridProps {
@@ -15,7 +17,6 @@ interface ProductGridProps {
     search: string
     category: string
     priceRange: number[]
-    rating: number
     platform: string
     type: string
     region: string
@@ -145,7 +146,7 @@ export function ProductGrid({ viewMode, filters, sortBy, onTotalChange }: Produc
     metadata
   ])
 
-  console.log("all products: ", products);
+
 
 
 
@@ -179,8 +180,6 @@ export function ProductGrid({ viewMode, filters, sortBy, onTotalChange }: Produc
         if (price < filters.priceRange[0] || price > filters.priceRange[1]) return false
       }
 
-      // Rating filter
-      if (filters.rating > 0 && (product.rating || 0) < filters.rating) return false
 
       // Platform filter
       if (filters.platform && filters.platform !== "" && filters.platform !== "all" && product.platformSlug !== filters.platform) return false
@@ -243,182 +242,7 @@ export function ProductGrid({ viewMode, filters, sortBy, onTotalChange }: Produc
     currentPage * itemsPerPage,
   )
 
-  const ProductCard = ({ product }: { product: any }) => (
-    <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col h-full">
-      <div className="relative">
-        <Link href={`/product/${product.id}`}>
-          <img
-            src={product.image || "/placeholder.svg"}
-            alt={product.title}
-            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        </Link>
-        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-          {product.isNew && <Badge className="bg-green-600 hover:bg-green-700">New</Badge>}
-          {product.isBestseller && <Badge className="bg-orange-600 hover:bg-orange-700">Bestseller</Badge>}
-          {product.discount > 0 && <Badge variant="destructive">-{product.discount}%</Badge>}
-        </div>
-        <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button size="sm" variant="secondary" className="h-8 w-8 p-0">
-            <Heart className="h-4 w-4" />
-          </Button>
-          <Button size="sm" variant="secondary" className="h-8 w-8 p-0">
-            <Eye className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
 
-      <CardContent className="p-4 space-y-3 flex-1 flex flex-col">
-        <div className="space-y-1">
-          <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-            <span className="capitalize">{product.category}</span>
-            <span className="flex items-center gap-1">
-              <Globe className="h-3 w-3" />
-              {product.region}
-            </span>
-          </div>
-          <Link href={`/product/${product.id}`}>
-            <h3 className="font-semibold text-lg group-hover:text-primary transition-colors line-clamp-2 min-h-[56px]">{product.title}</h3>
-          </Link>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1">
-              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-              <span className="text-sm font-medium">{product.rating}</span>
-            </div>
-            <span className="text-xs text-muted-foreground">({product.reviews})</span>
-          </div>
-          {product.platform && (
-            <Badge variant="outline" className="text-[10px] h-5 px-1.5 font-normal border-primary/30 text-primary">
-              {product.platform}
-            </Badge>
-          )}
-        </div>
-
-        <div className="flex flex-wrap gap-1.5 py-1">
-          {product.type && (
-            <Badge variant="secondary" className="text-[10px] h-5 px-1.5 font-normal flex items-center gap-1">
-              <Layers className="h-3 w-3" />
-              {product.type}
-            </Badge>
-          )}
-          {product.worksOnSlugs?.includes('windows') && (
-            <Badge variant="secondary" className="text-[10px] h-5 px-1.5 font-normal flex items-center gap-1" title="Windows Support">
-              <Monitor className="h-3 w-3" />
-              PC
-            </Badge>
-          )}
-          {product.languageSlugs?.length > 0 && (
-            <Badge variant="secondary" className="text-[10px] h-5 px-1.5 font-normal flex items-center gap-1" title={product.languages?.join(', ')}>
-              <Globe className="h-3 w-3" />
-              {product.languageSlugs.length > 1 ? `${product.languageSlugs.length} Lang` : product.languages?.[0]}
-            </Badge>
-          )}
-        </div>
-
-        <div className="mt-auto pt-3 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-bold text-primary">${product.salePrice}</span>
-              {product.discount > 0 && (
-                <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>
-              )}
-            </div>
-          </div>
-          <Button size="sm" className="gap-2 w-full" onClick={() => handleAddToCart(product)}>
-            <ShoppingCart className="h-4 w-4" />
-            Add to Cart
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  )
-
-  const ProductListItem = ({ product }: { product: any }) => (
-    <Card className="group hover:shadow-lg transition-all duration-300">
-      <CardContent className="p-4">
-        <div className="flex gap-4 sm:gap-6">
-          <Link href={`/product/${product.id}`} className="relative w-32 sm:w-48 h-24 sm:h-32 flex-shrink-0">
-            <img
-              src={product.image || "/placeholder.svg"}
-              alt={product.title}
-              className="w-full h-full object-cover rounded group-hover:scale-105 transition-transform duration-300"
-            />
-            <div className="absolute top-1 left-1 flex flex-wrap gap-1">
-              {product.isNew && <Badge className="bg-green-600 hover:bg-green-700 text-[10px] px-1 h-4">New</Badge>}
-              {product.isBestseller && <Badge className="bg-orange-600 hover:bg-orange-700 text-[10px] px-1 h-4">Bestseller</Badge>}
-              {product.discount > 0 && (
-                <Badge variant="destructive" className="text-[10px] px-1 h-4">
-                  -{product.discount}%
-                </Badge>
-              )}
-            </div>
-          </Link>
-
-          <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-            <div className="space-y-1">
-              <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <span className="capitalize">{product.category}</span>
-                <span className="flex items-center gap-1">
-                  <Globe className="h-3 w-3" />
-                  {product.region}
-                </span>
-                {product.type && (
-                  <span className="flex items-center gap-1">
-                    <Layers className="h-3 w-3" />
-                    {product.type}
-                  </span>
-                )}
-              </div>
-              <Link href={`/product/${product.id}`}>
-                <h3 className="font-semibold text-lg group-hover:text-primary transition-colors line-clamp-1">{product.title}</h3>
-              </Link>
-
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-medium">{product.rating}</span>
-                  <span className="text-muted-foreground font-normal">({product.reviews})</span>
-                </div>
-                {product.platform && (
-                  <Badge variant="outline" className="text-[10px] h-4 px-1.5 font-normal border-primary/30 text-primary">
-                    {product.platform}
-                  </Badge>
-                )}
-                {product.worksOnSlugs?.includes('windows') && (
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Monitor className="h-3.5 w-3.5" />
-                    <span>PC</span>
-                  </div>
-                )}
-                {product.languageSlugs?.length > 0 && (
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground" title={product.languages?.join(', ')}>
-                    <Globe className="h-3.5 w-3.5" />
-                    <span>{product.languageSlugs.length > 1 ? `${product.languageSlugs.length} Languages` : product.languages?.[0]}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between pt-2">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl font-bold text-primary">${product.salePrice}</span>
-                {product.discount > 0 && (
-                  <span className="text-base text-muted-foreground line-through">${product.originalPrice}</span>
-                )}
-              </div>
-              <Button size="sm" className="gap-2" onClick={() => handleAddToCart(product)}>
-                <ShoppingCart className="h-4 w-4" />
-                Add to Cart
-              </Button>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
 
   if (isLoading) {
     return (
@@ -441,13 +265,14 @@ export function ProductGrid({ viewMode, filters, sortBy, onTotalChange }: Produc
       {viewMode === "grid" ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {paginatedProducts.map((product) => (
+
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-4">
           {paginatedProducts.map((product) => (
-            <ProductListItem key={product.id} product={product} />
+            <ProductCardHorizontal key={product.id} product={product} />
           ))}
         </div>
       )}

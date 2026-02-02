@@ -9,6 +9,8 @@ import { SubscriberSection } from "@/components/subscriber-section"
 import { BannerSection } from "@/components/banner-section"
 import { CategoryMarquee } from "@/components/category-marquee"
 
+import { FeaturedBlogs } from "@/components/featured-blogs"
+
 export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col">
@@ -19,6 +21,7 @@ export default function HomePage() {
         <CategoryTabs />
         <CategoryMarquee />
         <BestDeals />
+        <FeaturedBlogs />
         <SubscriberSection />
       </main>
       <Footer />

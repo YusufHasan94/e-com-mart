@@ -885,43 +885,47 @@ export function AccountDashboard({ initialTab = "offers-list" }: { initialTab?: 
                   </CardContent>
                 </Card>
 
-                <Card className="bg-primary/10 border-primary/20">
-                  <CardContent className="p-4 sm:p-5">
-                    <div className="flex items-start justify-between mb-2">
-                      <p className="text-sm text-muted-foreground">GameHub balance</p>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button className="text-muted-foreground hover:text-foreground">
-                            <Info className="h-4 w-4" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Balance in GameHub account</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                    <p className="text-2xl sm:text-3xl font-bold text-primary">${GameHubBalance.toFixed(2)}</p>
-                  </CardContent>
-                </Card>
+                {user?.role === 'seller' && (
+                  <>
+                    <Card className="bg-primary/10 border-primary/20">
+                      <CardContent className="p-4 sm:p-5">
+                        <div className="flex items-start justify-between mb-2">
+                          <p className="text-sm text-muted-foreground">GameHub balance</p>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button className="text-muted-foreground hover:text-foreground">
+                                <Info className="h-4 w-4" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Balance in GameHub account</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                        <p className="text-2xl sm:text-3xl font-bold text-primary">${GameHubBalance.toFixed(2)}</p>
+                      </CardContent>
+                    </Card>
 
-                <Card className="bg-primary/10 border-primary/20">
-                  <CardContent className="p-4 sm:p-5">
-                    <div className="flex items-start justify-between mb-2">
-                      <p className="text-sm text-muted-foreground">Pending balance</p>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button className="text-muted-foreground hover:text-foreground">
-                            <Info className="h-4 w-4" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Balance pending processing</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                    <p className="text-2xl sm:text-3xl font-bold text-primary">${pendingBalance.toFixed(2)}</p>
-                  </CardContent>
-                </Card>
+                    <Card className="bg-primary/10 border-primary/20">
+                      <CardContent className="p-4 sm:p-5">
+                        <div className="flex items-start justify-between mb-2">
+                          <p className="text-sm text-muted-foreground">Pending balance</p>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button className="text-muted-foreground hover:text-foreground">
+                                <Info className="h-4 w-4" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Balance pending processing</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                        <p className="text-2xl sm:text-3xl font-bold text-primary">${pendingBalance.toFixed(2)}</p>
+                      </CardContent>
+                    </Card>
+                  </>
+                )}
 
                 <Card className="bg-primary/10 border-primary/20">
                   <CardContent className="p-4 sm:p-5">
@@ -953,12 +957,14 @@ export function AccountDashboard({ initialTab = "offers-list" }: { initialTab?: 
                     >
                       History
                     </TabsTrigger>
-                    <TabsTrigger
-                      value="payout"
-                      className="flex-1 sm:flex-initial text-sm sm:text-base px-3 sm:px-4 h-8 sm:h-9 min-h-[32px] sm:min-h-[36px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                    >
-                      New Payout
-                    </TabsTrigger>
+                    {user?.role === 'seller' && (
+                      <TabsTrigger
+                        value="payout"
+                        className="flex-1 sm:flex-initial text-sm sm:text-base px-3 sm:px-4 h-8 sm:h-9 min-h-[32px] sm:min-h-[36px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                      >
+                        New Payout
+                      </TabsTrigger>
+                    )}
                     <TabsTrigger
                       value="topup"
                       className="flex-1 sm:flex-initial text-sm sm:text-base px-3 sm:px-4 h-8 sm:h-9 min-h-[32px] sm:min-h-[36px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -1473,7 +1479,7 @@ export function AccountDashboard({ initialTab = "offers-list" }: { initialTab?: 
                             setTopUpStep(topUpStep + 1)
                           } else {
                             // Handle final submission
-                            console.log("Top up submitted:", { method: topUpMethod, amount: topUpAmount })
+
                           }
                         }}
                         disabled={topUpStep === 1 && !topUpMethod || topUpStep === 2 && !topUpAmount}
@@ -2242,7 +2248,7 @@ export function AccountDashboard({ initialTab = "offers-list" }: { initialTab?: 
                         <Button
                           onClick={() => {
                             // Handle save offer
-                            console.log("Saving offer...")
+
                             setShowSellItem(false)
                             setSellItemStep(1)
                           }}
@@ -2684,7 +2690,7 @@ export function AccountDashboard({ initialTab = "offers-list" }: { initialTab?: 
                       <Button
                         onClick={() => {
                           // Handle save
-                          console.log("Saving product request...")
+
                         }}
                         disabled={!productName || !productPlatform || !productRegion || !productLanguages || !requestType}
                         className="bg-primary hover:bg-primary/90 text-primary-foreground"
@@ -3506,7 +3512,7 @@ export function AccountDashboard({ initialTab = "offers-list" }: { initialTab?: 
                   className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
                   onClick={() => {
                     // Handle chat
-                    console.log("Open chat")
+
                   }}
                 >
                   <MessageCircle className="h-6 w-6" />

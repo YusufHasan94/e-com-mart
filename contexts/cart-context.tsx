@@ -3,7 +3,7 @@
 import { createContext, useContext, useReducer, useEffect, useRef, type ReactNode, type Dispatch } from "react"
 
 export interface CartItem {
-  id: number
+  id: string | number
   title: string
   price: number
   originalPrice?: number
@@ -22,8 +22,8 @@ interface CartState {
 
 type CartAction =
   | { type: "ADD_ITEM"; payload: Omit<CartItem, "quantity"> }
-  | { type: "REMOVE_ITEM"; payload: number }
-  | { type: "UPDATE_QUANTITY"; payload: { id: number; quantity: number } }
+  | { type: "REMOVE_ITEM"; payload: string | number }
+  | { type: "UPDATE_QUANTITY"; payload: { id: string | number; quantity: number } }
   | { type: "CLEAR_CART" }
   | { type: "LOAD_CART"; payload: CartItem[] }
 
@@ -31,8 +31,8 @@ const CartContext = createContext<{
   state: CartState
   dispatch: Dispatch<CartAction>
   addItem: (item: Omit<CartItem, "quantity">) => void
-  removeItem: (id: number) => void
-  updateQuantity: (id: number, quantity: number) => void
+  removeItem: (id: string | number) => void
+  updateQuantity: (id: string | number, quantity: number) => void
   clearCart: () => void
   setOpenCartDrawer: (callback: () => void) => void
   openCartDrawer: () => void
@@ -41,11 +41,11 @@ const CartContext = createContext<{
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case "ADD_ITEM": {
-      const existingItem = state.items.find((item) => item.id === action.payload.id)
+      const existingItem = state.items.find((item) => String(item.id) === String(action.payload.id))
 
       if (existingItem) {
         const updatedItems = state.items.map((item) =>
-          item.id === action.payload.id ? { ...item, quantity: item.quantity + 1 } : item,
+          String(item.id) === String(action.payload.id) ? { ...item, quantity: item.quantity + 1 } : item,
         )
         const total = updatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
         const itemCount = updatedItems.reduce((sum, item) => sum + item.quantity, 0)
@@ -61,7 +61,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     }
 
     case "REMOVE_ITEM": {
-      const newItems = state.items.filter((item) => item.id !== action.payload)
+      const newItems = state.items.filter((item) => String(item.id) !== String(action.payload))
       const total = newItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
       const itemCount = newItems.reduce((sum, item) => sum + item.quantity, 0)
 
@@ -74,7 +74,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       }
 
       const updatedItems = state.items.map((item) =>
-        item.id === action.payload.id ? { ...item, quantity: action.payload.quantity } : item,
+        String(item.id) === String(action.payload.id) ? { ...item, quantity: action.payload.quantity } : item,
       )
       const total = updatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
       const itemCount = updatedItems.reduce((sum, item) => sum + item.quantity, 0)
@@ -135,11 +135,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const removeItem = (id: number) => {
+  const removeItem = (id: string | number) => {
     dispatch({ type: "REMOVE_ITEM", payload: id })
   }
 
-  const updateQuantity = (id: number, quantity: number) => {
+  const updateQuantity = (id: string | number, quantity: number) => {
     dispatch({ type: "UPDATE_QUANTITY", payload: { id, quantity } })
   }
 

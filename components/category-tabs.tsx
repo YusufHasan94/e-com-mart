@@ -11,6 +11,7 @@ import { Navigation } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import { apiService, type ApiCategory, type AppProduct } from "@/lib/api-service"
+import { ProductCard } from "./product-card"
 
 interface CategoryWithCount extends ApiCategory {
   productCount: number
@@ -158,8 +159,8 @@ export function CategoryTabs() {
                   key={category.id}
                   onClick={() => handleCategoryChange(category.slug)}
                   className={`px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium transition-all duration-300 transform hover:scale-105 rounded-[4px] whitespace-nowrap flex-shrink-0 ${activeCategory === category.slug
-                    ? 'bg-primary text-foreground'
-                    : 'text-foreground hover:text-foreground hover:bg-primary bg-muted/50'
+                    ? 'bg-primary text-[#f8f7f4]'
+                    : 'text-[#f8f7f4] hover:text-[#f8f7f4] hover:bg-primary bg-muted/50'
                     }`}
                 >
                   {category.name}
@@ -221,70 +222,14 @@ export function CategoryTabs() {
             >
               {products.map((product, index) => (
                 <SwiperSlide key={`${product.id}-${swiperKey}`}>
-                  <Link href={`/product/${product.id}`}>
-                    <Card
-                      className={`group hover:shadow-xl transition-all duration-500 overflow-hidden dark:card-hover cursor-pointer min-h-[420px] rounded-lg ${isAnimating ? 'animate-fade-in-up' : ''
-                        }`}
-                      style={{
-                        animationDelay: `${index * 100}ms`,
-                        animationFillMode: 'both'
-                      }}
-                    >
-                      <CardContent className="h-full flex flex-col p-0">
-                        <div className="relative mb-3 sm:mb-4 p-0 pb-0">
-                          <img
-                            src={product.image || "/placeholder.svg"}
-                            alt={product.title}
-                            className="w-full h-32 sm:h-36 lg:h-40 xl:h-48 object-cover transition-transform duration-300"
-                          />
-                          {product.discount > 0 && (
-                            <Badge className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-red-600 hover:bg-red-700 text-white animate-pulse text-xs sm:text-sm">
-                              -{product.discount}% OFF
-                            </Badge>
-                          )}
-                        </div>
-
-                        <div className="flex-1 flex flex-col p-3 sm:p-4 pt-0">
-                          <div className="space-y-2 sm:space-y-3 flex-1 flex flex-col">
-                            <div className="min-h-[2.4em]">
-                              <h3 className="font-semibold text-xs sm:text-sm mb-1 overflow-hidden" style={{
-                                display: '-webkit-box',
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: 'vertical',
-                                lineHeight: '1.2em',
-                                maxHeight: '2.4em'
-                              }}>{product.title}</h3>
-                            </div>
-
-                            <div className="flex items-center gap-1">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`h-3 w-3 sm:h-4 sm:w-4 ${i < Math.floor(product.rating)
-                                    ? 'fill-yellow-400 text-yellow-400'
-                                    : 'text-muted-foreground'
-                                    }`}
-                                />
-                              ))}
-                              <span className="text-xs sm:text-sm text-muted-foreground ml-1">({product.reviews} reviews)</span>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              <Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
-                              <span className="text-xs sm:text-sm text-foreground">In Stock</span>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              <div className="flex items-start gap-0 flex-col">
-                                <span className="text-sm text-muted-foreground">from</span>
-                                <span className="text-xl font-bold text-primary">${product.salePrice.toFixed(2)}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
+                  <ProductCard
+                    product={product}
+                    className={isAnimating ? 'animate-fade-in-up' : ''}
+                    style={{
+                      animationDelay: `${index * 100}ms`,
+                      animationFillMode: 'both'
+                    }}
+                  />
                 </SwiperSlide>
               ))}
             </Swiper>

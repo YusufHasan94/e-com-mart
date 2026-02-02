@@ -85,7 +85,7 @@ export function ProductCategories() {
   }
 
   return (
-    <section className="py-6 sm:py-8 lg:py-12 relative">
+    <section className="py-6 sm:py-8 lg:py-12 relative border-t border-border/20">
       <div className="container mx-auto px-3 sm:px-4">
         {/* Dynamic Grid Layout */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
@@ -95,7 +95,7 @@ export function ProductCategories() {
             return (
               <Link key={type.id} href={`/products?type=${type.slug}`}>
                 <Card
-                  className={`group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 relative overflow-hidden backdrop-blur-sm hover:scale-105 h-[90px] sm:h-[100px] lg:h-[110px] rounded-lg ${style.color}`}
+                  className={`card-premium group relative overflow-hidden h-[90px] sm:h-[100px] lg:h-[110px] rounded-lg ${style.color}`}
                 >
                   <CardContent className="p-1.5 sm:p-2 lg:p-3 relative z-10 h-full flex items-center space-x-1.5 sm:space-x-2 lg:space-x-3">
                     {/* Icon */}
@@ -105,7 +105,7 @@ export function ProductCategories() {
 
                     {/* Content */}
                     <div className="space-y-0.5 flex-1">
-                      <h3 className="font-semibold text-[14px] sm:text-sm lg:text-base text-foreground group-hover:text-foreground/80 transition-colors">
+                      <h3 className="font-semibold text-[14px] sm:text-sm lg:text-base text-foreground group-hover:text-brand-500 transition-colors">
                         {type.name}
                       </h3>
                       <p className="text-muted-foreground text-xs leading-relaxed hidden sm:block">

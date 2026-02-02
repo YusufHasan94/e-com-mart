@@ -19,10 +19,10 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         const fetchCurrencies = async () => {
-            console.log("CurrencyProvider: Fetching currencies...")
+
             try {
                 const response = await apiService.getCurrencies()
-                console.log("CurrencyProvider: API Response:", response)
+
                 if (response.success && response.data) {
                     setCurrencies(response.data)
 

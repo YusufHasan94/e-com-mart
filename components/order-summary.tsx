@@ -5,13 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 
-export function OrderSummary() {
+interface OrderSummaryProps {
+  taxAmount?: number
+}
+
+export function OrderSummary({ taxAmount = 0 }: OrderSummaryProps) {
   const { state } = useCart()
 
   const subtotal = state.total
   const shipping = subtotal > 50 ? 0 : 9.99
-  const tax = subtotal * 0.08
-  const total = subtotal + shipping + tax
+  const total = subtotal + shipping + taxAmount
 
   return (
     <Card className="sticky top-4">
@@ -49,7 +52,7 @@ export function OrderSummary() {
           </div>
           <div className="flex justify-between text-sm">
             <span>Tax</span>
-            <span>${tax.toFixed(2)}</span>
+            <span>${taxAmount.toFixed(2)}</span>
           </div>
           <Separator />
           <div className="flex justify-between font-medium">

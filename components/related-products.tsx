@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Star, ShoppingCart, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { apiService, AppProduct } from "@/lib/api-service"
+import { ProductCard } from "./product-card"
 import Link from "next/link"
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, Autoplay } from 'swiper/modules'
@@ -125,60 +126,7 @@ export function RelatedProducts({ currentProductId }: RelatedProductsProps) {
         >
           {products.map((product) => (
             <SwiperSlide key={product.id} className="h-auto">
-              <Card className="group/card hover:shadow-xl transition-all duration-300 overflow-hidden dark:glass-effect dark:card-hover h-full flex flex-col border-border/50">
-                <Link href={`/product/${product.id}`} className="block relative aspect-[16/9] overflow-hidden">
-                  <img
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.title}
-                    className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500"
-                  />
-                  {product.discount > 0 && (
-                    <div className="absolute top-3 left-3">
-                      <Badge variant="destructive" className="font-bold">-{product.discount}%</Badge>
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <Button variant="secondary" size="sm" className="rounded-full shadow-lg">View Details</Button>
-                  </div>
-                </Link>
-
-                <CardContent className="p-4 space-y-3 flex-1 flex flex-col justify-between">
-                  <div className="space-y-1.5">
-                    <p className="text-xs font-medium text-primary uppercase tracking-wider">{product.category}</p>
-                    <Link href={`/product/${product.id}`}>
-                      <h3 className="font-semibold text-lg group-hover/card:text-primary transition-colors line-clamp-1">{product.title}</h3>
-                    </Link>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-bold">{product.rating}</span>
-                    </div>
-                    <span className="text-xs text-muted-foreground">({product.reviews} reviews)</span>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-3 border-t border-border/40 mt-1">
-                    <div className="flex flex-col">
-                      {product.discount > 0 && (
-                        <span className="text-xs text-muted-foreground line-through decoration-destructive/50">${product.originalPrice}</span>
-                      )}
-                      <span className="text-xl font-bold text-primary">${product.salePrice}</span>
-                    </div>
-                    <Button
-                      size="sm"
-                      className="gap-2 shadow-sm rounded-lg h-9 px-4"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleAddToCart(product);
-                      }}
-                    >
-                      <ShoppingCart className="h-4 w-4" />
-                      Add
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <ProductCard product={product} />
             </SwiperSlide>
           ))}
         </Swiper>

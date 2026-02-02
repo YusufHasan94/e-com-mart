@@ -23,8 +23,8 @@ export function CurrencyDropdown() {
 
     if (isLoading || !selectedCurrency) {
         return (
-            <Button variant="ghost" size="sm" className="h-8 px-2 text-xs text-white/80 hover:text-white hover:bg-white/10">
-                <span className="w-5 h-5 rounded-full border border-white/20 flex items-center justify-center mr-1 text-[10px]">
+            <Button variant="ghost" size="sm" className="h-8 px-2 text-xs">
+                <span className="w-5 h-5 rounded-full border border-border flex items-center justify-center mr-1 text-[10px]">
                     $
                 </span>
                 USD
@@ -38,10 +38,10 @@ export function CurrencyDropdown() {
             <Button
                 variant="ghost"
                 size="sm"
-                className={`h-8 px-2 text-xs text-white hover:bg-white/10 transition-colors ${isOpen ? 'bg-white/10' : 'text-white/80'}`}
+                className={`h-8 px-2 text-xs transition-colors ${isOpen ? 'bg-accent' : ''}`}
                 onClick={() => setIsOpen(!isOpen)}
             >
-                <span className="w-5 h-5 rounded-full border border-white/20 flex items-center justify-center mr-1 text-[14px] font-bold">
+                <span className="w-5 h-5 rounded-full border border-border flex items-center justify-center mr-1 text-[14px] font-bold">
                     {selectedCurrency.symbol}
                 </span>
                 {selectedCurrency.code}
@@ -49,7 +49,7 @@ export function CurrencyDropdown() {
             </Button>
 
             {isOpen && (
-                <div className="absolute right-0 top-full mt-2 w-32 rounded-md border border-white/10 bg-[#1A1A1A] text-white shadow-xl z-[9999] animate-in fade-in zoom-in-95 overflow-hidden">
+                <div className="absolute right-0 top-full mt-2 w-32 rounded-md border bg-popover text-popover-foreground shadow-xl z-[9999] animate-in fade-in zoom-in-95 overflow-hidden">
                     <div className="max-h-[300px] overflow-y-auto custom-scrollbar p-1">
                         {currencies.map((currency) => (
                             <button
@@ -58,17 +58,17 @@ export function CurrencyDropdown() {
                                     setSelectedCurrency(currency)
                                     setIsOpen(false)
                                 }}
-                                className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs rounded-sm transition-colors hover:bg-white/10 ${selectedCurrency.code === currency.code ? "bg-white/10 text-primary font-bold" : "text-white/70"
+                                className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs rounded-sm transition-colors hover:bg-accent ${selectedCurrency.code === currency.code ? "bg-accent text-primary font-bold" : "text-muted-foreground"
                                     }`}
                             >
-                                <span className="w-5 h-5 rounded-full border border-white/20 flex items-center justify-center text-[14px] font-semibold flex-shrink-0">
+                                <span className="w-5 h-5 rounded-full border border-border flex items-center justify-center text-[14px] font-semibold flex-shrink-0">
                                     {currency.symbol}
                                 </span>
                                 <span>{currency.code}</span>
                             </button>
                         ))}
                         {currencies.length === 0 && (
-                            <div className="px-3 py-2 text-xs text-white/40 italic">
+                            <div className="px-3 py-2 text-xs text-muted-foreground italic">
                                 No currencies
                             </div>
                         )}
