@@ -709,22 +709,21 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
               </div>
 
               {/* Search and Filters */}
-              <div className="flex flex-col gap-2.5 sm:gap-3 md:gap-4">
-                <div className="relative w-full">
+              <div className="flex flex-row gap-2.5 sm:gap-3 md:gap-4">
+                <div className="relative w-full flex justify-center items-center">
                   <Search className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
                   <Input
                     type="text"
                     placeholder="Search for product..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 sm:pl-10 h-10 sm:h-11 text-base sm:text-base bg-card border-border focus:border-primary focus:ring-primary"
+                    className="pl-9 sm:pl-10 h-9 sm:h-9 text-base sm:text-base bg-card border-border focus:border-primary focus:ring-primary"
                   />
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 md:gap-4 sm:items-center">
-                  <div className="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-initial">
-                    <span className="text-sm sm:text-sm md:text-sm text-muted-foreground whitespace-nowrap">filter</span>
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-initial min-h-10">
                     <Select value={filterType} onValueChange={setFilterType}>
-                      <SelectTrigger className="flex-1 sm:w-[180px] md:w-[200px] h-10 sm:h-11 bg-card border-border text-base sm:text-base">
+                      <SelectTrigger className="flex-1 sm:w-[180px] md:w-[200px] h-10 sm:h-10 bg-card border-border text-base sm:text-base">
                         <SelectValue placeholder="Select filter" />
                       </SelectTrigger>
                       <SelectContent className="bg-popover border-border">
@@ -736,16 +735,14 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
                     </Select>
                   </div>
                   <div className="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-initial">
-                    <Calendar className="h-4 w-4 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
                     <Input
                       type="date"
-                      className="flex-1 sm:w-[140px] md:w-[150px] h-10 sm:h-11 text-base sm:text-base bg-card border-border"
+                      className="flex-1 sm:w-[140px] md:w-[150px] h-10 sm:h-9 text-base sm:text-base bg-card border-border"
                     />
                   </div>
-                  <div className="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-initial">
-                    <span className="text-sm sm:text-sm md:text-sm text-muted-foreground whitespace-nowrap">Show</span>
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-initial h-10">
                     <Select value={showCount} onValueChange={setShowCount}>
-                      <SelectTrigger className="flex-1 sm:w-[70px] md:w-[80px] h-10 sm:h-11 bg-card border-border text-base sm:text-base">
+                      <SelectTrigger className="flex-1 sm:w-[70px] md:w-[80px] h-10 sm:h-10 bg-card border-border text-base sm:text-base">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-popover border-border">
@@ -761,7 +758,7 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
 
               {/* Content Tabs */}
               <Tabs value={purchasesTab} onValueChange={setPurchasesTab} className="w-full">
-                <TabsList className="bg-card border border-border p-0.5 sm:p-1 inline-flex w-full sm:w-auto h-9 sm:h-10">
+                <TabsList className="bg-card border border-border rounded-[8px] p-0.5 sm:p-1 inline-flex w-full sm:w-auto h-9 sm:h-10">
                   <TabsTrigger
                     value="orders"
                     className="flex-1 sm:flex-initial text-sm sm:text-base px-3 sm:px-4 h-8 sm:h-9 min-h-[32px] sm:min-h-[36px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -911,31 +908,29 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
 
                   <TabsContent value="history" className="mt-4 space-y-4">
                     {/* Filters */}
-                    <div className="flex flex-col gap-3 sm:gap-4">
-                      <div className="relative w-full">
+                    <div className="flex flex-row gap-3 sm:gap-4">
+                      <div className="relative w-full flex justify-center items-center">
                         <Search className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
                         <Input
                           type="text"
                           placeholder="Search for products..."
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-9 sm:pl-10 h-10 sm:h-11 text-base sm:text-base bg-card border-border focus:border-primary focus:ring-primary"
+                          className="pl-9 sm:pl-10 h-9 text-base sm:text-base bg-card border-border focus:border-primary focus:ring-primary rounded-[8px]"
                         />
                       </div>
 
                       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center">
                         <div className="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-initial">
-                          <Calendar className="h-4 w-4 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
                           <Input
                             type="date"
-                            className="flex-1 sm:w-[140px] md:w-[150px] h-10 sm:h-11 text-base sm:text-base bg-card border-border"
+                            className="flex-1 sm:w-[140px] md:w-[150px] h-9 text-base sm:text-base bg-card border-border rounded-[8px]"
                           />
                         </div>
 
                         <div className="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-initial">
-                          <span className="text-sm sm:text-sm md:text-sm text-muted-foreground whitespace-nowrap">Type</span>
                           <Select value={balanceType} onValueChange={setBalanceType}>
-                            <SelectTrigger className="flex-1 sm:w-[140px] md:w-[150px] h-10 sm:h-11 bg-card border-border text-base sm:text-base">
+                            <SelectTrigger className="flex-1 sm:w-[140px] md:w-[150px] h-9 bg-card border-border text-base sm:text-base rounded-[8px]">
                               <SelectValue placeholder="All" />
                             </SelectTrigger>
                             <SelectContent className="bg-popover border-border">
@@ -948,9 +943,8 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
                         </div>
 
                         <div className="flex items-center gap-1.5 sm:gap-2 flex-1 sm:flex-initial">
-                          <span className="text-sm sm:text-sm md:text-sm text-muted-foreground whitespace-nowrap">Show</span>
                           <Select value={showCount} onValueChange={setShowCount}>
-                            <SelectTrigger className="flex-1 sm:w-[70px] md:w-[80px] h-10 sm:h-11 bg-card border-border text-base sm:text-base">
+                            <SelectTrigger className="flex-1 sm:w-[70px] md:w-[80px] h-9 bg-card border-border text-base sm:text-base rounded-[8px]">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent className="bg-popover border-border">
@@ -965,7 +959,7 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
                     </div>
 
                     {/* Transaction History Table */}
-                    <div className="bg-card border border-border rounded-lg overflow-hidden">
+                    <div className="bg-card border border-border rounded-[8px] overflow-hidden">
                       <div className="overflow-x-auto -mx-1 sm:mx-0">
                         <div className="inline-block min-w-full align-middle px-1 sm:px-0">
                           <Table>
