@@ -8,16 +8,17 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Card, CardContent } from "@/components/ui/card"
-import { CreditCard, Smartphone, Wallet, ArrowRight, Loader2 } from "lucide-react"
+import { CreditCard, Smartphone, Wallet, ArrowRight, Loader2, ArrowLeft } from "lucide-react"
 import { apiService, ApiPaymentMethod } from "@/lib/api-service"
 import { useAuth } from "@/contexts/auth-context"
 
 interface PaymentFormProps {
   onSubmit: (data: any) => void
   selectedCountry?: string
+  onBack?: () => void
 }
 
-export function PaymentForm({ onSubmit, selectedCountry }: PaymentFormProps) {
+export function PaymentForm({ onSubmit, selectedCountry, onBack }: PaymentFormProps) {
   const { token } = useAuth()
   const [paymentMethod, setPaymentMethod] = useState("")
   const [paymentMethods, setPaymentMethods] = useState<ApiPaymentMethod[]>([])
@@ -155,10 +156,18 @@ export function PaymentForm({ onSubmit, selectedCountry }: PaymentFormProps) {
         </div>
       )}
 
-      <Button type="submit" className="w-full" disabled={!paymentMethod}>
-        Continue to Review
-        <ArrowRight className="ml-2 h-4 w-4" />
-      </Button>
+      <div className="flex gap-4">
+        {onBack && (
+          <Button type="button" variant="outline" onClick={onBack} className="flex-1">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+        )}
+        <Button type="submit" className="flex-1" disabled={!paymentMethod}>
+          Continue to Review
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
     </form>
   )
 }

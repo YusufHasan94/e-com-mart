@@ -22,6 +22,7 @@ export function CheckoutFlow() {
   const [shippingData, setShippingData] = useState<any>(null)
   const [paymentData, setPaymentData] = useState<any>(null)
   const [orderId, setOrderId] = useState("")
+  const [userProfile, setUserProfile] = useState<any>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [taxAmount, setTaxAmount] = useState(0)
   const { state, clearCart } = useCart()
@@ -38,7 +39,27 @@ export function CheckoutFlow() {
     if (state.items.length === 0 && currentStep < 4) {
       router.push("/cart")
     }
-  }, [user, state.items.length, currentStep, router])
+
+    // Fetch user profile for pre-filling shipping form
+    if (token) {
+      apiService.getProfile(token).then((res) => {
+        if (res.success && res.data) {
+          const data = res.data.data || res.data
+          setUserProfile({
+            firstName: data.first_name || user?.name?.split(" ")[0] || "",
+            lastName: data.last_name || user?.name?.split(" ").slice(1).join(" ") || "",
+            email: data.email || user?.email || "",
+            phone: data.mobile || data.phone || "",
+            address: data.address_line1 || (typeof data.address === 'string' ? data.address : "") || "",
+            city: data.city || "",
+            state: data.state || "",
+            zipCode: data.zip || data.postal_code || "",
+            country: data.country || "US",
+          })
+        }
+      })
+    }
+  }, [user, state.items.length, currentStep, router, token])
 
   const handleNextStep = () => {
     if (currentStep < 4) {
@@ -159,24 +180,29 @@ export function CheckoutFlow() {
           <div className="lg:col-span-2">
             {currentStep === 1 && (
               <Card>
-                <CardHeader>
-                  <CardTitle>Shipping Information</CardTitle>
+                <CardHeader className="p-6">
+                  <CardTitle className="text-xl sm:text-2xl">Shipping Information</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <ShippingForm onSubmit={handleShippingSubmit} />
+                <CardContent className="p-6 pt-0 sm:pt-0">
+                  <ShippingForm
+                    onSubmit={handleShippingSubmit}
+                    initialData={userProfile}
+                    onBack={() => router.push("/cart")}
+                  />
                 </CardContent>
               </Card>
             )}
 
             {currentStep === 2 && (
               <Card>
-                <CardHeader>
-                  <CardTitle>Payment Method</CardTitle>
+                <CardHeader className="p-6 sm:p-8">
+                  <CardTitle className="text-xl sm:text-2xl">Payment Method</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-6 sm:p-8 pt-0 sm:pt-0">
                   <PaymentForm
                     onSubmit={handlePaymentSubmit}
                     selectedCountry={shippingData?.country}
+                    onBack={handlePrevStep}
                   />
                 </CardContent>
               </Card>
@@ -184,10 +210,10 @@ export function CheckoutFlow() {
 
             {currentStep === 3 && (
               <Card>
-                <CardHeader>
-                  <CardTitle>Review Your Order</CardTitle>
+                <CardHeader className="p-6 sm:p-8">
+                  <CardTitle className="text-xl sm:text-2xl">Review Your Order</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-6 p-6 sm:p-8 pt-0 sm:pt-0">
                   {/* Shipping Info */}
                   {shippingData && (
                     <div>

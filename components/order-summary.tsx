@@ -18,10 +18,10 @@ export function OrderSummary({ taxAmount = 0 }: OrderSummaryProps) {
 
   return (
     <Card className="sticky top-4">
-      <CardHeader>
+      <CardHeader className="p-3">
         <CardTitle>Order Summary</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-5 p-3 pt-0">
         <div className="space-y-3">
           {state.items.map((item) => (
             <div key={`${item.id}-${Math.random()}`} className="flex items-center gap-3">
@@ -41,7 +41,7 @@ export function OrderSummary({ taxAmount = 0 }: OrderSummaryProps) {
 
         <Separator />
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="flex justify-between text-sm">
             <span>Subtotal ({state.itemCount} items)</span>
             <span>${subtotal.toFixed(2)}</span>
