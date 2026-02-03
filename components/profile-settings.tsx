@@ -59,7 +59,7 @@ export function ProfileSettings() {
                     gender: data.gender || "male",
                     phone: data.phone || data.mobile || "",
                     alternate_phone: data.alternate_phone || "",
-                    address_line1: data.address_line1 || data.address || "",
+                    address_line1: data.address_line1 || (typeof data.address === 'string' ? data.address : "") || "",
                     address_line2: data.address_line2 || "",
                     city: data.city || "",
                     state: data.state || "",
@@ -112,12 +112,12 @@ export function ProfileSettings() {
 
     return (
         <div className="space-y-6">
-            <Card className="border-border bg-card">
-                <CardHeader>
+            <Card className="border-border bg-card gap-0">
+                <CardHeader className="p-4 sm:p-6">
                     <CardTitle>Profile Information</CardTitle>
                     <CardDescription>Update your account details and public profile.</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-4 sm:p-6">
                     <form onSubmit={handleUpdate} className="space-y-8">
                         <div className="flex flex-col items-center gap-4 sm:flex-row">
                             <div className="relative">

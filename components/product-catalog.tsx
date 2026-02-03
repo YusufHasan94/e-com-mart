@@ -31,10 +31,13 @@ export function ProductCatalog() {
   // Update search filter when URL search param changes
   useEffect(() => {
     const searchQuery = searchParams.get("search") || ""
-    if (searchQuery !== filters.search) {
-      setFilters((prev) => ({ ...prev, search: searchQuery }))
-    }
-  }, [searchParams, filters.search])
+    setFilters((prev) => {
+      if (prev.search !== searchQuery) {
+        return { ...prev, search: searchQuery }
+      }
+      return prev
+    })
+  }, [searchParams])
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${theme === 'dark'

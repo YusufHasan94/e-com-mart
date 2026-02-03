@@ -135,7 +135,7 @@ export function CartPage() {
                   </div>
                 </div>
 
-                <div className="space-y-3 pt-4">
+                <div className="space-y-3 pt-4 flex flex-col gap-1">
                   <Link href="/checkout">
                     <Button className="w-full" size="lg">
                       Proceed to Checkout
