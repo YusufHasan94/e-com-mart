@@ -304,6 +304,8 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
   const [showProductResults, setShowProductResults] = useState(false)
   const productSearchRef = useRef<HTMLDivElement>(null)
 
+  console.log("orders: ", orders);
+
   // Product search results
   const productSearchResults = useMemo(() => {
     if (!productSearch.trim() || productSearch.length < 2) {
@@ -792,7 +794,11 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
                               </TableRow>
                             ) : (
                               orders.map((order) => (
-                                <TableRow key={order.id} className="border-border hover:bg-accent">
+                                <TableRow
+                                  key={order.id}
+                                  className="border-border hover:bg-accent cursor-pointer"
+                                  onClick={() => router.push(`/account/orders/${order.id}`)}
+                                >
                                   <TableCell className="font-medium text-foreground text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">{order.order_number}</TableCell>
                                   <TableCell className="text-muted-foreground text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">{new Date(order.created_at).toLocaleDateString()}</TableCell>
                                   <TableCell className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">
@@ -801,7 +807,7 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
                                     </Badge>
                                   </TableCell>
                                   <TableCell className="text-foreground font-medium text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">
-                                    {order.currency} {order.total}
+                                    {order.currency} {order.subtotal}
                                   </TableCell>
                                   <TableCell className="text-muted-foreground text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-2 sm:py-2.5">
                                     {order.items?.length || 0} items

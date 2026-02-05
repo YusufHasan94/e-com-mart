@@ -56,6 +56,7 @@ export function RelatedProducts({ currentProductId }: RelatedProductsProps) {
       originalPrice: product.originalPrice,
       image: product.image,
       category: product.category,
+      categoryId: product.categoryId,
       platform: product.platform,
       discount: product.discount,
     })

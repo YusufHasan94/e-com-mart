@@ -257,6 +257,15 @@
     /* Account for header/footer */
   }
 
+  /* Override Tailwind Container for 1440px max-width and px-5 padding */
+  .container {
+    max-width: 1440px !important;
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
   /* Better filter sidebar on mobile */
   @media (max-width: 1023px) {
     .filter-sidebar-mobile {
