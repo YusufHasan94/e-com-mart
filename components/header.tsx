@@ -199,7 +199,7 @@ export function Header() {
       <header
         className={`sticky top-0 z-50 w-full border-b transition-all duration-300 bg-background`}
       >
-        <div className="container mx-auto px-3 sm:px-4">
+        <div className="max-w-[1440px] mx-auto px-5">
           <div className="flex h-14 sm:h-16 items-center justify-between">
             {/* Logo */}
             <div className="flex items-center space-x-2 sm:space-x-4">

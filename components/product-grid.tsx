@@ -158,6 +158,7 @@ export function ProductGrid({ viewMode, filters, sortBy, onTotalChange }: Produc
       originalPrice: product.originalPrice,
       image: product.image,
       category: product.category,
+      categoryId: product.categoryId,  // Pass category ID
       platform: product.platform,
       discount: product.discount,
     })

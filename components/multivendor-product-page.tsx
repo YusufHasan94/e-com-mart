@@ -129,11 +129,13 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
   const handleAddToCart = (vendor: any) => {
     addItem({
       id: parseInt(`${vendor.id}${selectedVariation.value.replace(/\D/g, '')}`) || vendor.id,
+      productId: parseInt(product.id),  // Store actual product ID for coupon validation
       title: `${product.title} ${selectedVariation.value}`,
       price: vendor.price,
       originalPrice: vendor.originalPrice,
       image: product.image,
       category: product.category,
+      categoryId: product.categoryId,
       platform: product.platform || selectedVariation.platform || 'Digital',
       discount: vendor.discount || 0
     })
@@ -185,11 +187,11 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
         <div className="mb-6 sm:mb-8 lg:hidden">
           <div className="flex flex-wrap items-start gap-2 mb-3 sm:mb-4">
             {product.label && (
-              <Badge 
+              <Badge
                 className="text-xs sm:text-sm font-semibold border-0"
-                style={{ 
-                  backgroundColor: product.label.bg_color, 
-                  color: product.label.text_color 
+                style={{
+                  backgroundColor: product.label.bg_color,
+                  color: product.label.text_color
                 }}
               >
                 {product.label.name}
@@ -263,11 +265,11 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
             <div className="hidden lg:block mb-6 sm:mb-8">
               <div className="flex flex-wrap items-start gap-2 mb-3 sm:mb-4">
                 {product.label && (
-                  <Badge 
+                  <Badge
                     className="text-xs sm:text-sm font-semibold border-0"
-                    style={{ 
-                      backgroundColor: product.label.bg_color, 
-                      color: product.label.text_color 
+                    style={{
+                      backgroundColor: product.label.bg_color,
+                      color: product.label.text_color
                     }}
                   >
                     {product.label.name}

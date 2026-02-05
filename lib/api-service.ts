@@ -315,6 +315,7 @@ export interface AppProduct {
     id: string
     title: string
     category: string
+    categoryId?: number  // Category ID for coupon validation
     categorySlug: string
     description: string
     image: string
@@ -2312,15 +2313,33 @@ export const apiService = {
     /**
      * Validate coupon
      */
-    validateCoupon: async (code: string, total: number): Promise<ApiResponse<{ valid: boolean; discount: number }>> => {
+    validateCoupon: async (
+        code: string,
+        orderAmount: number,
+        categoryIds?: number[],
+        productIds?: number[]
+    ): Promise<ApiResponse<{ valid: boolean; discount: number }>> => {
         try {
+            const payload: any = {
+                code,
+                order_amount: orderAmount
+            }
+
+            if (categoryIds && categoryIds.length > 0) {
+                payload.category_ids = categoryIds
+            }
+
+            if (productIds && productIds.length > 0) {
+                payload.product_ids = productIds
+            }
+
             const response = await fetch(`${BASE_URL}/coupons/validate`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "Accept": "application/json",
                 },
-                body: JSON.stringify({ code, total }),
+                body: JSON.stringify(payload),
             })
 
             const result = await response.json()
@@ -2769,6 +2788,7 @@ export const apiService = {
             id: (apiProduct.id || 0).toString(),
             title: apiProduct.title || "Unknown Product",
             category: categories[0]?.name,
+            categoryId: categories[0]?.id,  // Extract category ID
             description: apiProduct.description || "",
             image: getImageUrl(apiProduct.image || apiProduct.cover_image),
             gallery: (apiProduct.gallery || []).map(img => getImageUrl(img)),

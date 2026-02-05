@@ -102,16 +102,34 @@ export function CheckoutFlow() {
     handleNextStep()
   }
 
+  const [orderSummary, setOrderSummary] = useState<any>(null)
+
   const handlePlaceOrder = async () => {
     if (!user || !token || !shippingData || !paymentData) return
 
     setIsSubmitting(true)
     try {
+      // Capture summary data before clearing cart
+      const subtotal = state.total
+      const shipping = subtotal > 50 ? 0 : 9.99
+      const discount = state.discount || 0
+      const total = subtotal + shipping + taxAmount - discount
+
+      const summary = {
+        items: [...state.items],
+        subtotal: subtotal,
+        discount: discount,
+        total: total,
+        taxAmount: taxAmount,
+        shippingData: { ...shippingData },
+        paymentData: { ...paymentData }
+      }
+
       // Construct order payload
-      const orderData = {
+      const orderData: any = {
         currency: "USD", // TODO: Get from context/settings
         items: state.items.map(item => ({
-          seller_offer_id: Number(item.id), // Assuming item.id works as offer ID for now
+          seller_offer_id: Number(item.id),
           quantity: 1
         })),
         billing: {
@@ -126,11 +144,17 @@ export function CheckoutFlow() {
         payment_method: paymentData.paymentMethod
       }
 
+      // Add coupon code if applied
+      if (state.couponCode) {
+        orderData.coupon_code = state.couponCode
+      }
+
       const response = await apiService.createOrder(token, orderData)
 
       if (response.success && response.data) {
         setOrderId(response.data.order_number)
-        clearCart()
+        setOrderSummary(summary)
+        clearCart() // This will also clear the coupon
         setCurrentStep(4) // Go to confirmation
         toast({
           title: "Order placed successfully!",
@@ -168,7 +192,7 @@ export function CheckoutFlow() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-[1440px] mx-auto px-5">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Checkout</h1>
           <p className="text-muted-foreground">Complete your purchase securely</p>
@@ -280,6 +304,31 @@ export function CheckoutFlow() {
                     </div>
                   </div>
 
+                  <Separator />
+
+                  {/* Coupon Info */}
+                  {state.couponCode && state.discount > 0 && (
+                    <>
+                      <div>
+                        <div className="flex justify-between items-center mb-2">
+                          <h3 className="font-semibold">Coupon Applied</h3>
+                        </div>
+                        <div className="text-sm space-y-1">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Code:</span>
+                            <span className="font-mono font-semibold text-green-600 dark:text-green-400">{state.couponCode}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Discount:</span>
+                            <span className="font-semibold text-green-600 dark:text-green-400">-${state.discount.toFixed(2)}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <Separator />
+                    </>
+                  )}
+
                   <div className="flex gap-4 pt-4">
                     <Button variant="outline" onClick={handlePrevStep} className="flex-1 bg-transparent" disabled={isSubmitting}>
                       <ArrowLeft className="mr-2 h-4 w-4" />
@@ -303,7 +352,18 @@ export function CheckoutFlow() {
               </Card>
             )}
 
-            {currentStep === 4 && <OrderConfirmation orderId={orderId} />}
+            {currentStep === 4 && (
+              <OrderConfirmation
+                orderId={orderId}
+                items={orderSummary?.items}
+                shippingData={orderSummary?.shippingData}
+                paymentData={orderSummary?.paymentData}
+                subtotal={orderSummary?.subtotal}
+                total={orderSummary?.total}
+                discount={orderSummary?.discount}
+                taxAmount={orderSummary?.taxAmount}
+              />
+            )}
           </div>
 
           {/* Order Summary Sidebar */}

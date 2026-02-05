@@ -3,12 +3,14 @@
 import { createContext, useContext, useReducer, useEffect, useRef, type ReactNode, type Dispatch } from "react"
 
 export interface CartItem {
-  id: string | number
+  id: string | number  // Can be composite ID for cart uniqueness
+  productId?: number   // Actual product ID for API calls like coupon validation
   title: string
   price: number
   originalPrice?: number
   image: string
   category: string
+  categoryId?: number  // Category ID for coupon validation
   platform: string
   quantity: number
   discount?: number
@@ -18,6 +20,8 @@ interface CartState {
   items: CartItem[]
   total: number
   itemCount: number
+  couponCode: string | null
+  discount: number
 }
 
 type CartAction =
@@ -26,6 +30,8 @@ type CartAction =
   | { type: "UPDATE_QUANTITY"; payload: { id: string | number; quantity: number } }
   | { type: "CLEAR_CART" }
   | { type: "LOAD_CART"; payload: CartItem[] }
+  | { type: "APPLY_COUPON"; payload: { code: string; discount: number } }
+  | { type: "REMOVE_COUPON" }
 
 const CartContext = createContext<{
   state: CartState
@@ -34,6 +40,8 @@ const CartContext = createContext<{
   removeItem: (id: string | number) => void
   updateQuantity: (id: string | number, quantity: number) => void
   clearCart: () => void
+  applyCoupon: (code: string, discount: number) => void
+  removeCoupon: () => void
   setOpenCartDrawer: (callback: () => void) => void
   openCartDrawer: () => void
 } | null>(null)
@@ -50,14 +58,14 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         const total = updatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
         const itemCount = updatedItems.reduce((sum, item) => sum + item.quantity, 0)
 
-        return { items: updatedItems, total, itemCount }
+        return { items: updatedItems, total, itemCount, couponCode: state.couponCode, discount: state.discount }
       }
 
       const newItems = [...state.items, { ...action.payload, quantity: 1 }]
       const total = newItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
       const itemCount = newItems.reduce((sum, item) => sum + item.quantity, 0)
 
-      return { items: newItems, total, itemCount }
+      return { items: newItems, total, itemCount, couponCode: state.couponCode, discount: state.discount }
     }
 
     case "REMOVE_ITEM": {
@@ -65,7 +73,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       const total = newItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
       const itemCount = newItems.reduce((sum, item) => sum + item.quantity, 0)
 
-      return { items: newItems, total, itemCount }
+      return { items: newItems, total, itemCount, couponCode: state.couponCode, discount: state.discount }
     }
 
     case "UPDATE_QUANTITY": {
@@ -79,18 +87,24 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       const total = updatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
       const itemCount = updatedItems.reduce((sum, item) => sum + item.quantity, 0)
 
-      return { items: updatedItems, total, itemCount }
+      return { items: updatedItems, total, itemCount, couponCode: state.couponCode, discount: state.discount }
     }
 
     case "CLEAR_CART":
-      return { items: [], total: 0, itemCount: 0 }
+      return { items: [], total: 0, itemCount: 0, couponCode: null, discount: 0 }
 
     case "LOAD_CART": {
       const total = action.payload.reduce((sum, item) => sum + item.price * item.quantity, 0)
       const itemCount = action.payload.reduce((sum, item) => sum + item.quantity, 0)
 
-      return { items: action.payload, total, itemCount }
+      return { items: action.payload, total, itemCount, couponCode: state.couponCode, discount: state.discount }
     }
+
+    case "APPLY_COUPON":
+      return { ...state, couponCode: action.payload.code, discount: action.payload.discount }
+
+    case "REMOVE_COUPON":
+      return { ...state, couponCode: null, discount: 0 }
 
     default:
       return state
@@ -102,12 +116,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     items: [],
     total: 0,
     itemCount: 0,
+    couponCode: null,
+    discount: 0,
   })
   const openCartDrawerCallbackRef = useRef<(() => void) | null>(null)
 
   // Load cart from localStorage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem("cart")
+    const savedCoupon = localStorage.getItem("cart_coupon")
+
     if (savedCart) {
       try {
         const cartItems = JSON.parse(savedCart)
@@ -116,12 +134,30 @@ export function CartProvider({ children }: { children: ReactNode }) {
         console.error("Failed to load cart from localStorage:", error)
       }
     }
+
+    if (savedCoupon) {
+      try {
+        const couponData = JSON.parse(savedCoupon)
+        dispatch({ type: "APPLY_COUPON", payload: couponData })
+      } catch (error) {
+        console.error("Failed to load coupon from localStorage:", error)
+      }
+    }
   }, [])
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(state.items))
   }, [state.items])
+
+  // Save coupon to localStorage whenever it changes
+  useEffect(() => {
+    if (state.couponCode && state.discount > 0) {
+      localStorage.setItem("cart_coupon", JSON.stringify({ code: state.couponCode, discount: state.discount }))
+    } else {
+      localStorage.removeItem("cart_coupon")
+    }
+  }, [state.couponCode, state.discount])
 
   const addItem = (item: Omit<CartItem, "quantity">) => {
     dispatch({ type: "ADD_ITEM", payload: item })
@@ -147,6 +183,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "CLEAR_CART" })
   }
 
+  const applyCoupon = (code: string, discount: number) => {
+    dispatch({ type: "APPLY_COUPON", payload: { code, discount } })
+  }
+
+  const removeCoupon = () => {
+    dispatch({ type: "REMOVE_COUPON" })
+  }
+
   const setOpenCartDrawer = (callback: () => void) => {
     openCartDrawerCallbackRef.current = callback
   }
@@ -170,6 +214,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         removeItem,
         updateQuantity,
         clearCart,
+        applyCoupon,
+        removeCoupon,
         setOpenCartDrawer,
         openCartDrawer,
       }}

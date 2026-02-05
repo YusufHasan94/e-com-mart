@@ -44,6 +44,7 @@ export function ProductCardHorizontal({ product, className = "" }: ProductCardHo
             originalPrice: product.originalPrice,
             image: product.image,
             category: product.category || "General",
+            categoryId: product.categoryId,
             platform: product.platform || "PC",
             discount: product.discount,
         })
@@ -62,11 +63,11 @@ export function ProductCardHorizontal({ product, className = "" }: ProductCardHo
                         />
                         <div className="absolute top-3 left-3 flex flex-wrap gap-2">
                             {product.label && (
-                                <Badge 
+                                <Badge
                                     className="border-0 rounded-md px-2.5 py-1 text-[12px] font-semibold shadow-lg"
-                                    style={{ 
-                                        backgroundColor: product.label.bg_color, 
-                                        color: product.label.text_color 
+                                    style={{
+                                        backgroundColor: product.label.bg_color,
+                                        color: product.label.text_color
                                     }}
                                 >
                                     {product.label.name}
