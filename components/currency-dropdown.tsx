@@ -42,7 +42,9 @@ export function CurrencyDropdown() {
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <span className="w-5 h-5 rounded-full border border-border flex items-center justify-center mr-1 text-[14px] font-bold">
-                    {selectedCurrency.symbol}
+                    {selectedCurrency?.code === "BDT" ?
+                        <span className="font-extrabold">{selectedCurrency.symbol}</span> :
+                        <span>{selectedCurrency.symbol}</span>}
                 </span>
                 {selectedCurrency.code}
                 <ChevronDown className={`h-3 w-3 ml-1 opacity-50 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
@@ -62,7 +64,9 @@ export function CurrencyDropdown() {
                                     }`}
                             >
                                 <span className="w-5 h-5 rounded-full border border-border flex items-center justify-center text-[14px] font-semibold flex-shrink-0">
-                                    {currency.symbol}
+                                    {currency?.code === "BDT" ?
+                                        <span className="font-extrabold">{currency.symbol}</span> :
+                                        <span>{currency.symbol}</span>}
                                 </span>
                                 <span>{currency.code}</span>
                             </button>

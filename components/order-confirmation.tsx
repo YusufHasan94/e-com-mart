@@ -33,7 +33,7 @@ export function OrderConfirmation({
   })
 
   return (
-    <div className="max-w-4xl mx-auto py-4 space-y-12 text-foreground font-sans">
+    <div className="max-w-full mx-auto py-4 space-y-12 text-foreground font-sans">
       {/* Thank You Section */}
       <section>
         <h1 className="text-4xl font-light mb-8">Thank You</h1>

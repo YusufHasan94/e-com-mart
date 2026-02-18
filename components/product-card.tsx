@@ -4,7 +4,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Flame, Monitor } from "lucide-react"
 import Link from "next/link"
-import React from "react"
+import React, { useMemo } from "react"
+import { useCurrency } from "@/contexts/currency-context"
 
 interface ProductCardProps {
     product: {
@@ -34,6 +35,26 @@ export function ProductCard({
     className = "",
     style
 }: ProductCardProps) {
+    const { selectedCurrency, currencySymbol } = useCurrency()
+
+    const rawSalePrice = typeof product.salePrice === "number"
+        ? product.salePrice
+        : parseFloat(String(product.salePrice)) || 0
+    const rawOriginalPrice = product.originalPrice ?? 0
+
+    // Convert price using exchange_rate from the selected currency object.
+    // This is synchronous and instant — no async/useEffect needed.
+    // The exchange_rate is already fetched from the API via getCurrencies.
+    const exchangeRate = useMemo(() => {
+        if (!selectedCurrency) return 1
+        const rate = selectedCurrency.rate
+        const parsed = typeof rate === "number" ? rate : parseFloat(String(rate))
+        return isNaN(parsed) || parsed <= 0 ? 1 : parsed
+    }, [selectedCurrency])
+
+    const convertedSalePrice = useMemo(() => rawSalePrice * exchangeRate, [rawSalePrice, exchangeRate])
+    const convertedOriginalPrice = useMemo(() => rawOriginalPrice * exchangeRate, [rawOriginalPrice, exchangeRate])
+
     return (
         <Link href={`/product/${product.id}`} className="block h-full">
             <Card
@@ -51,11 +72,11 @@ export function ProductCard({
                     {/* Left Badges (Label/Discount) */}
                     <div className="absolute top-3 left-3 z-10 flex flex-row-reverse gap-2">
                         {product.label && (
-                            <Badge 
+                            <Badge
                                 className="border-0 rounded-md p-1 text-[16px] font-semibold shadow-lg"
-                                style={{ 
-                                    backgroundColor: product.label.bg_color, 
-                                    color: product.label.text_color 
+                                style={{
+                                    backgroundColor: product.label.bg_color,
+                                    color: product.label.text_color
                                 }}
                             >
                                 {product.label.name}
@@ -95,12 +116,21 @@ export function ProductCard({
                     <div className="flex flex-col pt-1">
                         <div className="flex items-center gap-2">
                             <span className="text-[12px] text-muted-foreground font-medium">from</span>
-                            <span className="text-xl font-semibold text-foreground">
-                                ${typeof product.salePrice === 'number' ? product.salePrice.toFixed(2) : product.salePrice}
+                            <span className="text-xl font-semibold text-foreground flex items-center gap-1">
+                                {selectedCurrency?.code === "BDT" ?
+                                    <span className="font-extrabold">
+                                        {currencySymbol}
+                                    </span> : <span>{currencySymbol}</span>
+                                }
+                                {convertedSalePrice.toFixed(2)}
                             </span>
-                            {product.originalPrice && (
-                                <span className="text-sm text-muted-foreground/60 line-through font-medium">
-                                    ${product.originalPrice.toFixed(2)}
+                            {rawOriginalPrice > 0 && (
+                                <span className="text-sm text-muted-foreground/60 line-through font-medium flex items-center gap-0.5">
+                                    {selectedCurrency?.code === "BDT" ?
+                                        <span className="font-extrabold">
+                                            {currencySymbol}
+                                        </span> : <span>{currencySymbol}</span>
+                                    }{convertedOriginalPrice.toFixed(2)}
                                 </span>
                             )}
                         </div>
