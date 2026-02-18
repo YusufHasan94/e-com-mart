@@ -203,7 +203,7 @@ export function CheckoutFlow() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
-          <div className={`lg:col-span-${currentStep === 4 ? 3 : 2}`}>
+          <div className={`${currentStep === 4 ? 'lg:col-span-3' : 'lg:col-span-2'}`}>
             {currentStep === 1 && (
               <Card>
                 <CardHeader className="p-6">
