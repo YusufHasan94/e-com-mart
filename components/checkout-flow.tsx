@@ -13,6 +13,7 @@ import { ShippingForm } from "@/components/shipping-form"
 import { PaymentForm } from "@/components/payment-form"
 import { OrderSummary } from "@/components/order-summary"
 import { OrderConfirmation } from "@/components/order-confirmation"
+import { StripeProvider } from "@/components/stripe-provider"
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react"
 import { apiService } from "@/lib/api-service"
 import { useToast } from "@/components/ui/use-toast"
@@ -25,6 +26,8 @@ export function CheckoutFlow() {
   const [userProfile, setUserProfile] = useState<any>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [taxAmount, setTaxAmount] = useState(0)
+  const [stripeClientSecret, setStripeClientSecret] = useState<string>("")
+  const [isFetchingIntent, setIsFetchingIntent] = useState(false)
   const { state, clearCart } = useCart()
   const { user, token } = useAuth()
   const router = useRouter()
@@ -61,16 +64,35 @@ export function CheckoutFlow() {
     }
   }, [user, state.items.length, currentStep, router, token])
 
-  const handleNextStep = () => {
-    if (currentStep < 4) {
-      setCurrentStep(currentStep + 1)
+  // Create a Stripe PaymentIntent when the user reaches Step 2 (Payment)
+  useEffect(() => {
+    if (currentStep === 2 && !stripeClientSecret && state.total > 0) {
+      setIsFetchingIntent(true)
+      const subtotal = state.total
+      const shipping = subtotal > 50 ? 0 : 9.99
+      const discount = state.discount || 0
+      const total = subtotal + shipping + taxAmount - discount
+
+      fetch("/api/create-payment-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: Math.max(total, 0.5), currency: "usd" }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.clientSecret) setStripeClientSecret(data.clientSecret)
+        })
+        .catch((err) => console.error("Failed to create payment intent:", err))
+        .finally(() => setIsFetchingIntent(false))
     }
+  }, [currentStep, stripeClientSecret, state.total, state.discount, taxAmount])
+
+  const handleNextStep = () => {
+    if (currentStep < 4) setCurrentStep(currentStep + 1)
   }
 
   const handlePrevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1)
-    }
+    if (currentStep > 1) setCurrentStep(currentStep - 1)
   }
 
   const handleShippingSubmit = async (data: any) => {
@@ -83,9 +105,8 @@ export function CheckoutFlow() {
           country: data.country,
           state: data.state,
           city: data.city,
-          seller_id: 1 // Default seller ID, or extract from items if available
+          seller_id: 1,
         })
-
         if (taxResponse.success && taxResponse.data) {
           setTaxAmount(taxResponse.data.tax_total)
         }
@@ -109,7 +130,6 @@ export function CheckoutFlow() {
 
     setIsSubmitting(true)
     try {
-      // Capture summary data before clearing cart
       const subtotal = state.total
       const shipping = subtotal > 50 ? 0 : 9.99
       const discount = state.discount || 0
@@ -117,20 +137,19 @@ export function CheckoutFlow() {
 
       const summary = {
         items: [...state.items],
-        subtotal: subtotal,
-        discount: discount,
-        total: total,
-        taxAmount: taxAmount,
+        subtotal,
+        discount,
+        total,
+        taxAmount,
         shippingData: { ...shippingData },
-        paymentData: { ...paymentData }
+        paymentData: { ...paymentData },
       }
 
-      // Construct order payload
       const orderData: any = {
-        currency: "USD", // TODO: Get from context/settings
-        items: state.items.map(item => ({
+        currency: "USD",
+        items: state.items.map((item) => ({
           seller_offer_id: Number(item.id),
-          quantity: 1
+          quantity: 1,
         })),
         billing: {
           name: `${shippingData.firstName} ${shippingData.lastName}`,
@@ -139,12 +158,14 @@ export function CheckoutFlow() {
           city: shippingData.city,
           country: shippingData.country,
           phone: shippingData.phone,
-          postcode: shippingData.zipCode
+          postcode: shippingData.zipCode,
         },
-        payment_method: paymentData.paymentMethod
+        payment_method: paymentData.paymentMethod,
+        ...(paymentData.stripePaymentIntentId && {
+          stripe_payment_intent_id: paymentData.stripePaymentIntentId,
+        }),
       }
 
-      // Add coupon code if applied
       if (state.couponCode) {
         orderData.coupon_code = state.couponCode
       }
@@ -154,8 +175,8 @@ export function CheckoutFlow() {
       if (response.success && response.data) {
         setOrderId(response.data.order_number)
         setOrderSummary(summary)
-        clearCart() // This will also clear the coupon
-        setCurrentStep(4) // Go to confirmation
+        clearCart()
+        setCurrentStep(4)
         toast({
           title: "Order placed successfully!",
           description: `Order #${response.data.order_number} has been created.`,
@@ -164,7 +185,7 @@ export function CheckoutFlow() {
         toast({
           title: "Order failed",
           description: response.error || "Please try again.",
-          variant: "destructive"
+          variant: "destructive",
         })
       }
     } catch (error) {
@@ -172,16 +193,14 @@ export function CheckoutFlow() {
       toast({
         title: "Order failed",
         description: "An unexpected error occurred.",
-        variant: "destructive"
+        variant: "destructive",
       })
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  if (!user) {
-    return null
-  }
+  if (!user) return null
 
   const steps = [
     { number: 1, title: "Shipping", description: "Delivery information" },
@@ -203,7 +222,7 @@ export function CheckoutFlow() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
-          <div className={`${currentStep === 4 ? 'lg:col-span-3' : 'lg:col-span-2'}`}>
+          <div className={`${currentStep === 4 ? "lg:col-span-3" : "lg:col-span-2"}`}>
             {currentStep === 1 && (
               <Card>
                 <CardHeader className="p-6">
@@ -225,11 +244,21 @@ export function CheckoutFlow() {
                   <CardTitle className="text-xl sm:text-2xl">Payment Method</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6 sm:p-8 pt-0 sm:pt-0">
-                  <PaymentForm
-                    onSubmit={handlePaymentSubmit}
-                    selectedCountry={shippingData?.country}
-                    onBack={handlePrevStep}
-                  />
+                  {isFetchingIntent ? (
+                    <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground">
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                      <span>Preparing secure payment…</span>
+                    </div>
+                  ) : (
+                    <StripeProvider clientSecret={stripeClientSecret}>
+                      <PaymentForm
+                        onSubmit={handlePaymentSubmit}
+                        selectedCountry={shippingData?.country}
+                        onBack={handlePrevStep}
+                        clientSecret={stripeClientSecret}
+                      />
+                    </StripeProvider>
+                  )}
                 </CardContent>
               </Card>
             )}
@@ -248,13 +277,9 @@ export function CheckoutFlow() {
                         <Button variant="ghost" size="sm" onClick={() => setCurrentStep(1)}>Edit</Button>
                       </div>
                       <div className="text-sm text-muted-foreground space-y-1">
-                        <p>
-                          {shippingData.firstName} {shippingData.lastName}
-                        </p>
+                        <p>{shippingData.firstName} {shippingData.lastName}</p>
                         <p>{shippingData.address}</p>
-                        <p>
-                          {shippingData.city}, {shippingData.state} {shippingData.zipCode}
-                        </p>
+                        <p>{shippingData.city}, {shippingData.state} {shippingData.zipCode}</p>
                         <p>{shippingData.country}</p>
                       </div>
                     </div>
@@ -271,8 +296,10 @@ export function CheckoutFlow() {
                       </div>
                       <div className="text-sm text-muted-foreground">
                         <p className="capitalize">{paymentData.paymentMethod}</p>
-                        {paymentData.cardNumber && (
-                          <p>**** **** **** {paymentData.cardNumber.slice(-4)}</p>
+                        {paymentData.stripePaymentIntentId && (
+                          <p className="text-xs font-mono text-green-600 dark:text-green-400 mt-1">
+                            ✓ Payment confirmed via Stripe
+                          </p>
                         )}
                       </div>
                     </div>
@@ -326,7 +353,6 @@ export function CheckoutFlow() {
                           </div>
                         </div>
                       </div>
-
                       <Separator />
                     </>
                   )}
