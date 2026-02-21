@@ -10,12 +10,16 @@ import { Card, CardContent } from "@/components/ui/card"
 import { CreditCard, Smartphone, Wallet, ArrowRight, Loader2, ArrowLeft, ShieldCheck } from "lucide-react"
 import { apiService, ApiPaymentMethod } from "@/lib/api-service"
 import { useAuth } from "@/contexts/auth-context"
+import { CryptomusPaymentForm } from "@/components/cryptomus-payment-form"
+import { PayPalPaymentForm } from "@/components/paypal-payment-form"
 
 interface PaymentFormProps {
   onSubmit: (data: any) => void
   selectedCountry?: string
   onBack?: () => void
   clientSecret?: string
+  amount: number
+  currency?: string
 }
 
 // ─── Inner form rendered inside <Elements> when Stripe is selected ───────────
@@ -152,7 +156,14 @@ function FallbackPaymentForm({
 }
 
 // ─── Main PaymentForm component ───────────────────────────────────────────────
-export function PaymentForm({ onSubmit, selectedCountry, onBack, clientSecret }: PaymentFormProps) {
+export function PaymentForm({
+  onSubmit,
+  selectedCountry,
+  onBack,
+  clientSecret,
+  amount,
+  currency = "USD"
+}: PaymentFormProps) {
   const { token } = useAuth()
   const [paymentMethod, setPaymentMethod] = useState("")
   const [paymentMethods, setPaymentMethods] = useState<ApiPaymentMethod[]>([])
@@ -182,6 +193,12 @@ export function PaymentForm({ onSubmit, selectedCountry, onBack, clientSecret }:
     paymentMethod.toLowerCase() === "card" ||
     paymentMethod.toLowerCase() === "stripe" ||
     paymentMethod.toLowerCase() === "credit_card"
+
+  const isCryptomusMethod =
+    paymentMethod.toLowerCase().includes("cryptomus") ||
+    paymentMethod.toLowerCase().includes("crypto")
+
+  const isPayPalMethod = paymentMethod.toLowerCase().includes("paypal")
 
   const selectedMethodObj = paymentMethods.find((m) => m.code === paymentMethod)
 
@@ -251,6 +268,22 @@ export function PaymentForm({ onSubmit, selectedCountry, onBack, clientSecret }:
           <Loader2 className="h-4 w-4 animate-spin" />
           Preparing secure payment form…
         </div>
+      ) : isCryptomusMethod ? (
+        <CryptomusPaymentForm
+          amount={amount}
+          currency={currency}
+          paymentMethod={paymentMethod}
+          onSubmit={onSubmit}
+          onBack={onBack}
+        />
+      ) : isPayPalMethod ? (
+        <PayPalPaymentForm
+          amount={amount}
+          currency={currency}
+          paymentMethod={paymentMethod}
+          onSubmit={onSubmit}
+          onBack={onBack}
+        />
       ) : (
         <FallbackPaymentForm
           paymentMethod={paymentMethod}

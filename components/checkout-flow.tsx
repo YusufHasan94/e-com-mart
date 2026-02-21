@@ -164,6 +164,12 @@ export function CheckoutFlow() {
         ...(paymentData.stripePaymentIntentId && {
           stripe_payment_intent_id: paymentData.stripePaymentIntentId,
         }),
+        ...(paymentData.cryptomusUuid && {
+          cryptomus_uuid: paymentData.cryptomusUuid,
+        }),
+        ...(paymentData.paypalOrderId && {
+          paypal_order_id: paymentData.paypalOrderId,
+        }),
       }
 
       if (state.couponCode) {
@@ -256,6 +262,8 @@ export function CheckoutFlow() {
                         selectedCountry={shippingData?.country}
                         onBack={handlePrevStep}
                         clientSecret={stripeClientSecret}
+                        amount={state.total + (state.total > 50 ? 0 : 9.99) + taxAmount - (state.discount || 0)}
+                        currency="USD"
                       />
                     </StripeProvider>
                   )}
