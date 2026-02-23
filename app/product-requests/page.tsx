@@ -57,7 +57,7 @@ export default function ProductRequestsPage() {
         if (!token) return
 
         try {
-            const response = await apiService.submitProductRequest(token, formData)
+            const response = await apiService.submitProductRequest(token, formData as any)
 
             if (response.success) {
                 toast({

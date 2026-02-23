@@ -4,39 +4,39 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* LIGHT THEME - Warm Paper */
-  --background: #f8f7f4;
-  --foreground: #57534e;
+  /* LIGHT THEME - Soft Mist */
+  --background: #f9fafb;
+  --foreground: #334155;
   --card: #ffffff;
-  --card-foreground: #44403c;
+  --card-foreground: #1e293b;
   --popover: #ffffff;
-  --popover-foreground: #44403c;
+  --popover-foreground: #1e293b;
   --primary: #6366f1;
   --primary-foreground: #ffffff;
-  --secondary: #f5f3ef;
-  --secondary-foreground: #57534e;
-  --muted: #f5f3ef;
-  --muted-foreground: #78716c;
-  --accent: #f0eeea;
-  --accent-foreground: #44403c;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #475569;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #f8fafc;
+  --accent-foreground: #1e293b;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #e8e5df;
-  --input: #e8e5df;
-  --ring: #6366f1;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #818cf8;
   --radius: 8px;
 
-  /* Custom "soft" palette */
-  --soft-bg: #f8f7f4;
+  /* Custom "Soft Mist" palette */
+  --soft-bg: #f9fafb;
   --soft-card: #ffffff;
-  --soft-surface: #f5f3ef;
-  --soft-hover: #f0eeea;
-  --soft-border: #e8e5df;
-  --soft-text: #57534e;
-  --soft-heading: #44403c;
-  --soft-muted: #78716c;
-  --soft-subtle: #a8a29e;
-  --soft-line: #d6d3d1;
+  --soft-surface: #f1f5f9;
+  --soft-hover: #f8fafc;
+  --soft-border: #e2e8f0;
+  --soft-text: #475569;
+  --soft-heading: #1e293b;
+  --soft-muted: #64748b;
+  --soft-subtle: #94a3b8;
+  --soft-line: #cbd5e1;
 
   /* Brand / Accent */
   --brand-50: #eef2ff;
@@ -47,14 +47,14 @@
   --brand-700: #4338ca;
   --brand-900: #312e81;
 
-  --sidebar: #f8f7f4;
-  --sidebar-foreground: #57534e;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #475569;
   --sidebar-primary: #6366f1;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f5f3ef;
-  --sidebar-accent-foreground: #44403c;
-  --sidebar-border: #e8e5df;
-  --sidebar-ring: #6366f1;
+  --sidebar-accent: #f8fafc;
+  --sidebar-accent-foreground: #1e293b;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #818cf8;
 }
 
 .dark {
@@ -291,11 +291,11 @@
   }
 
   .card-premium {
-    @apply bg-card text-card-foreground border border-border/50 shadow-sm transition-all duration-500 ease-out;
+    @apply bg-card text-card-foreground border border-border/30 shadow-sm transition-all duration-500 ease-out;
   }
 
   .card-premium:hover {
-    @apply -translate-y-1.5 border-brand-500/30 shadow-xl shadow-brand-500/10;
+    @apply -translate-y-1.5 border-brand-500/20 shadow-xl shadow-brand-500/5;
   }
 
   /* Smooth transitions for theme changes */
@@ -664,10 +664,9 @@
 
   /* --- Glass Morphism Navigation --- */
   .glass-light {
-    background: rgba(255, 252, 250, 0.85);
-    /* soft-card with opacity */
+    background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(68, 64, 60, 0.08);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   }
 
   .glass-dark {
@@ -685,18 +684,16 @@
 
   /* Light card */
   .card-light {
-    background-color: #fffcfa;
-    /* soft-card */
-    border: 1px solid #e8e5df;
-    /* soft-border */
-    box-shadow: 0 1px 3px rgba(68, 64, 60, 0.04);
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
   }
 
   .card-light:hover {
     background-color: #ffffff;
-    border-color: #d6d3d1;
-    box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.15);
-    transform: translateY(-4px);
+    border-color: #cbd5e1;
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
   }
 
   /* Dark card */
@@ -735,19 +732,15 @@
 
   /* Secondary button - light */
   .btn-secondary-light {
-    background-color: #fffcfa;
-    /* soft-card */
-    color: #57534e;
-    /* soft-text */
-    border: 1px solid #e8e5df;
-    /* soft-border */
+    background-color: #ffffff;
+    color: #475569;
+    border: 1px solid #e2e8f0;
     border-radius: 8px;
   }
 
   .btn-secondary-light:hover {
-    background-color: #f5f3ef;
-    /* soft-surface */
-    border-color: #d6d3d1;
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
   }
 
   /* Secondary button - dark */
@@ -769,24 +762,20 @@
 
   /* --- Form Inputs --- */
   .input-light {
-    background-color: white;
-    border: 1px solid #e8e5df;
-    /* soft-border */
-    color: #44403c;
-    /* soft-heading */
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #1e293b;
     border-radius: 9999px;
-    /* rounded-full */
   }
 
   .input-light::placeholder {
-    color: #a8a29e;
-    /* soft-subtle */
+    color: #94a3b8;
   }
 
   .input-light:focus {
     outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    border-color: #818cf8;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.05);
   }
 
   .input-dark {
@@ -853,8 +842,7 @@
 
   /* --- Dividers --- */
   .divider-light {
-    border-color: #e8e5df;
-    /* soft-border */
+    border-color: #e2e8f0;
   }
 
   .divider-dark {
@@ -865,23 +853,20 @@
   /* --- Scrollbar --- */
   /* Light theme scrollbar */
   ::-webkit-scrollbar {
-    width: 10px;
+    width: 6px;
   }
 
   ::-webkit-scrollbar-track {
-    background: #f8f7f4;
-    /* soft-bg */
+    background: #f9fafb;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #d6d3d1;
-    /* soft-line */
-    border-radius: 5px;
+    background: #e2e8f0;
+    border-radius: 10px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #a8a29e;
-    /* soft-subtle */
+    background: #cbd5e1;
   }
 
   /* Dark theme scrollbar */

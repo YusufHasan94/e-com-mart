@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
+import { useCurrency } from "@/contexts/currency-context"
 import { CartDrawer } from "@/components/cart-drawer"
 import { MegaMenu, MegaMenuCompact } from "@/components/megamenu"
 import Link from "next/link"
@@ -32,6 +33,7 @@ export function Header() {
   const router = useRouter()
   const { state, setOpenCartDrawer } = useCart()
   const { user, logout } = useAuth()
+  const { currencySymbol } = useCurrency()
   const [apiSuggestions, setApiSuggestions] = useState<AppProduct[]>([])
   const [isSearching, setIsSearching] = useState(false)
 
@@ -291,7 +293,7 @@ export function Header() {
                             </div>
                             {product.salePrice && (
                               <div className="flex-shrink-0 text-sm font-semibold text-primary">
-                                ${product.salePrice}
+                                {currencySymbol}{typeof product.salePrice === 'number' ? product.salePrice.toFixed(2) : product.salePrice}
                               </div>
                             )}
                           </Link>
@@ -560,7 +562,7 @@ export function Header() {
                               </div>
                               {product.salePrice && (
                                 <div className="flex-shrink-0 text-sm font-semibold text-primary">
-                                  ${product.salePrice}
+                                  {currencySymbol}{typeof product.salePrice === 'number' ? product.salePrice.toFixed(2) : product.salePrice}
                                 </div>
                               )}
                             </Link>

@@ -17,7 +17,7 @@ export interface ApiCurrency {
     name: string
     code: string
     symbol: string
-    exchange_rate: string | number
+    rate: string | number
     is_default: boolean
     status: number
 }
@@ -2358,6 +2358,54 @@ export const apiService = {
             }
         } catch (error) {
             console.error("API Error (validateCoupon):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Convert currency amount
+     * GET /api/v1/currencies/convert?amount=100&to=EUR
+     */
+    convertCurrency: async (amount: number, to: string): Promise<ApiResponse<{ converted_amount: number; from: string; to: string; rate: number }>> => {
+        try {
+            const queryParams = new URLSearchParams()
+            queryParams.append("amount", String(amount))
+            queryParams.append("to", to)
+
+            const response = await fetch(`${BASE_URL}/currencies/convert?${queryParams.toString()}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to convert currency",
+                }
+            }
+
+            // Handle both { data: { converted_amount, ... } } and flat response shapes
+            const data = result.data || result
+            return {
+                success: true,
+                data: {
+                    converted_amount: data.converted_amount ?? data.amount ?? amount,
+                    from: data.from ?? "USD",
+                    to: data.to ?? to,
+                    rate: data.rate ?? 1,
+                },
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (convertCurrency):", error)
             return {
                 success: false,
                 error: `Network error: ${error instanceof Error ? error.message : String(error)}`,

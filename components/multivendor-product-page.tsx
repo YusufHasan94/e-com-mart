@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import {
   Card,
   CardContent,
@@ -52,6 +52,7 @@ import {
   LayoutGrid,
 } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
+import { useCurrency } from "@/contexts/currency-context"
 import { apiService, type AppProduct } from "@/lib/api-service"
 import Link from "next/link"
 import { RelatedProducts } from "./related-products"
@@ -68,6 +69,20 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
   const [showAllVariations, setShowAllVariations] = useState(false)
   const [showAllOffers, setShowAllOffers] = useState(false)
   const { addItem } = useCart()
+  const { selectedCurrency, currencySymbol } = useCurrency()
+
+  // Synchronous price conversion using exchange_rate (same approach as product-card)
+  const exchangeRate = useMemo(() => {
+    if (!selectedCurrency) return 1
+    const r = selectedCurrency.rate
+    const parsed = typeof r === "number" ? r : parseFloat(String(r))
+    return isNaN(parsed) || parsed <= 0 ? 1 : parsed
+  }, [selectedCurrency])
+
+  console.log(selectedCurrency);
+
+  // Helper: convert + format a price
+  const cp = (price: number) => (price * exchangeRate).toFixed(2)
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -242,10 +257,15 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                     <Badge className={`${featuredVendor.isPromoted ? 'bg-primary hover:bg-primary/80' : 'bg-primary hover:bg-primary/80'} text-xs uppercase tracking-wider`}>
                       {featuredVendor.isPromoted ? 'Promoted Deal' : 'Best Offer'}
                     </Badge>
-                    <div className="text-lg font-bold text-primary">${featuredVendor.price}</div>
+                    <div className="text-lg font-bold text-primary">
+                      {selectedCurrency?.symbol === "BDT" ?
+                        <span className="font-extrabold">{currencySymbol}</span> :
+                        <span>{currencySymbol}</span>} {cp(featuredVendor.price)}</div>
                   </div>
                   {featuredVendor.originalPrice && (
-                    <div className="text-xs text-muted-foreground line-through">${featuredVendor.originalPrice}</div>
+                    <div className="text-xs text-muted-foreground line-through">{selectedCurrency?.id === 4 ?
+                      <span className="font-extrabold">{currencySymbol}</span> :
+                      <span>{currencySymbol}</span>}{cp(featuredVendor.originalPrice)}</div>
                   )}
                 </div>
                 <Button size="lg" className="flex-shrink-0 gap-2 text-sm" onClick={() => handleAddToCart(featuredVendor)}>
@@ -469,7 +489,9 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                             </div>
                             <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
                               <div className="flex flex-col items-start sm:items-end">
-                                <div className="text-lg sm:text-xl font-bold text-primary">${vendor.price}</div>
+                                <div className="text-lg sm:text-xl font-bold text-primary">{selectedCurrency?.id === 4 ?
+                                  <span className="font-extrabold">{currencySymbol}</span> :
+                                  <span>{currencySymbol}</span>}{cp(vendor.price)}</div>
                                 {vendor.stock !== undefined && vendor.stock < 10 && (
                                   <span className="text-[10px] text-red-500 font-medium">Only {vendor.stock} left</span>
                                 )}
@@ -518,7 +540,9 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                             </div>
                             <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
                               <div className="flex flex-col items-start sm:items-end">
-                                <div className="text-lg sm:text-xl font-bold text-primary">${vendor.price}</div>
+                                <div className="text-lg sm:text-xl font-bold text-primary">{selectedCurrency?.id === 4 ?
+                                  <span className="font-extrabold">{currencySymbol}</span> :
+                                  <span>{currencySymbol}</span>}{cp(vendor.price)}</div>
                                 {vendor.stock !== undefined && vendor.stock < 10 && (
                                   <span className="text-[10px] text-red-500 font-medium">Only {vendor.stock} left</span>
                                 )}
@@ -733,10 +757,14 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                   <Badge className={`${featuredVendor.isPromoted ? 'bg-primary hover:bg-primary/80' : 'bg-blue-600 hover:bg-blue-700'} mb-2 text-xs sm:text-sm uppercase tracking-wider`}>
                     {featuredVendor.isPromoted ? 'Promoted Deal' : 'Featured Offer'}
                   </Badge>
-                  <div className="text-2xl sm:text-3xl font-bold text-primary mb-1">${featuredVendor.price}</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-primary mb-1">{selectedCurrency?.id === 4 ?
+                    <span className="font-extrabold">{currencySymbol}</span> :
+                    <span>{currencySymbol}</span>}{cp(featuredVendor.price)}</div>
                   {featuredVendor.originalPrice && (
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm sm:text-lg text-muted-foreground line-through">${featuredVendor.originalPrice}</span>
+                      <span className="text-sm sm:text-lg text-muted-foreground line-through">{selectedCurrency?.id === 4 ?
+                        <span className="font-extrabold">{currencySymbol}</span> :
+                        <span>{currencySymbol}</span>}{cp(featuredVendor.originalPrice)}</span>
                       <Badge variant="destructive" className="text-xs">
                         {Math.round(((featuredVendor.originalPrice - featuredVendor.price) / featuredVendor.originalPrice) * 100)}% off
                       </Badge>
@@ -767,7 +795,9 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
 
                 {otherVendors.length > 0 && (
                   <div className="text-xs sm:text-sm text-muted-foreground mb-4">
-                    +{otherVendors.length} other offers starting at ${Math.min(...otherVendors.map(v => v.price))}
+                    +{otherVendors.length} other offers starting at {selectedCurrency?.id === 4 ?
+                      <span className="font-extrabold">{currencySymbol}</span> :
+                      <span>{currencySymbol}</span>}{cp(Math.min(...otherVendors.map(v => v.price)))}
                   </div>
                 )}
 
