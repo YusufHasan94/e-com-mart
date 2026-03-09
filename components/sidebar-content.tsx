@@ -40,8 +40,14 @@ export function SidebarContent({
 
     const navigationItems = [
         { id: "purchases", label: "Purchases", icon: ShoppingBag, active: activeTab === "purchases" },
+        { id: "keys", label: "My Keys", icon: Wallet, active: activeTab === "keys" },
         { id: "wishlist", label: "Wishlist", icon: Heart, active: activeTab === "wishlist" },
         { id: "credit", label: "Balance", icon: Wallet, active: activeTab === "credit" },
+        { id: "notifications", label: "Notifications", icon: Package, active: activeTab === "notifications" },
+        { id: "addresses", label: "Addresses", icon: Settings, active: activeTab === "addresses" },
+        { id: "refunds", label: "Refunds", icon: ShoppingBag, active: activeTab === "refunds" },
+        { id: "recently-viewed", label: "Recently Viewed", icon: TrendingUp, active: activeTab === "recently-viewed" },
+        { id: "alerts", label: "Price Alerts", icon: TrendingUp, active: activeTab === "alerts" },
         {
             id: "offers",
             label: "Offers",
@@ -54,8 +60,6 @@ export function SidebarContent({
                 { id: "requested-products", label: "Requested products" }
             ]
         },
-        // { id: "tax-report", label: "Tax report", icon: FileText, active: activeTab === "tax-report" },
-        // { id: "retail", label: "Retail advertising", icon: Sparkles, active: activeTab === "retail" },
         {
             id: "wholesale",
             label: "Wholesale",
@@ -66,6 +70,7 @@ export function SidebarContent({
                 { id: "wholesale-bids", label: "Wholesale bids" }
             ]
         },
+        { id: "affiliate", label: "Affiliate", icon: Star, active: activeTab === "affiliate" },
         { id: "support", label: "Customer service", icon: Headphones, active: activeTab === "support" },
         { id: "settings", label: "Account settings", icon: Settings, active: activeTab === "settings" },
     ].filter(item => {

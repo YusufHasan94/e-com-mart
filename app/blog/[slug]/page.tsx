@@ -15,6 +15,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/components/ui/use-toast"
 
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_BASE_URL || "https://gamehub.licensesender.com"
+
 export default function BlogPostPage() {
     const params = useParams()
     const { user, token } = useAuth()
@@ -85,8 +87,8 @@ export default function BlogPostPage() {
     const getImageUrl = (path: string | null | undefined) => {
         if (!path) return "/placeholder.jpg"
         if (path.startsWith("http")) return path
-        if (path.startsWith("blogs/")) return `https://gamehub.licensesender.com/storage/${path}`
-        return `https://gamehub.licensesender.com/${path}`
+        if (path.startsWith("blogs/")) return `${API_ORIGIN}/storage/${path}`
+        return `${API_ORIGIN}/${path}`
     }
 
     if (loading) {

@@ -12,6 +12,8 @@ import { ArrowLeft, Loader2, Package, Calendar, CreditCard, User, Mail, Phone, M
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_BASE_URL || "https://gamehub.licensesender.com"
+
 interface OrderDetailsProps {
     orderId: string
 }
@@ -117,7 +119,7 @@ export function OrderDetails({ orderId }: OrderDetailsProps) {
         if (!image) return null
         if (typeof image === 'string') {
             if (image.startsWith('http')) return image
-            return `https://gamehub.licensesender.com/storage/${image.replace(/^storage\//, '')}`
+            return `${API_ORIGIN}/storage/${image.replace(/^storage\//, '')}`
         }
         return null
     }
