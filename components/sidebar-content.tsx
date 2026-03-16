@@ -13,7 +13,8 @@ import {
     Package,
     Headphones,
     Star,
-    ChevronDown
+    ChevronDown,
+    LayoutDashboard
 } from "lucide-react"
 
 interface SidebarContentProps {
@@ -39,6 +40,7 @@ export function SidebarContent({
     const userReputation = 96.48
 
     const navigationItems = [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, active: activeTab === "dashboard" },
         { id: "purchases", label: "Purchases", icon: ShoppingBag, active: activeTab === "purchases" },
         { id: "keys", label: "My Keys", icon: Wallet, active: activeTab === "keys" },
         { id: "wishlist", label: "Wishlist", icon: Heart, active: activeTab === "wishlist" },

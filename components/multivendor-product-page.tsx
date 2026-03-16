@@ -53,6 +53,8 @@ import {
 } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { useCurrency } from "@/contexts/currency-context"
+import { useAuth } from "@/contexts/auth-context"
+import { useToast } from "@/components/ui/use-toast"
 import { apiService, type AppProduct } from "@/lib/api-service"
 import Link from "next/link"
 import { RelatedProducts } from "./related-products"
@@ -70,6 +72,47 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
   const [showAllOffers, setShowAllOffers] = useState(false)
   const { addItem } = useCart()
   const { selectedCurrency, currencySymbol } = useCurrency()
+  const { token } = useAuth()
+  const { toast } = useToast()
+  const [isSaving, setIsSaving] = useState(false)
+
+  const handleAddToWishlist = async () => {
+    if (!token) {
+      toast({
+        title: "Authentication Required",
+        description: "Please login to add items to your wishlist.",
+        variant: "destructive"
+      })
+      return
+    }
+
+    if (!product) return
+
+    setIsSaving(true)
+    try {
+      const response = await apiService.addToWishlist(token, parseInt(product.id))
+      if (response.success) {
+        toast({
+          title: "Added to Wishlist",
+          description: response.message || `${product.title} has been added to your wishlist.`,
+        })
+      } else {
+        toast({
+          title: "Failed",
+          description: response.error || "Could not add to wishlist.",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
   // Synchronous price conversion using exchange_rate (same approach as product-card)
   const exchangeRate = useMemo(() => {
@@ -216,7 +259,12 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
             <Badge variant="outline" className="text-xs sm:text-sm">{product.type === 'gift-card' ? 'Digital Key' : 'Digital Product'}</Badge>
           </div>
 
-          <h1 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">{product.title} {selectedVariation?.value && selectedVariation.value !== 'Standard Edition' ? selectedVariation.value : ''}</h1>
+          <div className="flex items-center justify-between gap-4 mb-3 sm:mb-4">
+            <h1 className="text-xl sm:text-2xl font-bold">{product.title} {selectedVariation?.value && selectedVariation.value !== 'Standard Edition' ? selectedVariation.value : ''}</h1>
+            <Button variant="outline" size="icon" onClick={handleAddToWishlist} disabled={isSaving} className="flex-shrink-0">
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className="h-5 w-5" />}
+            </Button>
+          </div>
 
           <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
             <div className="flex items-center gap-1">
@@ -299,7 +347,12 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                 <Badge variant="outline" className="text-xs sm:text-sm">{product.type === 'gift-card' ? 'Digital Key' : 'Digital Product'}</Badge>
               </div>
 
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4">{product.title} {selectedVariation?.value && selectedVariation.value !== 'Standard Edition' ? selectedVariation.value : ''}</h1>
+              <div className="flex items-center justify-between gap-4 mb-3 sm:mb-4">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">{product.title} {selectedVariation?.value && selectedVariation.value !== 'Standard Edition' ? selectedVariation.value : ''}</h1>
+                <Button variant="outline" size="icon" onClick={handleAddToWishlist} disabled={isSaving} className="flex-shrink-0">
+                  {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className="h-5 w-5" />}
+                </Button>
+              </div>
 
               <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
                 <div className="flex items-center gap-1">

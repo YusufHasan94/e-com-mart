@@ -3252,55 +3252,6 @@ export const apiService = {
     },
 
     // ─── Wishlist ────────────────────────────────────────────────
-    getWishlist: async (token: string): Promise<ApiResponse<any>> => {
-        try {
-            const res = await fetch(`${BASE_URL}/wishlist`, { headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json" } })
-            const result = await res.json()
-            return res.ok ? { success: true, data: result.data } : { success: false, error: result.message }
-        } catch (e) { return { success: false, error: String(e) } }
-    },
-
-    addToWishlist: async (token: string, productId: number): Promise<ApiResponse<any>> => {
-        try {
-            const res = await fetch(`${BASE_URL}/wishlist`, {
-                method: "POST", headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json", "Accept": "application/json" },
-                body: JSON.stringify({ product_id: productId }),
-            })
-            const result = await res.json()
-            return res.ok ? { success: true, data: result.data, message: result.message } : { success: false, error: result.message }
-        } catch (e) { return { success: false, error: String(e) } }
-    },
-
-    removeFromWishlist: async (token: string, id: number): Promise<ApiResponse<any>> => {
-        try {
-            const res = await fetch(`${BASE_URL}/wishlist/${id}`, {
-                method: "DELETE", headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json" },
-            })
-            const result = await res.json()
-            return res.ok ? { success: true, message: result.message } : { success: false, error: result.message }
-        } catch (e) { return { success: false, error: String(e) } }
-    },
-
-    checkWishlistStatus: async (token: string, productId: number): Promise<ApiResponse<{ in_wishlist: boolean; wishlist_id?: number }>> => {
-        try {
-            const res = await fetch(`${BASE_URL}/wishlist/check/${productId}`, {
-                headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json" },
-            })
-            const result = await res.json()
-            return res.ok ? { success: true, data: result.data } : { success: false, error: result.message }
-        } catch (e) { return { success: false, error: String(e) } }
-    },
-
-    clearWishlist: async (token: string): Promise<ApiResponse<any>> => {
-        try {
-            const res = await fetch(`${BASE_URL}/wishlist/clear`, {
-                method: "DELETE", headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json" },
-            })
-            const result = await res.json()
-            return res.ok ? { success: true, message: result.message } : { success: false, error: result.message }
-        } catch (e) { return { success: false, error: String(e) } }
-    },
-
     getWishlistCount: async (token: string): Promise<ApiResponse<{ count: number }>> => {
         try {
             const res = await fetch(`${BASE_URL}/wishlist/count`, {
@@ -3931,6 +3882,192 @@ export const apiService = {
             author: (apiBlog as any).user?.name || "Admin",
             authorAvatar: (apiBlog as any).user?.avatar || "/placeholder.svg",
             date: blogDate,
+        }
+    },
+
+    /**
+     * Add product to wishlist
+     */
+    addToWishlist: async (token: string, productId: number): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/wishlist`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                body: JSON.stringify({ product_id: productId }),
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to add to wishlist",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data || result,
+                message: result.message || "Added to wishlist successfully",
+            }
+        } catch (error) {
+            console.error("API Error (addToWishlist):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Get user wishlist
+     */
+    getWishlist: async (token: string): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/wishlist`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json",
+                },
+            })
+
+            console.log("API Response (getWishlist):", response);
+
+            const result = await response.json()
+
+            console.log("API Response (getWishlist):", result);
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to fetch wishlist",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data || result,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getWishlist):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Remove product from wishlist
+     */
+    removeFromWishlist: async (token: string, productId: number): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/wishlist/${productId}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to remove from wishlist",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data || result,
+                message: result.message || "Removed from wishlist",
+            }
+        } catch (error) {
+            console.error("API Error (removeFromWishlist):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Clear all wishlist items
+     */
+    clearWishlist: async (token: string): Promise<ApiResponse<any>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/wishlist`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to clear wishlist",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data || result,
+                message: result.message || "Wishlist cleared",
+            }
+        } catch (error) {
+            console.error("API Error (clearWishlist):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
+        }
+    },
+
+    /**
+     * Check if product is in wishlist
+     */
+    checkWishlistStatus: async (token: string, productId: number): Promise<ApiResponse<{ in_wishlist: boolean }>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/wishlist/check/${productId}`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json",
+                },
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                return {
+                    success: false,
+                    error: result.message || "Failed to check wishlist status",
+                }
+            }
+
+            return {
+                success: true,
+                data: result.data || result,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (checkWishlistStatus):", error)
+            return {
+                success: false,
+                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+            }
         }
     }
 }

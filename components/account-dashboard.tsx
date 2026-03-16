@@ -70,7 +70,11 @@ import {
   Package as PackageIcon,
   CreditCard as CreditCardIcon,
   HelpCircle as HelpCircleIcon,
-  Pin
+  Pin,
+  LayoutDashboard,
+  Loader2,
+  XCircle,
+  Trash2
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState, useMemo, useRef } from "react"
@@ -84,7 +88,7 @@ import { SidebarContent } from "@/components/sidebar-content"
 import { ProfileSettings } from "@/components/profile-settings"
 import { apiService } from "@/lib/api-service"
 
-export function AccountDashboard({ initialTab = "credit" }: { initialTab?: string }) {
+export function AccountDashboard({ initialTab = "dashboard" }: { initialTab?: string }) {
   const { user, token, isLoading } = useAuth()
   const { toast } = useToast()
   const router = useRouter()
@@ -134,6 +138,10 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
   const [recentlyViewedLoading, setRecentlyViewedLoading] = useState(false)
   const [alerts, setAlerts] = useState<any[]>([])
   const [alertsLoading, setAlertsLoading] = useState(false)
+
+  // Dashboard Overview States
+  const [dashboardData, setDashboardData] = useState<any>(null)
+  const [dashboardLoading, setDashboardLoading] = useState(false)
 
   // Seller States
   const [sellerOffers, setSellerOffers] = useState<any[]>([])
@@ -397,6 +405,22 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
     }
   }
 
+  const fetchDashboardData = async () => {
+    if (token) {
+      setDashboardLoading(true)
+      try {
+        const response = await apiService.getUserDashboard(token)
+        if (response.success && response.data) {
+          setDashboardData(response.data)
+        }
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error)
+      } finally {
+        setDashboardLoading(false)
+      }
+    }
+  }
+
   const fetchWishlist = async () => {
     if (token) {
       try {
@@ -408,6 +432,62 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
         }
       } catch (error) {
         console.error("Failed to fetch wishlist", error)
+      }
+    }
+  }
+
+  console.log("wishlist", wishlist);
+
+  const handleRemoveFromWishlist = async (id: number | string) => {
+    if (token) {
+      try {
+        const response = await apiService.removeFromWishlist(token, Number(id))
+        if (response.success) {
+          toast({
+            title: "Removed",
+            description: "Item removed from wishlist.",
+          })
+          fetchWishlist()
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: response.error || "Failed to remove item",
+          })
+        }
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "An error occurred",
+        })
+      }
+    }
+  }
+
+  const handleClearWishlist = async () => {
+    if (token) {
+      try {
+        const response = await apiService.clearWishlist(token)
+        if (response.success) {
+          toast({
+            title: "Cleared",
+            description: "Wishlist has been cleared.",
+          })
+          setWishlist([])
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: response.error || "Failed to clear wishlist",
+          })
+        }
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "An error occurred",
+        })
       }
     }
   }
@@ -475,6 +555,8 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
 
   useEffect(() => {
     if (token) fetchWallet()
+
+    if (token && activeTab === "dashboard") fetchDashboardData()
 
     if (token && activeTab === "credit") fetchTransactions()
 
@@ -726,6 +808,125 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
       {/* Main Content Area */}
       <main className="flex-1 bg-background overflow-y-auto min-h-screen">
         <div className="p-3 sm:p-4 md:p-6 lg:p-8">
+          {/* Dashboard Section */}
+          {activeTab === "dashboard" && (
+            <div className="space-y-6 sm:space-y-8">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Welcome, {user?.name || "User"}</h1>
+                </div>
+              </div>
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
+                {[
+                  { label: "Total Orders", value: dashboardData?.stats?.total_orders || 0, icon: ShoppingBag },
+                  { label: "Completed", value: dashboardData?.stats?.completed_orders || 0, icon: CheckCircle2 },
+                  { label: "Pending", value: dashboardData?.stats?.pending_orders || 0, icon: Clock },
+                  { label: "Canceled", value: dashboardData?.stats?.canceled_orders || 0, icon: XCircle },
+                  { label: "Total Spent", value: `${wallet?.currency || "$"} ${dashboardData?.stats?.total_spent || "0.00"}`, icon: CreditCard },
+                ].map((stat, i) => (
+                  <Card key={i} className="border border-border bg-card">
+                    <CardContent className="p-6">
+                      <div className="flex items-center gap-4">
+                        <div className="p-2 rounded-lg bg-secondary">
+                          <stat.icon className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
+                          <h3 className="text-xl font-bold">{dashboardLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : stat.value}</h3>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                {/* Wallet Card */}
+                <Card className="border border-border bg-card">
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-muted-foreground text-sm font-medium">Wallet Balance</p>
+                        <h2 className="text-3xl font-bold mt-2">
+                          {dashboardLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : `${wallet?.currency || "$"} ${dashboardData?.wallet?.balance || "0.00"}`}
+                        </h2>
+                      </div>
+                    </div>
+                    <div className="mt-6 flex gap-2">
+                      <Button className="flex-1" size="sm" onClick={() => setActiveTab("credit")}>
+                        Deposit
+                      </Button>
+                      <Button variant="outline" size="sm" className="flex-1" onClick={() => setActiveTab("credit")}>
+                        History
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Secondary Stats */}
+                <Card className="border border-border bg-card">
+                  <CardContent className="p-6 space-y-4">
+                    {[
+                      { label: "Wishlist Items", value: dashboardData?.stats?.wishlist_count || 0 },
+                      { label: "Open Tickets", value: dashboardData?.stats?.open_tickets || 0 },
+                      { label: "Total Reviews", value: dashboardData?.stats?.reviews_count || 0 },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-muted-foreground">{item.label}</span>
+                        <span className="font-bold">{dashboardLoading ? "..." : item.value}</span>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+
+                {/* Recent Activities */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-bold">Recent Orders</h3>
+                    <Button variant="link" size="sm" className="text-primary h-auto p-0" onClick={() => setActiveTab("purchases")}>
+                      View all
+                    </Button>
+                  </div>
+                  <Card className="border border-border bg-card">
+                    <CardContent className="p-0">
+                      <div className="divide-y divide-border">
+                        {dashboardData?.recent_orders?.length > 0 ? (
+                          dashboardData.recent_orders.map((order: any, i: number) => (
+                            <div key={i} className="p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
+                              <div className="flex items-center gap-4">
+                                <div className="h-8 w-8 rounded bg-secondary flex items-center justify-center">
+                                  <Package className="h-4 w-4 text-muted-foreground" />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-bold">Order #{order.id}</p>
+                                  <p className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-sm font-bold">{order.total}</p>
+                                <span className="text-[10px] uppercase font-medium text-muted-foreground">{order.status}</span>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="p-12 text-center">
+                            <p className="text-muted-foreground text-sm">No recent orders</p>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+              </div>
+            </div>
+          )}
+
           {/* Purchases Section */}
           {activeTab === "purchases" && (
             <div className="space-y-3 sm:space-y-4 md:space-y-6">
@@ -900,23 +1101,59 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
           {/* Wishlist Section */}
           {activeTab === "wishlist" && (
             <div className="space-y-3 sm:space-y-4 md:space-y-6">
-              <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
-                <Heart className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
-                <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Wishlist</h1>
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
+                  <Heart className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
+                  <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Wishlist</h1>
+                </div>
+                {wishlist.length > 0 && (
+                  <Button variant="destructive" size="sm" onClick={handleClearWishlist} className="gap-2">
+                    <Trash2 className="h-4 w-4" /> Clear Wishlist
+                  </Button>
+                )}
               </div>
+
               {wishlist.length === 0 ? (
                 <div className="bg-card border border-border rounded-lg p-6 sm:p-8 md:p-12 text-center">
                   <p className="text-muted-foreground text-sm sm:text-base">No items in your wishlist</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                  {wishlist.map((product) => (
-                    <div key={product.id} className="bg-card border border-border rounded-lg p-3 sm:p-4">
-                      <img src={product.image} alt={product.title} className="w-full h-36 sm:h-40 md:h-48 object-cover rounded mb-3 sm:mb-4" />
-                      <h3 className="font-semibold text-foreground mb-1.5 sm:mb-2 text-xs sm:text-sm md:text-base line-clamp-2">{product.title}</h3>
-                      <p className="text-primary font-bold text-sm sm:text-base md:text-lg">${product.vendors[0]?.price || 0}</p>
-                    </div>
-                  ))}
+                <div className="bg-card border border-border rounded-lg overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="border-border hover:bg-card">
+                          <TableHead className="px-4 py-3">Product</TableHead>
+                          <TableHead className="px-4 py-3">Price</TableHead>
+                          <TableHead className="px-4 py-3 text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {wishlist.map((product) => (
+                          <TableRow key={product.id} className="border-border hover:bg-accent/50">
+                            <TableCell className="px-4 py-3">
+                              <div className="flex items-center gap-3">
+                                <img src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${product.image}`} alt={product.title} className="w-12 h-12 rounded object-cover" />
+                                <a href={`/product/${product.id}`}>
+                                  <span className="font-medium text-sm line-clamp-2 md:line-clamp-1 hover:text-primary">{product.title}</span>
+                                </a>
+                              </div>
+                            </TableCell>
+                            <TableCell className="px-4 py-3 font-semibold text-primary">
+                              ${product?.best_price || 0}
+                            </TableCell>
+                            <TableCell className="px-4 py-3 text-right">
+                              <div className="flex justify-end gap-2">
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleRemoveFromWishlist(product.id)}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </div>
               )}
             </div>
@@ -3847,7 +4084,7 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
           }
 
           {/* Other Sections Placeholder */}
-          {
+          {/* {
             activeTab !== "purchases" && activeTab !== "wishlist" && activeTab !== "credit" && activeTab !== "offers-list" && activeTab !== "sales-history" && activeTab !== "requested-products" && activeTab !== "wholesale" && activeTab !== "wholesale-bids" && activeTab !== "support" && activeTab !== "settings" && (
               <div className="space-y-3 sm:space-y-4 md:space-y-6">
                 <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold capitalize">{activeTab.replace(/([A-Z])/g, ' $1').trim()}</h1>
@@ -3856,7 +4093,7 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
                 </div>
               </div>
             )
-          }
+          } */}
         </div >
       </main >
     </div >
