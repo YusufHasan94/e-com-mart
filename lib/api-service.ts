@@ -3103,7 +3103,7 @@ export const apiService = {
 
     subscribeNewsletter: async (email: string, captcha_token?: string): Promise<ApiResponse<any>> => {
         try {
-            const res = await fetch(`${BASE_URL}/newsletter/subscribe`, {
+            const res = await fetch(`${BASE_URL}/subscribe`, {
                 method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" },
                 body: JSON.stringify({ email, captcha_token }),
             })
@@ -3114,7 +3114,7 @@ export const apiService = {
 
     unsubscribeNewsletter: async (email: string): Promise<ApiResponse<any>> => {
         try {
-            const res = await fetch(`${BASE_URL}/newsletter/unsubscribe`, {
+            const res = await fetch(`${BASE_URL}/unsubscribe`, {
                 method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" },
                 body: JSON.stringify({ email }),
             })
@@ -3125,7 +3125,7 @@ export const apiService = {
 
     checkNewsletterStatus: async (token: string): Promise<ApiResponse<any>> => {
         try {
-            const res = await fetch(`${BASE_URL}/newsletter/status`, {
+            const res = await fetch(`${BASE_URL}/status`, {
                 headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json" },
             })
             const result = await res.json()

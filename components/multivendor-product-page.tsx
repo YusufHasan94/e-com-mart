@@ -147,6 +147,11 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
             if (mappedProduct.variations && mappedProduct.variations.length > 0) {
               setSelectedVariation(mappedProduct.variations[0])
             }
+
+            // Track this product view for recently viewed history (auth-gated, fire-and-forget)
+            if (token) {
+              apiService.trackProductView(token, parseInt(mappedProduct.id)).catch(() => {})
+            }
           } catch (mapError) {
             console.error("Mapping Error:", mapError);
             setIsLoading(false);
@@ -162,7 +167,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
     }
 
     fetchProduct()
-  }, [productId])
+  }, [productId, token])
 
   if (isLoading) {
     return (

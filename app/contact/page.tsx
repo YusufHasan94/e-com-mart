@@ -70,10 +70,7 @@ export default function ContactPage() {
 
             {/* Form */}
             <div className="md:col-span-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Send a Message</CardTitle>
-                </CardHeader>
+              <Card className="p-4">
                 <CardContent>
                   {sent ? (
                     <div className="flex flex-col items-center gap-4 py-8">
