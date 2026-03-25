@@ -15,6 +15,7 @@ import { PayPalPaymentForm } from "@/components/paypal-payment-form"
 
 interface PaymentFormProps {
   onSubmit: (data: any) => void
+  onMethodChange?: (method: string) => void
   selectedCountry?: string
   onBack?: () => void
   clientSecret?: string
@@ -158,6 +159,7 @@ function FallbackPaymentForm({
 // ─── Main PaymentForm component ───────────────────────────────────────────────
 export function PaymentForm({
   onSubmit,
+  onMethodChange,
   selectedCountry,
   onBack,
   clientSecret,
@@ -167,6 +169,8 @@ export function PaymentForm({
   const { token } = useAuth()
   const [paymentMethod, setPaymentMethod] = useState("")
   const [paymentMethods, setPaymentMethods] = useState<ApiPaymentMethod[]>([])
+  const [methodDetails, setMethodDetails] = useState<any>(null)
+  const [isFetchingDetails, setIsFetchingDetails] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -181,7 +185,10 @@ export function PaymentForm({
             return isActive && countryMatch
           })
           setPaymentMethods(filtered)
-          if (filtered.length > 0) setPaymentMethod(filtered[0].code)
+          if (filtered.length > 0) {
+            setPaymentMethod(filtered[0].code)
+            onMethodChange?.(filtered[0].code)
+          }
         }
         setIsLoading(false)
       }
@@ -201,6 +208,22 @@ export function PaymentForm({
   const isPayPalMethod = paymentMethod.toLowerCase().includes("paypal")
 
   const selectedMethodObj = paymentMethods.find((m) => m.code === paymentMethod)
+
+  // Fetch specialized details when standard method changes
+  useEffect(() => {
+    const fetchDetails = async () => {
+      if (token && paymentMethod) {
+        setIsFetchingDetails(true)
+        setMethodDetails(null)
+        const res = await apiService.getPaymentMethodDetails(token, paymentMethod)
+        if (res.success && res.data) {
+          setMethodDetails(res.data)
+        }
+        setIsFetchingDetails(false)
+      }
+    }
+    fetchDetails()
+  }, [token, paymentMethod])
 
   if (isLoading) {
     return <div className="flex justify-center py-8"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
@@ -225,7 +248,7 @@ export function PaymentForm({
             </Card>
           </div>
         ) : (
-          <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
+          <RadioGroup value={paymentMethod} onValueChange={(v) => { setPaymentMethod(v); onMethodChange?.(v) }}>
             <div className="space-y-3">
               {paymentMethods.map((method) => (
                 <Card key={method.code} className={paymentMethod === method.code ? "ring-2 ring-primary" : ""}>
@@ -254,6 +277,18 @@ export function PaymentForm({
           </RadioGroup>
         )}
       </div>
+
+      {isFetchingDetails ? (
+        <div className="flex items-center gap-2 py-4 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Loading payment method details…
+        </div>
+      ) : methodDetails && methodDetails.instructions && (
+        <div className="rounded-lg border bg-blue-50/50 p-4 text-sm text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
+          <div className="font-semibold mb-1">Payment Instructions</div>
+          <p className="whitespace-pre-line">{methodDetails.instructions}</p>
+        </div>
+      )}
 
       {/* Stripe card form or fallback */}
       {isStripeMethod && clientSecret ? (

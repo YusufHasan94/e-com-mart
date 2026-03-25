@@ -3,6 +3,16 @@
 const API_ORIGIN = process.env.NEXT_PUBLIC_API_BASE_URL || "https://gamehub.licensesender.com"
 const BASE_URL = `${API_ORIGIN}/api/v1`
 
+// Simple Promise-based cache to prevent metadata request storms
+const metadataCache: Record<string, Promise<ApiResponse<any>>> = {}
+
+function withCache<T>(key: string, fetcher: () => Promise<ApiResponse<T>>): Promise<ApiResponse<T>> {
+    if (!metadataCache[key]) {
+        metadataCache[key] = fetcher()
+    }
+    return metadataCache[key]
+}
+
 export interface ApiUser {
     id: string
     email: string
@@ -2529,242 +2539,238 @@ export const apiService = {
      * Fetch all product categories
      */
     getCategories: async (): Promise<ApiResponse<ApiCategory[]>> => {
-        try {
-            const response = await fetch(`${BASE_URL}/product-attributes/categories`, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                },
-            })
-
-            const result = await response.json()
-
-
-            if (!response.ok) {
+        return withCache("categories", async () => {
+            try {
+                const response = await fetch(`${BASE_URL}/product-attributes/categories`, {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json",
+                    },
+                })
+                const result = await response.json()
+                if (!response.ok) {
+                    return {
+                        success: false,
+                        error: result.message || "Failed to fetch categories",
+                    }
+                }
+                return {
+                    success: true,
+                    data: Array.isArray(result.data) ? result.data : result.data?.categories || [],
+                    message: result.message,
+                }
+            } catch (error) {
+                console.error("API Error (getCategories):", error)
                 return {
                     success: false,
-                    error: result.message || "Failed to fetch categories",
+                    error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
                 }
             }
-
-            return {
-                success: true,
-                data: Array.isArray(result.data) ? result.data : result.data?.categories || [],
-                message: result.message,
-            }
-        } catch (error) {
-            console.error("API Error (getCategories):", error)
-            return {
-                success: false,
-                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
-            }
-        }
+        })
     },
 
     /**
      * Fetch all product platforms
      */
     getPlatforms: async (): Promise<ApiResponse<ApiPlatform[]>> => {
-        try {
-            const response = await fetch(`${BASE_URL}/product-attributes/platforms`, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                },
-            })
-
-            const result = await response.json()
-
-
-            if (!response.ok) {
+        return withCache("platforms", async () => {
+            try {
+                const response = await fetch(`${BASE_URL}/product-attributes/platforms`, {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json",
+                    },
+                })
+                const result = await response.json()
+                if (!response.ok) {
+                    return {
+                        success: false,
+                        error: result.message || "Failed to fetch platforms",
+                    }
+                }
+                return {
+                    success: true,
+                    data: Array.isArray(result.data) ? result.data : result.data?.platforms || [],
+                    message: result.message,
+                }
+            } catch (error) {
+                console.error("API Error (getPlatforms):", error)
                 return {
                     success: false,
-                    error: result.message || "Failed to fetch platforms",
+                    error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
                 }
             }
-
-            return {
-                success: true,
-                data: Array.isArray(result.data) ? result.data : result.data?.platforms || [],
-                message: result.message,
-            }
-        } catch (error) {
-            console.error("API Error (getPlatforms):", error)
-            return {
-                success: false,
-                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
-            }
-        }
+        })
     },
 
     /**
      * Fetch all product types
      */
     getTypes: async (): Promise<ApiResponse<ApiType[]>> => {
-        try {
-            const response = await fetch(`${BASE_URL}/product-attributes/types`, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                },
-            })
-
-            const result = await response.json()
-            if (!response.ok) {
+        return withCache("types", async () => {
+            try {
+                const response = await fetch(`${BASE_URL}/product-attributes/types`, {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json",
+                    },
+                })
+                const result = await response.json()
+                if (!response.ok) {
+                    return {
+                        success: false,
+                        error: result.message || "Failed to fetch types",
+                    }
+                }
+                return {
+                    success: true,
+                    data: Array.isArray(result.data) ? result.data : result.data?.types || [],
+                    message: result.message,
+                }
+            } catch (error) {
+                console.error("API Error (getTypes):", error)
                 return {
                     success: false,
-                    error: result.message || "Failed to fetch types",
+                    error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
                 }
             }
-
-            return {
-                success: true,
-                data: Array.isArray(result.data) ? result.data : result.data?.types || [],
-                message: result.message,
-            }
-        } catch (error) {
-            console.error("API Error (getTypes):", error)
-            return {
-                success: false,
-                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
-            }
-        }
+        })
     },
 
     /**
      * Fetch all product regions
      */
     getRegions: async (): Promise<ApiResponse<ApiRegion[]>> => {
-        try {
-            const response = await fetch(`${BASE_URL}/product-attributes/regions`, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                },
-            })
-
-            const result = await response.json()
-            if (!response.ok) {
+        return withCache("regions", async () => {
+            try {
+                const response = await fetch(`${BASE_URL}/product-attributes/regions`, {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json",
+                    },
+                })
+                const result = await response.json()
+                if (!response.ok) {
+                    return {
+                        success: false,
+                        error: result.message || "Failed to fetch regions",
+                    }
+                }
+                return {
+                    success: true,
+                    data: Array.isArray(result.data) ? result.data : result.data?.regions || [],
+                    message: result.message,
+                }
+            } catch (error) {
+                console.error("API Error (getRegions):", error)
                 return {
                     success: false,
-                    error: result.message || "Failed to fetch regions",
+                    error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
                 }
             }
-
-            return {
-                success: true,
-                data: Array.isArray(result.data) ? result.data : result.data?.regions || [],
-                message: result.message,
-            }
-        } catch (error) {
-            console.error("API Error (getRegions):", error)
-            return {
-                success: false,
-                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
-            }
-        }
+        })
     },
 
     /**
      * Fetch all product languages
      */
     getLanguages: async (): Promise<ApiResponse<ApiLanguage[]>> => {
-        try {
-            const response = await fetch(`${BASE_URL}/product-attributes/languages`, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                },
-            })
-
-            const result = await response.json()
-            if (!response.ok) {
+        return withCache("languages", async () => {
+            try {
+                const response = await fetch(`${BASE_URL}/product-attributes/languages`, {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json",
+                    },
+                })
+                const result = await response.json()
+                if (!response.ok) {
+                    return {
+                        success: false,
+                        error: result.message || "Failed to fetch languages",
+                    }
+                }
+                return {
+                    success: true,
+                    data: Array.isArray(result.data) ? result.data : result.data?.languages || [],
+                    message: result.message,
+                }
+            } catch (error) {
+                console.error("API Error (getLanguages):", error)
                 return {
                     success: false,
-                    error: result.message || "Failed to fetch languages",
+                    error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
                 }
             }
-
-            return {
-                success: true,
-                data: Array.isArray(result.data) ? result.data : result.data?.languages || [],
-                message: result.message,
-            }
-        } catch (error) {
-            console.error("API Error (getLanguages):", error)
-            return {
-                success: false,
-                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
-            }
-        }
+        })
     },
 
     /**
      * Fetch all product works_on
      */
     getWorksOn: async (): Promise<ApiResponse<ApiWorksOn[]>> => {
-        try {
-            const response = await fetch(`${BASE_URL}/product-attributes/works-on`, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                },
-            })
-
-            const result = await response.json()
-            if (!response.ok) {
+        return withCache("works_on", async () => {
+            try {
+                const response = await fetch(`${BASE_URL}/product-attributes/works-on`, {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json",
+                    },
+                })
+                const result = await response.json()
+                if (!response.ok) {
+                    return {
+                        success: false,
+                        error: result.message || "Failed to fetch works_on",
+                    }
+                }
+                return {
+                    success: true,
+                    data: Array.isArray(result.data) ? result.data : result.data?.works_on || [],
+                    message: result.message,
+                }
+            } catch (error) {
+                console.error("API Error (getWorksOn):", error)
                 return {
                     success: false,
-                    error: result.message || "Failed to fetch works_on",
+                    error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
                 }
             }
-
-            return {
-                success: true,
-                data: Array.isArray(result.data) ? result.data : result.data?.works_on || [],
-                message: result.message,
-            }
-        } catch (error) {
-            console.error("API Error (getWorksOn):", error)
-            return {
-                success: false,
-                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
-            }
-        }
+        })
     },
 
     /**
      * Fetch all product developers
      */
     getDevelopers: async (): Promise<ApiResponse<ApiDeveloper[]>> => {
-        try {
-            const response = await fetch(`${BASE_URL}/product-attributes/developers`, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                },
-            })
-
-            const result = await response.json()
-            if (!response.ok) {
+        return withCache("developers", async () => {
+            try {
+                const response = await fetch(`${BASE_URL}/product-attributes/developers`, {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json",
+                    },
+                })
+                const result = await response.json()
+                if (!response.ok) {
+                    return {
+                        success: false,
+                        error: result.message || "Failed to fetch developers",
+                    }
+                }
+                return {
+                    success: true,
+                    data: Array.isArray(result.data) ? result.data : result.data?.developers || [],
+                    message: result.message,
+                }
+            } catch (error) {
+                console.error("API Error (getDevelopers):", error)
                 return {
                     success: false,
-                    error: result.message || "Failed to fetch developers",
+                    error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
                 }
             }
-
-            return {
-                success: true,
-                data: Array.isArray(result.data) ? result.data : result.data?.developers || [],
-                message: result.message,
-            }
-        } catch (error) {
-            console.error("API Error (getDevelopers):", error)
-            return {
-                success: false,
-                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
-            }
-        }
+        })
     },
 
     /**

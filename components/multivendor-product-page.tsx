@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import {
   Card,
   CardContent,
@@ -76,6 +76,10 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
   const { toast } = useToast()
   const [isSaving, setIsSaving] = useState(false)
 
+  // Tracks which productId has already been sent to the view-tracking endpoint
+  // so we never fire it more than once per product, regardless of token refreshes
+  const trackedProductRef = useRef<string | null>(null)
+
   const handleAddToWishlist = async () => {
     if (!token) {
       toast({
@@ -122,7 +126,6 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
     return isNaN(parsed) || parsed <= 0 ? 1 : parsed
   }, [selectedCurrency])
 
-  console.log(selectedCurrency);
 
   // Helper: convert + format a price
   const cp = (price: number) => (price * exchangeRate).toFixed(2)
@@ -148,8 +151,10 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
               setSelectedVariation(mappedProduct.variations[0])
             }
 
-            // Track this product view for recently viewed history (auth-gated, fire-and-forget)
-            if (token) {
+            // Track this product view for recently viewed history
+            // Auth-gated + once-per-productId guard to avoid rate-limit hammering
+            if (token && trackedProductRef.current !== mappedProduct.id) {
+              trackedProductRef.current = mappedProduct.id
               apiService.trackProductView(token, parseInt(mappedProduct.id)).catch(() => {})
             }
           } catch (mapError) {
@@ -167,7 +172,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
     }
 
     fetchProduct()
-  }, [productId, token])
+  }, [productId]) // token intentionally omitted — product data doesn't need to re-fetch on token refresh
 
   if (isLoading) {
     return (
