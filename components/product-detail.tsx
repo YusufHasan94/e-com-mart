@@ -133,9 +133,8 @@ export function ProductDetail({ productId }: ProductDetailProps) {
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
                     key={i}
-                    className={`h-5 w-5 ${
-                      i < Math.floor(product.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                    }`}
+                    className={`h-5 w-5 ${i < Math.floor(product.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                      }`}
                   />
                 ))}
               </div>
@@ -250,7 +249,7 @@ export function ProductDetail({ productId }: ProductDetailProps) {
               <ul className="space-y-3">
                 {product.features.map((feature, index) => (
                   <li key={index} className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
+                    <div className="w-2 h-2 bg-primary rounded-full mt-2 shrink-0" />
                     <span className="text-muted-foreground">{feature}</span>
                   </li>
                 ))}

@@ -932,7 +932,7 @@ export function AccountDashboard({ initialTab = "dashboard" }: { initialTab?: st
             <div className="space-y-3 sm:space-y-4 md:space-y-6">
               {/* Section Header */}
               <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
-                <ShoppingBag className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
+                <ShoppingBag className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary shrink-0" />
                 <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Purchases</h1>
               </div>
 
@@ -1055,7 +1055,7 @@ export function AccountDashboard({ initialTab = "dashboard" }: { initialTab?: st
           {activeTab === "keys" && (
             <div className="space-y-3 sm:space-y-4 md:space-y-6">
               <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
-                <Key className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
+                <Key className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary shrink-0" />
                 <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">My Keys</h1>
               </div>
 
@@ -1103,7 +1103,7 @@ export function AccountDashboard({ initialTab = "dashboard" }: { initialTab?: st
             <div className="space-y-3 sm:space-y-4 md:space-y-6">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
-                  <Heart className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
+                  <Heart className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary shrink-0" />
                   <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Wishlist</h1>
                 </div>
                 {wishlist.length > 0 && (
@@ -1163,7 +1163,7 @@ export function AccountDashboard({ initialTab = "dashboard" }: { initialTab?: st
           {activeTab === "notifications" && (
             <div className="space-y-3 sm:space-y-4 md:space-y-6">
               <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
-                <Megaphone className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
+                <Megaphone className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary shrink-0" />
                 <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Notifications</h1>
               </div>
 
@@ -1198,7 +1198,7 @@ export function AccountDashboard({ initialTab = "dashboard" }: { initialTab?: st
             <div className="space-y-3 sm:space-y-4 md:space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
-                  <Building2 className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
+                  <Building2 className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary shrink-0" />
                   <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Addresses</h1>
                 </div>
                 <Button size="sm" className="gap-2">
@@ -1240,7 +1240,7 @@ export function AccountDashboard({ initialTab = "dashboard" }: { initialTab?: st
           {activeTab === "refunds" && (
             <div className="space-y-3 sm:space-y-4 md:space-y-6">
               <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
-                <RotateCcw className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
+                <RotateCcw className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary shrink-0" />
                 <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Refunds</h1>
               </div>
 
@@ -1287,7 +1287,7 @@ export function AccountDashboard({ initialTab = "dashboard" }: { initialTab?: st
           {activeTab === "recently-viewed" && (
             <div className="space-y-3 sm:space-y-4 md:space-y-6">
               <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
-                <History className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
+                <History className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary shrink-0" />
                 <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Recently Viewed</h1>
               </div>
 
@@ -1328,7 +1328,7 @@ export function AccountDashboard({ initialTab = "dashboard" }: { initialTab?: st
           {activeTab === "alerts" && (
             <div className="space-y-3 sm:space-y-4 md:space-y-6">
               <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
-                <BellRing className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
+                <BellRing className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary shrink-0" />
                 <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Price Alerts</h1>
               </div>
 
@@ -1384,7 +1384,7 @@ export function AccountDashboard({ initialTab = "dashboard" }: { initialTab?: st
           {activeTab === "credit" && (
             <div className="space-y-4 sm:space-y-5 md:space-y-6">
               <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
-                <Wallet className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
+                <Wallet className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary shrink-0" />
                 <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Balance</h1>
               </div>
 
@@ -2298,7 +2298,7 @@ export function AccountDashboard({ initialTab = "dashboard" }: { initialTab?: st
                                         }}
                                         className="w-full flex items-center gap-3 px-3 py-2 hover:bg-accent cursor-pointer transition-colors text-left"
                                       >
-                                        <div className="flex-shrink-0 w-10 h-10 rounded overflow-hidden bg-muted">
+                                        <div className="shrink-0 w-10 h-10 rounded overflow-hidden bg-muted">
                                           <img
                                             src={product.image}
                                             alt={product.title}
@@ -2325,7 +2325,7 @@ export function AccountDashboard({ initialTab = "dashboard" }: { initialTab?: st
 
                             {selectedProduct && (
                               <div className="flex items-start gap-4 p-4 bg-muted/30 border border-border rounded-lg">
-                                <div className="w-16 h-16 rounded overflow-hidden bg-muted flex-shrink-0">
+                                <div className="w-16 h-16 rounded overflow-hidden bg-muted shrink-0">
                                   <img
                                     src={selectedProduct.image}
                                     alt={selectedProduct.title}
@@ -3492,7 +3492,7 @@ export function AccountDashboard({ initialTab = "dashboard" }: { initialTab?: st
                                     </TableCell>
                                     <TableCell className="px-3 sm:px-4 py-3">
                                       <div className="flex items-center gap-3">
-                                        <div className="w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
+                                        <div className="w-12 h-12 bg-muted rounded flex items-center justify-center shrink-0">
                                           <span className="text-xs font-bold text-foreground">#{product.name.split(' ')[0].replace('#', '')}</span>
                                         </div>
                                         <span className="text-sm font-medium text-foreground">{product.name}</span>

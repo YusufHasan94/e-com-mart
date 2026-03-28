@@ -102,9 +102,9 @@ export default function FaqPage() {
                             >
                               <span className="font-medium pr-4">{faq.question}</span>
                               {openId === (faq.id || faq.question) ? (
-                                <ChevronUp className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+                                <ChevronUp className="h-5 w-5 shrink-0 text-muted-foreground" />
                               ) : (
-                                <ChevronDown className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+                                <ChevronDown className="h-5 w-5 shrink-0 text-muted-foreground" />
                               )}
                             </button>
                             {openId === (faq.id || faq.question) && (

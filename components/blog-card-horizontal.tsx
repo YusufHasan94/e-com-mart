@@ -9,7 +9,7 @@ export function BlogCardHorizontal({ blog }: BlogCardHorizontalProps) {
     return (
         <Link href={`/blog/${blog.slug}`} className="group flex flex-col sm:flex-row gap-4 sm:gap-6 bg-transparent hover:bg-muted/50 p-2 rounded-lg transition-all duration-300">
             {/* Blog Image */}
-            <div className="relative w-full sm:w-1/3 aspect-[16/10] sm:aspect-video rounded-lg overflow-hidden flex-shrink-0 bg-muted/30">
+            <div className="relative w-full sm:w-1/3 aspect-[16/10] sm:aspect-video rounded-lg overflow-hidden shrink-0 bg-muted/30">
                 <img
                     src={blog.image}
                     alt={blog.title}

@@ -99,7 +99,7 @@ export function ProductCategories() {
                 >
                   <CardContent className="p-1.5 sm:p-2 lg:p-3 relative z-10 h-full flex items-center space-x-1.5 sm:space-x-2 lg:space-x-3">
                     {/* Icon */}
-                    <div className={`w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 rounded-lg ${style.iconBg} group-hover:scale-110 transition-all duration-300 flex items-center justify-center flex-shrink-0`}>
+                    <div className={`w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 rounded-lg ${style.iconBg} group-hover:scale-110 transition-all duration-300 flex items-center justify-center shrink-0`}>
                       <Icon className={`h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 ${style.iconColor}`} />
                     </div>
 

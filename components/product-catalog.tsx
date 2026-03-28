@@ -98,7 +98,7 @@ export function ProductCatalog() {
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Filters Sidebar */}
           <div className={`${showFilters ? "block" : "hidden"
-            } lg:block w-full lg:w-72 xl:w-80 flex-shrink-0`}>
+            } lg:block w-full lg:w-72 xl:w-80 shrink-0`}>
             <div className="sticky top-4">
               <ProductFilters filters={filters} onFiltersChange={setFilters} />
             </div>

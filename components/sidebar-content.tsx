@@ -146,12 +146,12 @@ export function SidebarContent({
                                         }`}
                                 >
                                     <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3 min-w-0 flex-1">
-                                        <Icon className="h-4 w-4 sm:h-4 sm:w-4 md:h-5 md:w-5 flex-shrink-0" />
+                                        <Icon className="h-4 w-4 sm:h-4 sm:w-4 md:h-5 md:w-5 shrink-0" />
                                         <span className="font-medium truncate">{item.label}</span>
                                     </div>
                                     {/* <div className="flex items-center gap-2">
                     {item.badge && (
-                      <Badge className="bg-primary text-primary-foreground text-xs sm:text-xs md:text-sm px-1.5 sm:px-2 md:px-2 py-0.5 flex-shrink-0">
+                      <Badge className="bg-primary text-primary-foreground text-xs sm:text-xs md:text-sm px-1.5 sm:px-2 md:px-2 py-0.5 shrink-0">
                         {item.badge}
                       </Badge>
                     )}

@@ -403,6 +403,25 @@ export interface AppBlog {
     date: string
 }
 
+export interface MenuItem {
+    id: number
+    title: string
+    type: "link" | "megamenu" | "heading"
+    url: string
+    icon: string | null
+    target: "_self" | "_blank"
+    children: MenuItem[]
+    columns?: number
+}
+
+export interface MenuData {
+    id: number
+    name: string
+    slug: string
+    location: "header" | "footer" | "sidebar" | string
+    items: MenuItem[]
+}
+
 export const apiService = {
     /**
      * Register a new user
@@ -3520,13 +3539,13 @@ export const apiService = {
         } catch (e) { return { success: false, error: String(e) } }
     },
 
-    getMenus: async (): Promise<ApiResponse<any>> => {
-        try {
-            const res = await fetch(`${BASE_URL}/menus`, { headers: { "Accept": "application/json" } })
-            const result = await res.json()
-            return res.ok ? { success: true, data: result.data } : { success: false, error: result.message }
-        } catch (e) { return { success: false, error: String(e) } }
-    },
+    // getMenus: async (): Promise<ApiResponse<any>> => {
+    //     try {
+    //         const res = await fetch(`${BASE_URL}/menus`, { headers: { "Accept": "application/json" } })
+    //         const result = await res.json()
+    //         return res.ok ? { success: true, data: result.data } : { success: false, error: result.message }
+    //     } catch (e) { return { success: false, error: String(e) } }
+    // },
 
     getMenuByLocation: async (location: string): Promise<ApiResponse<any>> => {
         try {
@@ -4075,5 +4094,42 @@ export const apiService = {
                 error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
             }
         }
+    },
+
+    /**
+     * Fetch all menus (header, footer, sidebar)
+     */
+    getMenus: async (): Promise<ApiResponse<MenuData[]>> => {
+        return withCache("menus", async () => {
+            try {
+                const response = await fetch(`${BASE_URL}/menus`, {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json",
+                    },
+                })
+
+                const result = await response.json()
+
+                if (!response.ok) {
+                    return {
+                        success: false,
+                        error: result.message || "Failed to fetch menus",
+                    }
+                }
+
+                return {
+                    success: true,
+                    data: Array.isArray(result.data) ? result.data : [],
+                    message: result.message,
+                }
+            } catch (error) {
+                console.error("API Error (getMenus):", error)
+                return {
+                    success: false,
+                    error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
+                }
+            }
+        })
     }
 }

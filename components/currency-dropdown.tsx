@@ -3,7 +3,7 @@ import { useCurrency } from "@/contexts/currency-context"
 import { Button } from "@/components/ui/button"
 import { ChevronDown } from "lucide-react"
 
-export function CurrencyDropdown() {
+export function CurrencyDropdown({ upward = false }: { upward?: boolean }) {
     const { currencies, selectedCurrency, setSelectedCurrency, isLoading } = useCurrency()
     const [isOpen, setIsOpen] = useState(false)
     const dropdownRef = useRef<HTMLDivElement>(null)
@@ -47,11 +47,11 @@ export function CurrencyDropdown() {
                         <span>{selectedCurrency.symbol}</span>}
                 </span>
                 {selectedCurrency.code}
-                <ChevronDown className={`h-3 w-3 ml-1 opacity-50 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`h-3 w-3 ml-1 opacity-50 transition-transform ${isOpen ? (upward ? '' : 'rotate-180') : (upward ? 'rotate-180' : '')}`} />
             </Button>
 
             {isOpen && (
-                <div className="absolute right-0 top-full mt-2 w-32 rounded-md border bg-popover text-popover-foreground shadow-xl z-[9999] animate-in fade-in zoom-in-95 overflow-hidden">
+                <div className={`absolute right-0 w-32 rounded-md border bg-popover text-popover-foreground shadow-xl z-9999 animate-in fade-in zoom-in-95 overflow-hidden ${upward ? 'bottom-full mb-1' : 'top-full mt-2'}`}>
                     <div className="max-h-[300px] overflow-y-auto custom-scrollbar p-1">
                         {currencies.map((currency) => (
                             <button
@@ -63,7 +63,7 @@ export function CurrencyDropdown() {
                                 className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs rounded-sm transition-colors hover:bg-accent ${selectedCurrency.code === currency.code ? "bg-accent text-primary font-bold" : "text-muted-foreground"
                                     }`}
                             >
-                                <span className="w-5 h-5 rounded-full border border-border flex items-center justify-center text-[14px] font-semibold flex-shrink-0">
+                                <span className="w-5 h-5 rounded-full border border-border flex items-center justify-center text-[14px] font-semibold shrink-0">
                                     {currency?.code === "BDT" ?
                                         <span className="font-extrabold">{currency.symbol}</span> :
                                         <span>{currency.symbol}</span>}

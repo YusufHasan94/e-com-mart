@@ -58,7 +58,7 @@ export default function ContactPage() {
               {contactInfo.map(({ icon: Icon, label, value }) => (
                 <Card key={label}>
                   <CardContent className="flex items-center gap-4 p-4">
-                    <Icon className="h-6 w-6 text-primary flex-shrink-0" />
+                    <Icon className="h-6 w-6 text-primary shrink-0" />
                     <div>
                       <p className="text-sm text-muted-foreground">{label}</p>
                       <p className="font-medium">{value}</p>
