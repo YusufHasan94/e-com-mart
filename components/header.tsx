@@ -25,8 +25,8 @@ export function Header() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [drawerViewStack, setDrawerViewStack] = useState<MenuItem[]>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
-  // const [activeMegaMenuId, setActiveMegaMenuId] = useState<number | null>(null)
-  const [activeMegaMenuId, setActiveMegaMenuId] = useState<number | null>(1)
+  const [activeMegaMenuId, setActiveMegaMenuId] = useState<number | null>(null)
+  // const [activeMegaMenuId, setActiveMegaMenuId] = useState<number | null>(1)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
 
   // Reset drawer stack gracefully when closing
@@ -576,7 +576,7 @@ export function Header() {
             <div className="flex flex-col">
               {(() => {
                 const currentItems = drawerViewStack.length > 0 ? drawerViewStack[drawerViewStack.length - 1].children : headerMenuItems;
-                
+
                 const groupedItems: MenuItem[] = [];
                 let currentVirtualFolder: MenuItem | null = null;
 

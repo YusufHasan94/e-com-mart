@@ -406,12 +406,26 @@ export interface AppBlog {
 export interface MenuItem {
     id: number
     title: string
-    type: "link" | "megamenu" | "heading"
+    type: "megamenu" | "link" | "heading" // API provides these types
     url: string
     icon: string | null
-    target: "_self" | "_blank"
+    target: string
+    columns?: number // For megamenu layout
     children: MenuItem[]
-    columns?: number
+}
+
+export interface ApiSlider {
+    id: number
+    title: string
+    description?: string
+    image: string
+    link?: string
+    product_id?: number
+    price?: number
+    original_price?: number
+    discount?: number
+    badge?: string
+    [key: string]: any
 }
 
 export interface MenuData {
@@ -2112,75 +2126,9 @@ export const apiService = {
         }
     },
 
-    /**
-     * List active sliders
-     */
-    getSliders: async (): Promise<ApiResponse<any>> => {
-        try {
-            const response = await fetch(`${BASE_URL}/sliders`, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                },
-            })
 
-            const result = await response.json()
 
-            if (!response.ok) {
-                return {
-                    success: false,
-                    error: result.message || "Failed to fetch sliders",
-                }
-            }
 
-            return {
-                success: true,
-                data: result.data,
-                message: result.message,
-            }
-        } catch (error) {
-            console.error("API Error (getSliders):", error)
-            return {
-                success: false,
-                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
-            }
-        }
-    },
-
-    /**
-     * Get slider details
-     */
-    getSliderDetails: async (id: number): Promise<ApiResponse<any>> => {
-        try {
-            const response = await fetch(`${BASE_URL}/sliders/${id}`, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                },
-            })
-
-            const result = await response.json()
-
-            if (!response.ok) {
-                return {
-                    success: false,
-                    error: result.message || "Failed to fetch slider details",
-                }
-            }
-
-            return {
-                success: true,
-                data: result.data,
-                message: result.message,
-            }
-        } catch (error) {
-            console.error("API Error (getSliderDetails):", error)
-            return {
-                success: false,
-                error: `Network error: ${error instanceof Error ? error.message : String(error)}`,
-            }
-        }
-    },
 
     /**
      * Fetch product requests (requires authentication)
@@ -4131,5 +4079,59 @@ export const apiService = {
                 }
             }
         })
+    },
+
+    /**
+     * Fetch active sliders for homepage
+     */
+    getSliders: async (): Promise<ApiResponse<ApiSlider[]>> => {
+        return withCache("sliders", async () => {
+            try {
+                const response = await fetch(`${BASE_URL}/sliders`, {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json",
+                    },
+                })
+                const result = await response.json()
+                if (!response.ok) {
+                    return { success: false, error: result.message || "Failed to fetch sliders" }
+                }
+                return {
+                    success: true,
+                    data: Array.isArray(result.data) ? result.data : [],
+                    message: result.message,
+                }
+            } catch (error) {
+                console.error("API Error (getSliders):", error)
+                return { success: false, error: `Network error: ${error instanceof Error ? error.message : String(error)}` }
+            }
+        })
+    },
+
+    /**
+     * Fetch full details for a specific slider
+     */
+    getSliderById: async (id: string | number): Promise<ApiResponse<ApiSlider>> => {
+        try {
+            const response = await fetch(`${BASE_URL}/sliders/${id}`, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                },
+            })
+            const result = await response.json()
+            if (!response.ok) {
+                return { success: false, error: result.message || "Failed to fetch slider details" }
+            }
+            return {
+                success: true,
+                data: result.data || result,
+                message: result.message,
+            }
+        } catch (error) {
+            console.error("API Error (getSliderById):", error)
+            return { success: false, error: `Network error: ${error instanceof Error ? error.message : String(error)}` }
+        }
     }
 }
