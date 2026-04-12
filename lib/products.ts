@@ -46,6 +46,7 @@ export interface Product {
   salePrice?: number
   discount?: number
   customerReviews: CustomerReview[]
+  best_price?: number
 }
 
 // Mock product database

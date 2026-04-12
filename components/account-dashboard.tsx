@@ -64,15 +64,23 @@ import {
   Sparkles,
   User,
   MessageCircle,
+  RotateCcw,
+  History,
+  BellRing,
   Package as PackageIcon,
   CreditCard as CreditCardIcon,
   HelpCircle as HelpCircleIcon,
-  Pin
+  Pin,
+  LayoutDashboard,
+  Loader2,
+  XCircle,
+  Trash2
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState, useMemo, useRef } from "react"
 import { Product } from "@/lib/products"
 import { products } from "@/lib/products"
+import { useToast } from "@/components/ui/use-toast"
 
 import { SidebarContent } from "@/components/sidebar-content"
 
@@ -80,8 +88,9 @@ import { SidebarContent } from "@/components/sidebar-content"
 import { ProfileSettings } from "@/components/profile-settings"
 import { apiService } from "@/lib/api-service"
 
-export function AccountDashboard({ initialTab = "credit" }: { initialTab?: string }) {
+export function AccountDashboard({ initialTab = "dashboard" }: { initialTab?: string }) {
   const { user, token, isLoading } = useAuth()
+  const { toast } = useToast()
   const router = useRouter()
 
   // Define seller-only tabs
@@ -115,6 +124,31 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
   const [topUpStep, setTopUpStep] = useState(1)
   const [topUpMethod, setTopUpMethod] = useState("paypal-eur")
   const [topUpAmount, setTopUpAmount] = useState("")
+
+  // New States for added tabs
+  const [keys, setKeys] = useState<any[]>([])
+  const [keysLoading, setKeysLoading] = useState(false)
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [notificationsLoading, setNotificationsLoading] = useState(false)
+  const [addresses, setAddresses] = useState<any[]>([])
+  const [addressesLoading, setAddressesLoading] = useState(false)
+  const [refunds, setRefunds] = useState<any[]>([])
+  const [refundsLoading, setRefundsLoading] = useState(false)
+  const [recentlyViewed, setRecentlyViewed] = useState<any[]>([])
+  const [recentlyViewedLoading, setRecentlyViewedLoading] = useState(false)
+  const [alerts, setAlerts] = useState<any[]>([])
+  const [alertsLoading, setAlertsLoading] = useState(false)
+
+  // Dashboard Overview States
+  const [dashboardData, setDashboardData] = useState<any>(null)
+  const [dashboardLoading, setDashboardLoading] = useState(false)
+
+  // Seller States
+  const [sellerOffers, setSellerOffers] = useState<any[]>([])
+  const [sellerOffersLoading, setSellerOffersLoading] = useState(false)
+  const [sellerOrders, setSellerOrders] = useState<any[]>([])
+  const [sellerOrdersLoading, setSellerOrdersLoading] = useState(false)
+
   const [offersTab, setOffersTab] = useState("active")
   const [offersSearch, setOffersSearch] = useState("")
   const [offersShowCount, setOffersShowCount] = useState("25")
@@ -130,7 +164,6 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
   const [showProductResults, setShowProductResults] = useState(false)
   const productSearchRef = useRef<HTMLDivElement>(null)
 
-  console.log("orders: ", orders);
 
   // Product search results
   const productSearchResults = useMemo(() => {
@@ -234,6 +267,280 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
     handledBy?: string
   }>>([])
 
+  const fetchWallet = async () => {
+    if (token) {
+      const response = await apiService.getWallet(token)
+      if (response.success && response.data) {
+        setWallet({
+          balance: Number(response.data.balance),
+          currency: response.data.currency
+        })
+      }
+    }
+  }
+
+  const fetchTransactions = async () => {
+    if (token) {
+      setTransactionsLoading(true)
+      try {
+        const response = await apiService.getWalletTransactions(token, {
+          per_page: parseInt(showCount) || 25
+        })
+        if (response.success && response.data) {
+          const transactionsList = response.data.data || []
+          const mappedTransactions = transactionsList.map((tx: any) => ({
+            id: String(tx.id),
+            operationType: tx.description || tx.type || "Transaction",
+            details: tx.source || tx.description || "-",
+            orderId: tx.order_id || "-",
+            status: tx.status || "completed",
+            date: tx.created_at ? new Date(tx.created_at).toLocaleString() : "-",
+            expirationDate: tx.expires_at ? new Date(tx.expires_at).toLocaleString() : "-",
+            value: typeof tx.amount === "string" ? parseFloat(tx.amount) : tx.amount
+          }))
+          setTransactions(mappedTransactions)
+        }
+      } catch (error) {
+        console.error("Error fetching transactions:", error)
+      } finally {
+        setTransactionsLoading(false)
+      }
+    }
+  }
+
+  const fetchOrders = async () => {
+    if (token) {
+      const response = await apiService.getUserOrders(token)
+      if (response.success && response.data) {
+        const ordersList = Array.isArray(response.data) ? response.data : (response.data as any).data || []
+        setOrders(ordersList)
+      }
+    }
+  }
+
+  const fetchKeys = async () => {
+    if (token) {
+      setKeysLoading(true)
+      try {
+        const response = await apiService.getMyKeys(token, { per_page: parseInt(showCount) || 25 })
+        if (response.success && response.data) {
+          const keysList = Array.isArray(response.data) ? response.data : response.data.data || []
+          setKeys(keysList)
+        }
+      } finally {
+        setKeysLoading(false)
+      }
+    }
+  }
+
+  const fetchNotifications = async () => {
+    if (token) {
+      setNotificationsLoading(true)
+      try {
+        const response = await apiService.getNotifications(token, parseInt(showCount) || 25)
+        if (response.success && response.data) {
+          const notifList = Array.isArray(response.data) ? response.data : response.data.data || []
+          setNotifications(notifList)
+        }
+      } finally {
+        setNotificationsLoading(false)
+      }
+    }
+  }
+
+  const fetchAddresses = async () => {
+    if (token) {
+      setAddressesLoading(true)
+      try {
+        const response = await apiService.getAddresses(token)
+        if (response.success && response.data) {
+          setAddresses(response.data)
+        }
+      } finally {
+        setAddressesLoading(false)
+      }
+    }
+  }
+
+  const fetchRefunds = async () => {
+    if (token) {
+      setRefundsLoading(true)
+      try {
+        const response = await apiService.getRefundRequests(token)
+        if (response.success && response.data) {
+          const refundList = Array.isArray(response.data) ? response.data : response.data.data || []
+          setRefunds(refundList)
+        }
+      } finally {
+        setRefundsLoading(false)
+      }
+    }
+  }
+
+  const fetchRecentlyViewed = async () => {
+    if (token) {
+      setRecentlyViewedLoading(true)
+      try {
+        const response = await apiService.getRecentlyViewed(token)
+        if (response.success && response.data) {
+          setRecentlyViewed(response.data)
+        }
+      } finally {
+        setRecentlyViewedLoading(false)
+      }
+    }
+  }
+
+  const fetchAlerts = async () => {
+    if (token) {
+      setAlertsLoading(true)
+      try {
+        const response = await apiService.getAlerts(token)
+        if (response.success && response.data) {
+          setAlerts(response.data)
+        }
+      } finally {
+        setAlertsLoading(false)
+      }
+    }
+  }
+
+  const fetchDashboardData = async () => {
+    if (token) {
+      setDashboardLoading(true)
+      try {
+        const response = await apiService.getUserDashboard(token)
+        if (response.success && response.data) {
+          setDashboardData(response.data)
+        }
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error)
+      } finally {
+        setDashboardLoading(false)
+      }
+    }
+  }
+
+  const fetchWishlist = async () => {
+    if (token) {
+      try {
+        const response = await apiService.getWishlist(token)
+        if (response.success && response.data) {
+          const wishlistItems = Array.isArray(response.data) ? response.data : response.data.data || []
+          const mappedWishlist = wishlistItems.map((item: any) => item.product || item)
+          setWishlist(mappedWishlist)
+        }
+      } catch (error) {
+        console.error("Failed to fetch wishlist", error)
+      }
+    }
+  }
+
+  console.log("wishlist", wishlist);
+
+  const handleRemoveFromWishlist = async (id: number | string) => {
+    if (token) {
+      try {
+        const response = await apiService.removeFromWishlist(token, Number(id))
+        if (response.success) {
+          toast({
+            title: "Removed",
+            description: "Item removed from wishlist.",
+          })
+          fetchWishlist()
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: response.error || "Failed to remove item",
+          })
+        }
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "An error occurred",
+        })
+      }
+    }
+  }
+
+  const handleClearWishlist = async () => {
+    if (token) {
+      try {
+        const response = await apiService.clearWishlist(token)
+        if (response.success) {
+          toast({
+            title: "Cleared",
+            description: "Wishlist has been cleared.",
+          })
+          setWishlist([])
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: response.error || "Failed to clear wishlist",
+          })
+        }
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "An error occurred",
+        })
+      }
+    }
+  }
+
+  const fetchTickets = async () => {
+    if (token) {
+      try {
+        const response = await apiService.getTickets(token, 1)
+        if (response.success && response.data) {
+          const ticketsList = Array.isArray(response.data) ? response.data : response.data.data || []
+          setTickets(ticketsList)
+        }
+      } catch (error) {
+        console.error("Failed to fetch tickets", error)
+      }
+    }
+  }
+
+  const fetchSellerOffers = async () => {
+    if (token) {
+      setSellerOffersLoading(true)
+      try {
+        const response = await apiService.getSellerOffers(token)
+        if (response.success && response.data) {
+          const mappedOffers = Array.isArray(response.data) ? response.data : response.data.data || []
+          setSellerOffers(mappedOffers)
+        }
+      } catch (error) {
+        console.error("Failed to fetch seller offers", error)
+      } finally {
+        setSellerOffersLoading(false)
+      }
+    }
+  }
+
+  const fetchSellerOrders = async () => {
+    if (token) {
+      setSellerOrdersLoading(true)
+      try {
+        const response = await apiService.getSellerOrders(token)
+        if (response.success && response.data) {
+          const mappedOrders = Array.isArray(response.data) ? response.data : response.data.data || []
+          setSellerOrders(mappedOrders)
+        }
+      } catch (error) {
+        console.error("Failed to fetch seller orders", error)
+      } finally {
+        setSellerOrdersLoading(false)
+      }
+    }
+  }
+
+
   useEffect(() => {
     if (!isLoading && !user) {
       router.push("/login")
@@ -247,62 +554,36 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
   }, [user, isLoading, router])
 
   useEffect(() => {
-    const fetchWallet = async () => {
-      if (token) {
-        const response = await apiService.getWallet(token)
-        if (response.success && response.data) {
-          setWallet({
-            balance: Number(response.data.balance),
-            currency: response.data.currency
-          })
-        }
-      }
-    }
     if (token) fetchWallet()
 
-    const fetchTransactions = async () => {
-      if (token) {
-        setTransactionsLoading(true)
-        try {
-          const response = await apiService.getWalletTransactions(token, {
-            per_page: parseInt(showCount) || 25
-          })
-          if (response.success && response.data) {
-            const transactionsList = response.data.data || []
-            // Map API response to component format
-            const mappedTransactions = transactionsList.map((tx: any) => ({
-              id: String(tx.id),
-              operationType: tx.description || tx.type || "Transaction",
-              details: tx.source || tx.description || "-",
-              orderId: tx.order_id || "-",
-              status: tx.status || "completed",
-              date: tx.created_at ? new Date(tx.created_at).toLocaleString() : "-",
-              expirationDate: tx.expires_at ? new Date(tx.expires_at).toLocaleString() : "-",
-              value: typeof tx.amount === "string" ? parseFloat(tx.amount) : tx.amount
-            }))
-            setTransactions(mappedTransactions)
-          }
-        } catch (error) {
-          console.error("Error fetching transactions:", error)
-        } finally {
-          setTransactionsLoading(false)
-        }
-      }
-    }
+    if (token && activeTab === "dashboard") fetchDashboardData()
+
     if (token && activeTab === "credit") fetchTransactions()
 
-    const fetchOrders = async () => {
-      if (token) {
-        const response = await apiService.getUserOrders(token)
-        if (response.success && response.data) {
-          // Handle response.data being array or object with data property
-          const ordersList = Array.isArray(response.data) ? response.data : (response.data as any).data || []
-          setOrders(ordersList)
-        }
-      }
-    }
     if (token && activeTab === "purchases") fetchOrders()
-  }, [token, activeTab, showCount])
+
+    if (token && activeTab === "keys") fetchKeys()
+
+    if (token && activeTab === "notifications") fetchNotifications()
+
+    if (token && activeTab === "addresses") fetchAddresses()
+
+    if (token && activeTab === "refunds") fetchRefunds()
+
+    if (token && activeTab === "recently-viewed") fetchRecentlyViewed()
+
+    if (token && activeTab === "alerts") fetchAlerts()
+
+    if (token && activeTab === "wishlist") fetchWishlist()
+
+    if (token && activeTab === "support") fetchTickets()
+
+    if (token && activeTab === "offers-list") fetchSellerOffers()
+
+    if (token && activeTab === "sales-history") fetchSellerOrders()
+
+  }, [token, activeTab, showCount, supportShowCount])
+
 
 
   if (isLoading) {
@@ -527,12 +808,131 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
       {/* Main Content Area */}
       <main className="flex-1 bg-background overflow-y-auto min-h-screen">
         <div className="p-3 sm:p-4 md:p-6 lg:p-8">
+          {/* Dashboard Section */}
+          {activeTab === "dashboard" && (
+            <div className="space-y-6 sm:space-y-8">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Welcome, {user?.name || "User"}</h1>
+                </div>
+              </div>
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
+                {[
+                  { label: "Total Orders", value: dashboardData?.stats?.total_orders || 0, icon: ShoppingBag },
+                  { label: "Completed", value: dashboardData?.stats?.completed_orders || 0, icon: CheckCircle2 },
+                  { label: "Pending", value: dashboardData?.stats?.pending_orders || 0, icon: Clock },
+                  { label: "Canceled", value: dashboardData?.stats?.canceled_orders || 0, icon: XCircle },
+                  { label: "Total Spent", value: `${wallet?.currency || "$"} ${dashboardData?.stats?.total_spent || "0.00"}`, icon: CreditCard },
+                ].map((stat, i) => (
+                  <Card key={i} className="border border-border bg-card">
+                    <CardContent className="p-6">
+                      <div className="flex items-center gap-4">
+                        <div className="p-2 rounded-lg bg-secondary">
+                          <stat.icon className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
+                          <h3 className="text-xl font-bold">{dashboardLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : stat.value}</h3>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                {/* Wallet Card */}
+                <Card className="border border-border bg-card">
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-muted-foreground text-sm font-medium">Wallet Balance</p>
+                        <h2 className="text-3xl font-bold mt-2">
+                          {dashboardLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : `${wallet?.currency || "$"} ${dashboardData?.wallet?.balance || "0.00"}`}
+                        </h2>
+                      </div>
+                    </div>
+                    <div className="mt-6 flex gap-2">
+                      <Button className="flex-1" size="sm" onClick={() => setActiveTab("credit")}>
+                        Deposit
+                      </Button>
+                      <Button variant="outline" size="sm" className="flex-1" onClick={() => setActiveTab("credit")}>
+                        History
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Secondary Stats */}
+                <Card className="border border-border bg-card">
+                  <CardContent className="p-6 space-y-4">
+                    {[
+                      { label: "Wishlist Items", value: dashboardData?.stats?.wishlist_count || 0 },
+                      { label: "Open Tickets", value: dashboardData?.stats?.open_tickets || 0 },
+                      { label: "Total Reviews", value: dashboardData?.stats?.reviews_count || 0 },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-muted-foreground">{item.label}</span>
+                        <span className="font-bold">{dashboardLoading ? "..." : item.value}</span>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+
+                {/* Recent Activities */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-bold">Recent Orders</h3>
+                    <Button variant="link" size="sm" className="text-primary h-auto p-0" onClick={() => setActiveTab("purchases")}>
+                      View all
+                    </Button>
+                  </div>
+                  <Card className="border border-border bg-card">
+                    <CardContent className="p-0">
+                      <div className="divide-y divide-border">
+                        {dashboardData?.recent_orders?.length > 0 ? (
+                          dashboardData.recent_orders.map((order: any, i: number) => (
+                            <div key={i} className="p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
+                              <div className="flex items-center gap-4">
+                                <div className="h-8 w-8 rounded bg-secondary flex items-center justify-center">
+                                  <Package className="h-4 w-4 text-muted-foreground" />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-bold">Order #{order.id}</p>
+                                  <p className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-sm font-bold">{order.total}</p>
+                                <span className="text-[10px] uppercase font-medium text-muted-foreground">{order.status}</span>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="p-12 text-center">
+                            <p className="text-muted-foreground text-sm">No recent orders</p>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+              </div>
+            </div>
+          )}
+
           {/* Purchases Section */}
           {activeTab === "purchases" && (
             <div className="space-y-3 sm:space-y-4 md:space-y-6">
               {/* Section Header */}
               <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
-                <ShoppingBag className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
+                <ShoppingBag className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary shrink-0" />
                 <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Purchases</h1>
               </div>
 
@@ -651,36 +1051,340 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
             </div>
           )}
 
+          {/* Keys Section */}
+          {activeTab === "keys" && (
+            <div className="space-y-3 sm:space-y-4 md:space-y-6">
+              <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
+                <Key className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary shrink-0" />
+                <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">My Keys</h1>
+              </div>
+
+              <div className="bg-card border border-border rounded-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-border hover:bg-card">
+                        <TableHead className="text-muted-foreground font-medium px-4 py-3">Product</TableHead>
+                        <TableHead className="text-muted-foreground font-medium px-4 py-3">Key</TableHead>
+                        <TableHead className="text-muted-foreground font-medium px-4 py-3">Order #</TableHead>
+                        <TableHead className="text-muted-foreground font-medium px-4 py-3">Date</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {keysLoading ? (
+                        <TableRow><TableCell colSpan={4} className="text-center py-8">Loading keys...</TableCell></TableRow>
+                      ) : keys.length === 0 ? (
+                        <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">No keys found</TableCell></TableRow>
+                      ) : (
+                        keys.map((keyItem: any) => (
+                          <TableRow key={keyItem.id} className="border-border hover:bg-accent/50">
+                            <TableCell className="px-4 py-3 font-medium">{keyItem.product_name || "Unknown Product"}</TableCell>
+                            <TableCell className="px-4 py-3">
+                              <code className="bg-muted px-2 py-1 rounded text-xs select-all">
+                                {keyItem.key_code || keyItem.serial_number || "********"}
+                              </code>
+                            </TableCell>
+                            <TableCell className="px-4 py-3">{keyItem.order_number || "-"}</TableCell>
+                            <TableCell className="px-4 py-3 text-muted-foreground text-sm">
+                              {keyItem.created_at ? new Date(keyItem.created_at).toLocaleDateString() : "-"}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Wishlist Section */}
           {activeTab === "wishlist" && (
             <div className="space-y-3 sm:space-y-4 md:space-y-6">
-              <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
-                <Heart className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
-                <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Wishlist</h1>
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
+                  <Heart className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary shrink-0" />
+                  <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Wishlist</h1>
+                </div>
+                {wishlist.length > 0 && (
+                  <Button variant="destructive" size="sm" onClick={handleClearWishlist} className="gap-2">
+                    <Trash2 className="h-4 w-4" /> Clear Wishlist
+                  </Button>
+                )}
               </div>
+
               {wishlist.length === 0 ? (
                 <div className="bg-card border border-border rounded-lg p-6 sm:p-8 md:p-12 text-center">
                   <p className="text-muted-foreground text-sm sm:text-base">No items in your wishlist</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                  {wishlist.map((product) => (
-                    <div key={product.id} className="bg-card border border-border rounded-lg p-3 sm:p-4">
-                      <img src={product.image} alt={product.title} className="w-full h-36 sm:h-40 md:h-48 object-cover rounded mb-3 sm:mb-4" />
-                      <h3 className="font-semibold text-foreground mb-1.5 sm:mb-2 text-xs sm:text-sm md:text-base line-clamp-2">{product.title}</h3>
-                      <p className="text-primary font-bold text-sm sm:text-base md:text-lg">${product.vendors[0]?.price || 0}</p>
+                <div className="bg-card border border-border rounded-lg overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="border-border hover:bg-card">
+                          <TableHead className="px-4 py-3">Product</TableHead>
+                          <TableHead className="px-4 py-3">Price</TableHead>
+                          <TableHead className="px-4 py-3 text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {wishlist.map((product) => (
+                          <TableRow key={product.id} className="border-border hover:bg-accent/50">
+                            <TableCell className="px-4 py-3">
+                              <div className="flex items-center gap-3">
+                                <img src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${product.image}`} alt={product.title} className="w-12 h-12 rounded object-cover" />
+                                <a href={`/product/${product.id}`}>
+                                  <span className="font-medium text-sm line-clamp-2 md:line-clamp-1 hover:text-primary">{product.title}</span>
+                                </a>
+                              </div>
+                            </TableCell>
+                            <TableCell className="px-4 py-3 font-semibold text-primary">
+                              ${product?.best_price || 0}
+                            </TableCell>
+                            <TableCell className="px-4 py-3 text-right">
+                              <div className="flex justify-end gap-2">
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleRemoveFromWishlist(product.id)}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Notifications Section */}
+          {activeTab === "notifications" && (
+            <div className="space-y-3 sm:space-y-4 md:space-y-6">
+              <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
+                <Megaphone className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary shrink-0" />
+                <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Notifications</h1>
+              </div>
+
+              <div className="bg-card border border-border rounded-lg divide-y divide-border">
+                {notificationsLoading ? (
+                  <div className="p-8 text-center">Loading notifications...</div>
+                ) : notifications.length === 0 ? (
+                  <div className="p-8 text-center text-muted-foreground">No notifications</div>
+                ) : (
+                  notifications.map((notif: any) => (
+                    <div key={notif.id} className={`p-4 hover:bg-accent/50 transition-colors ${!notif.read_at ? 'bg-primary/5' : ''}`}>
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="space-y-1">
+                          <p className="text-sm font-medium">{notif.data?.message || notif.message || "Notification"}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {notif.created_at ? new Date(notif.created_at).toLocaleString() : ""}
+                          </p>
+                        </div>
+                        {!notif.read_at && (
+                          <Badge variant="default" className="h-2 w-2 p-0 rounded-full" />
+                        )}
+                      </div>
                     </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Addresses Section */}
+          {activeTab === "addresses" && (
+            <div className="space-y-3 sm:space-y-4 md:space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
+                  <Building2 className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary shrink-0" />
+                  <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Addresses</h1>
+                </div>
+                <Button size="sm" className="gap-2">
+                  <Plus className="h-4 w-4" /> Add Address
+                </Button>
+              </div>
+
+              {addressesLoading ? (
+                <div className="text-center py-12">Loading addresses...</div>
+              ) : addresses.length === 0 ? (
+                <div className="bg-card border border-border rounded-lg p-6 sm:p-8 md:p-12 text-center">
+                  <p className="text-muted-foreground">No saved addresses found.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {addresses.map((address: any) => (
+                    <Card key={address.id} className="bg-card border-border relative">
+                      <CardContent className="p-5">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-semibold">{address.name}</h3>
+                          {address.is_default && <Badge variant="secondary">Default</Badge>}
+                        </div>
+                        <p className="text-sm text-muted-foreground">{address.address}</p>
+                        <p className="text-sm text-muted-foreground">{address.city}, {address.state || ""} {address.postcode}</p>
+                        <p className="text-sm text-muted-foreground">{address.country}</p>
+                        <div className="mt-4 flex gap-2">
+                          <Button variant="outline" size="sm">Edit</Button>
+                          <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10">Delete</Button>
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               )}
             </div>
           )}
 
+          {/* Refunds Section */}
+          {activeTab === "refunds" && (
+            <div className="space-y-3 sm:space-y-4 md:space-y-6">
+              <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
+                <RotateCcw className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary shrink-0" />
+                <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Refunds</h1>
+              </div>
+
+              <div className="bg-card border border-border rounded-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-border hover:bg-card">
+                        <TableHead className="px-4 py-3">Order #</TableHead>
+                        <TableHead className="px-4 py-3">Reason</TableHead>
+                        <TableHead className="px-4 py-3">Status</TableHead>
+                        <TableHead className="px-4 py-3">Date</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {refundsLoading ? (
+                        <TableRow><TableCell colSpan={4} className="text-center py-8">Loading refunds...</TableCell></TableRow>
+                      ) : refunds.length === 0 ? (
+                        <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">No refund requests found</TableCell></TableRow>
+                      ) : (
+                        refunds.map((refund: any) => (
+                          <TableRow key={refund.id} className="border-border hover:bg-accent/50">
+                            <TableCell className="px-4 py-3 font-medium">{refund.order_number}</TableCell>
+                            <TableCell className="px-4 py-3">{refund.reason || "N/A"}</TableCell>
+                            <TableCell className="px-4 py-3">
+                              <Badge variant={refund.status === "approved" ? "default" : refund.status === "rejected" ? "destructive" : "secondary"}>
+                                {refund.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="px-4 py-3 text-muted-foreground text-sm">
+                              {refund.created_at ? new Date(refund.created_at).toLocaleDateString() : "-"}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Recently Viewed Section */}
+          {activeTab === "recently-viewed" && (
+            <div className="space-y-3 sm:space-y-4 md:space-y-6">
+              <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
+                <History className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary shrink-0" />
+                <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Recently Viewed</h1>
+              </div>
+
+              {recentlyViewedLoading ? (
+                <div className="text-center py-12">Loading recently viewed products...</div>
+              ) : recentlyViewed.length === 0 ? (
+                <div className="bg-card border border-border rounded-lg p-6 sm:p-8 md:p-12 text-center">
+                  <p className="text-muted-foreground">No recently viewed products.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {recentlyViewed.map((item: any) => {
+                    const product = item.product || item;
+                    return (
+                      <Card key={product.id} className="bg-card border-border overflow-hidden hover:border-primary/50 transition-colors cursor-pointer" onClick={() => router.push(`/products/${product.slug}`)}>
+                        <div className="aspect-video relative">
+                          <img
+                            src={product.image || "/placeholder-game.jpg"}
+                            alt={product.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <CardContent className="p-3">
+                          <h3 className="font-medium text-sm line-clamp-1">{product.title}</h3>
+                          <p className="text-primary font-bold mt-1">
+                            {product.lowest_price?.symbol || "$"}{typeof product.lowest_price === 'object' ? product.lowest_price?.price : product.lowest_price || "0.00"}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Price Alerts Section */}
+          {activeTab === "alerts" && (
+            <div className="space-y-3 sm:space-y-4 md:space-y-6">
+              <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
+                <BellRing className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary shrink-0" />
+                <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Price Alerts</h1>
+              </div>
+
+              <div className="bg-card border border-border rounded-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-border hover:bg-card">
+                        <TableHead className="px-4 py-3">Product</TableHead>
+                        <TableHead className="px-4 py-3">Type</TableHead>
+                        <TableHead className="px-4 py-3">Target</TableHead>
+                        <TableHead className="px-4 py-3">Status</TableHead>
+                        <TableHead className="px-4 py-3 text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {alertsLoading ? (
+                        <TableRow><TableCell colSpan={5} className="text-center py-8">Loading alerts...</TableCell></TableRow>
+                      ) : alerts.length === 0 ? (
+                        <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No active price alerts.</TableCell></TableRow>
+                      ) : (
+                        alerts.map((alert: any) => (
+                          <TableRow key={alert.id} className="border-border hover:bg-accent/50">
+                            <TableCell className="px-4 py-3 font-medium">{alert.product?.title || "Product"}</TableCell>
+                            <TableCell className="px-4 py-3">
+                              <Badge variant="outline" className="capitalize">
+                                {alert.type || "Price"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="px-4 py-3 font-semibold text-primary">
+                              {alert.currency_symbol || "$"}{alert.target_price || "0.00"}
+                            </TableCell>
+                            <TableCell className="px-4 py-3">
+                              <Badge variant={alert.is_active ? "default" : "secondary"}>
+                                {alert.is_active ? "Active" : "Inactive"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="px-4 py-3 text-right">
+                              <Button variant="ghost" size="sm" className="text-destructive">Remove</Button>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            </div>
+          )}
+
+
           {/* Balance Section */}
           {activeTab === "credit" && (
             <div className="space-y-4 sm:space-y-5 md:space-y-6">
               <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
-                <Wallet className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
+                <Wallet className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary shrink-0" />
                 <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold">Balance</h1>
               </div>
 
@@ -1226,12 +1930,41 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
                         Back
                       </Button>
                       <Button
-                        onClick={() => {
+                        onClick={async () => {
                           if (topUpStep < 3) {
                             setTopUpStep(topUpStep + 1)
                           } else {
                             // Handle final submission
+                            const token = localStorage.getItem("token");
+                            if (!token) {
+                              toast({ title: "Error", description: "Please login to top up your wallet.", variant: "destructive" });
+                              return;
+                            }
 
+                            try {
+                              const response = await apiService.initiateWalletDeposit(token, {
+                                amount: parseFloat(topUpAmount),
+                                payment_method: topUpMethod === "paypal-eur" ? "paypal" :
+                                  topUpMethod === "credit-card" ? "stripe" : "bank_transfer"
+                              });
+
+                              if (response.success && response.data) {
+                                // Usually this returns a checkout URL to redirect to
+                                if (response.data.checkout_url) {
+                                  window.location.href = response.data.checkout_url;
+                                } else {
+                                  toast({ title: "Success", description: "Deposit initiated successfully." });
+                                  setTopUpStep(1);
+                                  setTopUpAmount("");
+                                }
+                              } else {
+                                toast({ title: "Error", description: response.error || "Failed to initiate deposit.", variant: "destructive" });
+                              }
+                            } catch (error) {
+                              toast({ title: "Error", description: "An error occurred. Please try again.", variant: "destructive" });
+
+                              console.error(error);
+                            }
                           }
                         }}
                         disabled={topUpStep === 1 && !topUpMethod || topUpStep === 2 && !topUpAmount}
@@ -1420,44 +2153,58 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
-                                {mockOffers.map((offer) => (
+                                {sellerOffersLoading ? (
+                                  <TableRow>
+                                    <TableCell colSpan={10} className="text-center py-8">
+                                      Loading offers...
+                                    </TableCell>
+                                  </TableRow>
+                                ) : sellerOffers.length === 0 ? (
+                                  <TableRow>
+                                    <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
+                                      No offers found
+                                    </TableCell>
+                                  </TableRow>
+                                ) : sellerOffers.map((offer) => (
                                   <TableRow key={offer.id} className="border-border hover:bg-accent">
                                     <TableCell className="px-3 sm:px-4 py-3">
                                       <div className="flex items-center gap-3">
-                                        <div className={`w-10 h-10 rounded flex items-center justify-center text-white font-bold text-xs ${offer.iconColor}`}>
-                                          {offer.iconText}
+                                        <div className={`w-10 h-10 rounded flex items-center justify-center text-white font-bold text-xs bg-primary`}>
+                                          {/* We can use product image here ideally */}
+                                          {offer.product?.title?.substring(0, 2).toUpperCase() || "IT"}
                                         </div>
-                                        <span className="text-sm font-medium text-foreground">{offer.name}</span>
+                                        <span className="text-sm font-medium text-foreground">{offer.product?.title || 'Unknown Product'}</span>
                                       </div>
                                     </TableCell>
                                     <TableCell className="px-3 sm:px-4 py-3">
-                                      <Grid3x3 className="h-4 w-4 text-muted-foreground" />
+                                      {/* <Grid3x3 className="h-4 w-4 text-muted-foreground" /> */}
+                                      <span className="text-sm">{offer.product?.platform || "PC"}</span>
                                     </TableCell>
                                     <TableCell className="px-3 sm:px-4 py-3">
-                                      <span className="text-sm text-foreground">{offer.region}</span>
+                                      <span className="text-sm text-foreground">{offer.product?.region || "Global"}</span>
                                     </TableCell>
                                     <TableCell className="px-3 sm:px-4 py-3">
-                                      <Key className="h-4 w-4 text-muted-foreground" />
+                                      {offer.keys_count > 0 ? <Key className="h-4 w-4 text-primary" /> : <Key className="h-4 w-4 text-muted-foreground" />}
                                     </TableCell>
                                     <TableCell className="px-3 sm:px-4 py-3">
-                                      <span className="text-sm font-medium text-foreground">{offer.available}</span>
+                                      <span className="text-sm font-medium text-foreground">{offer.keys_count || 0}</span>
                                     </TableCell>
                                     <TableCell className="px-3 sm:px-4 py-3">
                                       <div className="flex items-center gap-2">
-                                        <span className="text-sm font-semibold text-foreground">€{offer.retail}</span>
+                                        <span className="text-sm font-semibold text-foreground">€{offer.price}</span>
                                         <button className="text-muted-foreground hover:text-foreground">
                                           <Edit className="h-3 w-3" />
                                         </button>
                                       </div>
                                     </TableCell>
                                     <TableCell className="px-3 sm:px-4 py-3">
-                                      <span className="text-sm text-muted-foreground">{offer.wholesale || "-"}</span>
+                                      <span className="text-sm text-muted-foreground">{offer.wholesale_price || "-"}</span>
                                     </TableCell>
                                     <TableCell className="px-3 sm:px-4 py-3">
-                                      <span className="text-sm text-muted-foreground">{offer.lastChanged}</span>
+                                      <span className="text-sm text-muted-foreground">{new Date(offer.updated_at).toLocaleDateString()}</span>
                                     </TableCell>
                                     <TableCell className="px-3 sm:px-4 py-3">
-                                      <AlertCircle className="h-4 w-4 text-muted-foreground" />
+                                      <AlertCircle className={`h-4 w-4 ${offer.status === 'active' ? 'text-green-500' : 'text-muted-foreground'}`} />
                                     </TableCell>
                                     <TableCell className="px-3 sm:px-4 py-3">
                                       <DropdownMenu>
@@ -1468,7 +2215,7 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end" className="bg-popover border-border">
                                           <DropdownMenuItem>Edit</DropdownMenuItem>
-                                          <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                                          <DropdownMenuItem>Manage Keys</DropdownMenuItem>
                                           <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
                                         </DropdownMenuContent>
                                       </DropdownMenu>
@@ -1551,7 +2298,7 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
                                         }}
                                         className="w-full flex items-center gap-3 px-3 py-2 hover:bg-accent cursor-pointer transition-colors text-left"
                                       >
-                                        <div className="flex-shrink-0 w-10 h-10 rounded overflow-hidden bg-muted">
+                                        <div className="shrink-0 w-10 h-10 rounded overflow-hidden bg-muted">
                                           <img
                                             src={product.image}
                                             alt={product.title}
@@ -1578,7 +2325,7 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
 
                             {selectedProduct && (
                               <div className="flex items-start gap-4 p-4 bg-muted/30 border border-border rounded-lg">
-                                <div className="w-16 h-16 rounded overflow-hidden bg-muted flex-shrink-0">
+                                <div className="w-16 h-16 rounded overflow-hidden bg-muted shrink-0">
                                   <img
                                     src={selectedProduct.image}
                                     alt={selectedProduct.title}
@@ -2210,11 +2957,64 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            <TableRow>
-                              <TableCell colSpan={14} className="text-center py-12 text-muted-foreground">
-                                No data
-                              </TableCell>
-                            </TableRow>
+                            {sellerOrdersLoading ? (
+                              <TableRow>
+                                <TableCell colSpan={14} className="text-center py-12 text-muted-foreground">
+                                  Loading orders...
+                                </TableCell>
+                              </TableRow>
+                            ) : sellerOrders.length === 0 ? (
+                              <TableRow>
+                                <TableCell colSpan={14} className="text-center py-12 text-muted-foreground">
+                                  No data
+                                </TableCell>
+                              </TableRow>
+                            ) : sellerOrders.map((order) => (
+                              <TableRow key={order.id} className="border-border hover:bg-accent">
+                                <TableCell className="px-3 sm:px-4 py-3">
+                                  {order.product_title || 'Unknown Product'}
+                                </TableCell>
+                                <TableCell className="px-3 sm:px-4 py-3">
+                                  {order.id}
+                                </TableCell>
+                                <TableCell className="px-3 sm:px-4 py-3">
+                                  -
+                                </TableCell>
+                                <TableCell className="px-3 sm:px-4 py-3">
+                                  1
+                                </TableCell>
+                                <TableCell className="px-3 sm:px-4 py-3">
+                                  €{order.price}
+                                </TableCell>
+                                <TableCell className="px-3 sm:px-4 py-3">
+                                  €{order.price}
+                                </TableCell>
+                                <TableCell className="px-3 sm:px-4 py-3">
+                                  0%
+                                </TableCell>
+                                <TableCell className="px-3 sm:px-4 py-3">
+                                  €{order.price}
+                                </TableCell>
+                                <TableCell className="px-3 sm:px-4 py-3">
+                                  -
+                                </TableCell>
+                                <TableCell className="px-3 sm:px-4 py-3">
+                                  -
+                                </TableCell>
+                                <TableCell className="px-3 sm:px-4 py-3">
+                                  €{order.price}
+                                </TableCell>
+                                <TableCell className="px-3 sm:px-4 py-3">
+                                  -
+                                </TableCell>
+                                <TableCell className="px-3 sm:px-4 py-3">
+                                  {new Date(order.created_at).toLocaleDateString()}
+                                </TableCell>
+                                <TableCell className="px-3 sm:px-4 py-3">
+                                  Retail
+                                </TableCell>
+                              </TableRow>
+                            ))}
                           </TableBody>
                         </Table>
                       </div>
@@ -2692,7 +3492,7 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
                                     </TableCell>
                                     <TableCell className="px-3 sm:px-4 py-3">
                                       <div className="flex items-center gap-3">
-                                        <div className="w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
+                                        <div className="w-12 h-12 bg-muted rounded flex items-center justify-center shrink-0">
                                           <span className="text-xs font-bold text-foreground">#{product.name.split(' ')[0].replace('#', '')}</span>
                                         </div>
                                         <span className="text-sm font-medium text-foreground">{product.name}</span>
@@ -2984,32 +3784,33 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
                                 </Button>
                                 <Button
                                   className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                                  onClick={() => {
+                                  onClick={async () => {
                                     if (ticketTitle && ticketCategory && ticketMessage) {
-                                      // Create new ticket
-                                      const newTicket = {
-                                        id: `TKT-${Date.now()}`,
-                                        title: ticketTitle,
-                                        category: ticketCategory,
-                                        priority: ticketPriority,
-                                        message: ticketMessage,
-                                        status: "open" as const,
-                                        createdAt: new Date().toISOString(),
-                                        lastUpdate: new Date().toISOString(),
+                                      try {
+                                        const response = await apiService.createTicket(token!, {
+                                          subject: ticketTitle,
+                                          department_id: 1, // Hardcoded for now, should ideally fetch departments
+                                          priority: ticketPriority,
+                                          message: ticketMessage
+                                        })
+
+                                        if (response.success) {
+                                          // Refresh tickets list
+                                          fetchTickets()
+
+                                          // Reset form and close dialog
+                                          setShowCreateTicket(false)
+                                          setTicketTitle("")
+                                          setTicketCategory("")
+                                          setTicketPriority("normal")
+                                          setTicketMessage("")
+
+                                          // Switch to Open tab
+                                          setSupportTab("open")
+                                        }
+                                      } catch (error) {
+                                        console.error("Failed to create ticket:", error)
                                       }
-
-                                      // Add ticket to state
-                                      setTickets(prev => [newTicket, ...prev])
-
-                                      // Reset form and close dialog
-                                      setShowCreateTicket(false)
-                                      setTicketTitle("")
-                                      setTicketCategory("")
-                                      setTicketPriority("normal")
-                                      setTicketMessage("")
-
-                                      // Switch to Open tab to show the new ticket
-                                      setSupportTab("open")
                                     }
                                   }}
                                   disabled={!ticketTitle || !ticketCategory || !ticketMessage}
@@ -3283,7 +4084,7 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
           }
 
           {/* Other Sections Placeholder */}
-          {
+          {/* {
             activeTab !== "purchases" && activeTab !== "wishlist" && activeTab !== "credit" && activeTab !== "offers-list" && activeTab !== "sales-history" && activeTab !== "requested-products" && activeTab !== "wholesale" && activeTab !== "wholesale-bids" && activeTab !== "support" && activeTab !== "settings" && (
               <div className="space-y-3 sm:space-y-4 md:space-y-6">
                 <h1 className="text-xl sm:text-2xl md:text-2xl font-semibold capitalize">{activeTab.replace(/([A-Z])/g, ' $1').trim()}</h1>
@@ -3292,7 +4093,7 @@ export function AccountDashboard({ initialTab = "credit" }: { initialTab?: strin
                 </div>
               </div>
             )
-          }
+          } */}
         </div >
       </main >
     </div >

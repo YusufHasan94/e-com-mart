@@ -169,7 +169,7 @@ export function CategoryMarquee() {
               return (
                 <Card
                   key={`${category.id}-${index}`}
-                  className={`${category.bgColor} border-border/30 hover:border-border/60 transition-all duration-300 hover:shadow-lg hover:scale-105 flex-shrink-0 min-w-[200px] sm:min-w-[220px] group cursor-pointer relative overflow-hidden`}
+                  className={`${category.bgColor} border-border/30 hover:border-border/60 transition-all duration-300 hover:shadow-lg hover:scale-105 shrink-0 min-w-[200px] sm:min-w-[220px] group cursor-pointer relative overflow-hidden`}
                 >
                   <CardContent className="p-4 sm:p-6">
                     <div className="text-center space-y-3 relative z-10">

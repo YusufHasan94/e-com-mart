@@ -1,23 +1,39 @@
 "use client"
 
 import { useState } from "react"
+import { apiService } from "@/lib/api-service"
+import { useToast } from "@/components/ui/use-toast"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
-import { Mail, Bell, Gift, Star, CheckCircle } from "lucide-react"
+import { Mail, Bell, Gift, Star, CheckCircle, Loader2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
 export function SubscriberSection() {
+  const { toast } = useToast()
   const [email, setEmail] = useState("")
   const [isSubscribed, setIsSubscribed] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (email) {
-      setIsSubscribed(true)
-      setEmail("")
-      // Reset after 3 seconds
-      setTimeout(() => setIsSubscribed(false), 3000)
+    if (!email) return
+
+    setIsLoading(true)
+    try {
+      const res = await apiService.subscribeNewsletter(email)
+      if (res.success) {
+        setIsSubscribed(true)
+        setEmail("")
+        // Reset after 3 seconds
+        setTimeout(() => setIsSubscribed(false), 3000)
+      } else {
+        toast({ title: "Subscription Failed", description: res.error || "Failed to subscribe to newsletter.", variant: "destructive" })
+      }
+    } catch (error) {
+       toast({ title: "Error", description: "An unexpected error occurred.", variant: "destructive" })
+    } finally {
+      setIsLoading(false)
     }
   }
 

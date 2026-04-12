@@ -1,63 +1,36 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, useState, useEffect } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { Play, Star, TrendingUp, Users, Award, Percent, Users2, ChevronLeft, ChevronRight } from "lucide-react"
+import { Play, Star, TrendingUp, Users, Award, Percent, Users2, ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Pagination, Navigation } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import 'swiper/css/navigation'
-
-// Featured content data
-const featuredContent = [
-  {
-    id: 1,
-    title: "Cyberpunk Adventure",
-    description: "Experience the future of gaming",
-    image: "/epic-gaming-scene-with-futuristic-elements.jpg",
-    price: 39.99,
-    originalPrice: 59.99,
-    discount: 33,
-    badge: "Featured"
-  },
-  {
-    id: 2,
-    title: "Fantasy RPG World",
-    description: "Embark on epic quests",
-    image: "/fantasy-medieval-game-world.jpg",
-    price: 49.99,
-    originalPrice: 69.99,
-    discount: 29,
-    badge: "New Release"
-  },
-  {
-    id: 3,
-    title: "Space Exploration",
-    description: "Discover the cosmos",
-    image: "/starfield-space-exploration-rpg-game.jpg",
-    price: 59.99,
-    originalPrice: 79.99,
-    discount: 25,
-    badge: "Best Seller"
-  },
-  {
-    id: 4,
-    title: "Superhero Action",
-    description: "Save the city from villains",
-    image: "/spider-man-2-superhero-action-game.jpg",
-    price: 44.99,
-    originalPrice: 64.99,
-    discount: 31,
-    badge: "Hot Deal"
-  }
-]
+import { apiService, type ApiSlider } from "@/lib/api-service"
 
 export function HeroSection() {
   const prevRef = useRef<HTMLButtonElement>(null)
   const nextRef = useRef<HTMLButtonElement>(null)
+
+  const [sliders, setSliders] = useState<ApiSlider[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    setIsLoading(true)
+    apiService.getSliders()
+      .then(res => {
+        if (res.success && res.data) {
+          setSliders(res.data)
+        }
+      })
+      .catch(console.error)
+      .finally(() => setIsLoading(false))
+  }, [])
 
   return (
     <section className="relative">
@@ -100,26 +73,44 @@ export function HeroSection() {
                   modules={[Autoplay, Pagination, Navigation]}
                   className="w-full h-[200px] sm:h-[300px] lg:h-[450px]"
                 >
-                  {featuredContent.map((item) => (
-                    <SwiperSlide key={item.id}>
-                      <div className="relative overflow-hidden shadow-2xl h-full rounded-lg">
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black/80" />
-                        <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 lg:bottom-6 lg:left-6 lg:right-6">
-                          <div className="space-y-1 sm:space-y-2 text-center">
-                            <h3 className="text-[20px] sm:text-2xl lg:text-2xl font-bold text-white drop-shadow-lg">{item.title}</h3>
-                            <Button className="mt-2 sm:mt-3 bg-brand-500 hover:bg-brand-600 text-white border-0 text-sm sm:text-sm rounded-md shadow-lg shadow-brand-500/20 px-[14px] py-[6px]">
-                              Shop Now
-                            </Button>
-                          </div>
-                        </div>
+                  {isLoading ? (
+                    <SwiperSlide>
+                      <div className="relative overflow-hidden shadow-2xl h-full rounded-lg bg-muted/20 flex items-center justify-center border border-border/10">
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground/60" />
                       </div>
                     </SwiperSlide>
-                  ))}
+                  ) : sliders.length > 0 ? (
+                    sliders.map((slider) => (
+                      <SwiperSlide key={slider.id}>
+                        <div className="relative overflow-hidden shadow-2xl h-full rounded-lg">
+                          <img
+                            src={slider.image}
+                            alt={slider.title}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/40 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                          <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 lg:bottom-6 lg:left-6 lg:right-6">
+                            <div className="space-y-1 sm:space-y-2 text-center">
+                              <h3 className="text-[20px] sm:text-2xl lg:text-3xl font-bold text-white drop-shadow-lg">{slider.title}</h3>
+                              {slider.description && (
+                                <p className="text-white/90 text-sm sm:text-base drop-shadow-md hidden sm:block max-w-lg mx-auto">{slider.description}</p>
+                              )}
+                              <Button asChild className="mt-2 sm:mt-3 bg-brand-500 hover:bg-brand-600 text-white border-0 text-sm sm:text-sm rounded-md shadow-lg shadow-brand-500/20 px-[14px] py-[6px]">
+                                <Link href={slider.link || `/sliders/${slider.id}`}>Explore</Link>
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </SwiperSlide>
+                    ))
+                  ) : (
+                    <SwiperSlide>
+                      <div className="relative overflow-hidden shadow-2xl h-full rounded-lg bg-muted/10 border border-border/10 flex flex-col items-center justify-center text-muted-foreground p-6 text-center">
+                        <Star className="h-8 w-8 mb-3 opacity-20" />
+                        <p className="font-medium text-sm">No active promotions at the moment.</p>
+                      </div>
+                    </SwiperSlide>
+                  )}
                 </Swiper>
 
                 {/* Custom Navigation Buttons */}

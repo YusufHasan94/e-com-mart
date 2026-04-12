@@ -12,6 +12,8 @@ import { ArrowLeft, Loader2, Package, Calendar, CreditCard, User, Mail, Phone, M
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_BASE_URL || "https://gamehub.licensesender.com"
+
 interface OrderDetailsProps {
     orderId: string
 }
@@ -117,7 +119,7 @@ export function OrderDetails({ orderId }: OrderDetailsProps) {
         if (!image) return null
         if (typeof image === 'string') {
             if (image.startsWith('http')) return image
-            return `https://gamehub.licensesender.com/storage/${image.replace(/^storage\//, '')}`
+            return `${API_ORIGIN}/storage/${image.replace(/^storage\//, '')}`
         }
         return null
     }
@@ -163,7 +165,7 @@ export function OrderDetails({ orderId }: OrderDetailsProps) {
                                 <div key={item.id} className="p-6 space-y-4">
                                     <div className="grid grid-cols-[1fr_100px_80px_100px] gap-4 items-start">
                                         <div className="flex gap-4">
-                                            <div className="w-16 h-16 rounded border bg-muted flex-shrink-0 overflow-hidden">
+                                            <div className="w-16 h-16 rounded border bg-muted shrink-0 overflow-hidden">
                                                 {getItemImage(item) ? (
                                                     <img src={getItemImage(item)!} alt={item.product?.title} className="w-full h-full object-cover" />
                                                 ) : (

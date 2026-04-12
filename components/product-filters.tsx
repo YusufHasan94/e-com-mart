@@ -63,47 +63,17 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
 
   useEffect(() => {
     const fetchData = async () => {
-      // 1. Fetch products for counting
-      const productsRes = await apiService.getAllProducts(200)
-
-
-
-      const allApiProducts = productsRes.success && productsRes.data ? productsRes.data : []
-
-      // Map API products to App products to get consistent slugs
-      const allProducts = allApiProducts.map(p => apiService.mapApiProductToProduct(p))
-
-
-
-      // 2. Initialize count objects
-      const counts: Record<string, Record<string, number>> = {
-        categories: {},
-        platforms: {},
-        types: {},
-        regions: {},
-        languages: {},
-        worksOn: {},
-        developers: {}
-      }
-
-      // 3. Aggregate counts from actual products
-      allProducts.forEach(p => {
-        if (p.categorySlug) counts.categories[p.categorySlug] = (counts.categories[p.categorySlug] || 0) + 1
-        if (p.platformSlug) counts.platforms[p.platformSlug] = (counts.platforms[p.platformSlug] || 0) + 1
-        if (p.typeSlug) counts.types[p.typeSlug] = (counts.types[p.typeSlug] || 0) + 1
-        if (p.regionSlug) counts.regions[p.regionSlug] = (counts.regions[p.regionSlug] || 0) + 1
-        if (p.developerSlug) counts.developers[p.developerSlug] = (counts.developers[p.developerSlug] || 0) + 1
-
-        p.languageSlugs?.forEach(slug => {
-          if (slug) counts.languages[slug] = (counts.languages[slug] || 0) + 1
-        })
-
-        p.worksOnSlugs?.forEach(slug => {
-          if (slug) counts.worksOn[slug] = (counts.worksOn[slug] || 0) + 1
-        })
+      setIsLoading({
+        categories: true,
+        platforms: true,
+        types: true,
+        regions: true,
+        languages: true,
+        worksOn: true,
+        developers: true
       })
 
-      // 4. Fetch attribute metadata
+      // Fetch metadata from cached API service
       const [catRes, platRes, typeRes, regRes, langRes, worksRes, devRes] = await Promise.all([
         apiService.getCategories(),
         apiService.getPlatforms(),
@@ -118,7 +88,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
         setCategories(catRes.data.map((cat: ApiCategory) => ({
           id: cat.slug,
           label: cat.name,
-          count: counts.categories[cat.slug] || 0
+          count: cat.products_count || 0
         })))
       }
       setIsLoading(prev => ({ ...prev, categories: false }))
@@ -127,7 +97,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
         setPlatforms(platRes.data.map((plat: ApiPlatform) => ({
           id: plat.slug,
           label: plat.name,
-          count: counts.platforms[plat.slug] || 0
+          count: plat.products_count || 0
         })))
       }
       setIsLoading(prev => ({ ...prev, platforms: false }))
@@ -136,7 +106,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
         setTypes(typeRes.data.map((t: ApiType) => ({
           id: t.slug,
           label: t.name,
-          count: counts.types[t.slug] || 0
+          count: t.products_count || 0
         })))
       }
       setIsLoading(prev => ({ ...prev, types: false }))
@@ -145,7 +115,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
         setRegions(regRes.data.map((r: ApiRegion) => ({
           id: r.slug,
           label: r.name,
-          count: counts.regions[r.slug] || 0
+          count: r.products_count || 0
         })))
       }
       setIsLoading(prev => ({ ...prev, regions: false }))
@@ -154,7 +124,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
         setLanguages(langRes.data.map((l: ApiLanguage) => ({
           id: l.slug,
           label: l.name,
-          count: counts.languages[l.slug] || 0
+          count: l.products_count || 0
         })))
       }
       setIsLoading(prev => ({ ...prev, languages: false }))
@@ -163,7 +133,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
         setWorksOn(worksRes.data.map((w: ApiWorksOn) => ({
           id: w.slug,
           label: w.name,
-          count: counts.worksOn[w.slug] || 0
+          count: w.products_count || 0
         })))
       }
       setIsLoading(prev => ({ ...prev, worksOn: false }))
@@ -172,7 +142,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
         setDevelopers(devRes.data.map((d: ApiDeveloper) => ({
           id: d.slug,
           label: d.name,
-          count: counts.developers[d.slug] || 0
+          count: d.products_count || 0
         })))
       }
       setIsLoading(prev => ({ ...prev, developers: false }))
@@ -187,7 +157,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
 
   const FilterCard = ({ title, options, filterKey, loading }: { title: string, options: FilterOption[], filterKey: string, loading: boolean }) => (
     <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] flex flex-col custom-scrollbar">
-      <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4 flex-shrink-0">
+      <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4 shrink-0">
         <CardTitle className="text-sm sm:text-base font-semibold text-card-foreground">
           {title}
         </CardTitle>
@@ -249,7 +219,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
 
       {/* Price Range */}
       <Card className="border-border/50 shadow-sm flex flex-col">
-        <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4 flex-shrink-0">
+        <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4 shrink-0">
           <CardTitle className="text-sm sm:text-base font-semibold text-card-foreground">
             Price Range
           </CardTitle>

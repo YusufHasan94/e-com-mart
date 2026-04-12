@@ -13,7 +13,8 @@ import {
     Package,
     Headphones,
     Star,
-    ChevronDown
+    ChevronDown,
+    LayoutDashboard
 } from "lucide-react"
 
 interface SidebarContentProps {
@@ -39,9 +40,16 @@ export function SidebarContent({
     const userReputation = 96.48
 
     const navigationItems = [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, active: activeTab === "dashboard" },
         { id: "purchases", label: "Purchases", icon: ShoppingBag, active: activeTab === "purchases" },
+        { id: "keys", label: "My Keys", icon: Wallet, active: activeTab === "keys" },
         { id: "wishlist", label: "Wishlist", icon: Heart, active: activeTab === "wishlist" },
         { id: "credit", label: "Balance", icon: Wallet, active: activeTab === "credit" },
+        { id: "notifications", label: "Notifications", icon: Package, active: activeTab === "notifications" },
+        { id: "addresses", label: "Addresses", icon: Settings, active: activeTab === "addresses" },
+        { id: "refunds", label: "Refunds", icon: ShoppingBag, active: activeTab === "refunds" },
+        { id: "recently-viewed", label: "Recently Viewed", icon: TrendingUp, active: activeTab === "recently-viewed" },
+        { id: "alerts", label: "Price Alerts", icon: TrendingUp, active: activeTab === "alerts" },
         {
             id: "offers",
             label: "Offers",
@@ -54,8 +62,6 @@ export function SidebarContent({
                 { id: "requested-products", label: "Requested products" }
             ]
         },
-        // { id: "tax-report", label: "Tax report", icon: FileText, active: activeTab === "tax-report" },
-        // { id: "retail", label: "Retail advertising", icon: Sparkles, active: activeTab === "retail" },
         {
             id: "wholesale",
             label: "Wholesale",
@@ -66,6 +72,7 @@ export function SidebarContent({
                 { id: "wholesale-bids", label: "Wholesale bids" }
             ]
         },
+        { id: "affiliate", label: "Affiliate", icon: Star, active: activeTab === "affiliate" },
         { id: "support", label: "Customer service", icon: Headphones, active: activeTab === "support" },
         { id: "settings", label: "Account settings", icon: Settings, active: activeTab === "settings" },
     ].filter(item => {
@@ -139,12 +146,12 @@ export function SidebarContent({
                                         }`}
                                 >
                                     <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3 min-w-0 flex-1">
-                                        <Icon className="h-4 w-4 sm:h-4 sm:w-4 md:h-5 md:w-5 flex-shrink-0" />
+                                        <Icon className="h-4 w-4 sm:h-4 sm:w-4 md:h-5 md:w-5 shrink-0" />
                                         <span className="font-medium truncate">{item.label}</span>
                                     </div>
                                     {/* <div className="flex items-center gap-2">
                     {item.badge && (
-                      <Badge className="bg-primary text-primary-foreground text-xs sm:text-xs md:text-sm px-1.5 sm:px-2 md:px-2 py-0.5 flex-shrink-0">
+                      <Badge className="bg-primary text-primary-foreground text-xs sm:text-xs md:text-sm px-1.5 sm:px-2 md:px-2 py-0.5 shrink-0">
                         {item.badge}
                       </Badge>
                     )}
