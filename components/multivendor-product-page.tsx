@@ -61,9 +61,10 @@ import { RelatedProducts } from "./related-products"
 
 interface MultivendorProductPageProps {
   productId?: string
+  productSlug?: string
 }
 
-export function MultivendorProductPage({ productId }: MultivendorProductPageProps) {
+export function MultivendorProductPage({ productId, productSlug }: MultivendorProductPageProps) {
   const [product, setProduct] = useState<AppProduct | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [selectedVariation, setSelectedVariation] = useState<any>(null)
@@ -132,14 +133,20 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
 
   useEffect(() => {
     const fetchProduct = async () => {
-      if (!productId) {
+      if (!productId && !productSlug) {
         setIsLoading(false)
         return
       }
 
       setIsLoading(true)
       try {
-        const response = await apiService.getProductById(productId)
+        const response = productSlug
+          ? await apiService.getProductBySlug(productSlug)
+          : productId
+            ? await apiService.getProductById(productId)
+            : { success: false, error: "No product identifier provided" }
+
+
         if (response.success && response.data) {
 
           try {
@@ -172,7 +179,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
     }
 
     fetchProduct()
-  }, [productId]) // token intentionally omitted — product data doesn't need to re-fetch on token refresh
+  }, [productId, productSlug]) // token intentionally omitted — product data doesn't need to re-fetch on token refresh
 
   if (isLoading) {
     return (

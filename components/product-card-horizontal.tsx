@@ -55,7 +55,7 @@ export function ProductCardHorizontal({ product, className = "" }: ProductCardHo
             <CardContent className="p-0">
                 <div className="flex flex-col sm:flex-row h-full">
                     {/* Image Section */}
-                    <Link href={`/product/${product.id}`} className="relative w-full sm:w-64 h-48 sm:h-44 shrink-0 overflow-hidden bg-muted/30">
+                    <Link href={`/product/${product.slug}`} className="relative w-full sm:w-64 h-48 sm:h-44 shrink-0 overflow-hidden bg-muted/30">
                         <img
                             src={product.image || "/placeholder.svg"}
                             alt={product.title}
@@ -101,7 +101,7 @@ export function ProductCardHorizontal({ product, className = "" }: ProductCardHo
                             </div>
 
                             {/* Title */}
-                            <Link href={`/product/${product.id}`}>
+                            <Link href={`/product/${product.slug}`}>
                                 <h3 className="font-bold text-xl text-foreground group-hover:text-brand-500 transition-colors line-clamp-1">
                                     {product.title}
                                 </h3>

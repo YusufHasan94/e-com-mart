@@ -3,16 +3,16 @@ import { Footer } from "@/components/footer"
 
 interface ProductPageProps {
   params: Promise<{
-    id: string
+    slug: string
   }>
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const { id } = await params
+  const { slug } = await params
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-1">
-        <MultivendorProductPage productId={id} />
+        <MultivendorProductPage productSlug={slug} />
       </main>
       <Footer />
     </div>

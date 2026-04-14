@@ -56,7 +56,7 @@ export function OrderConfirmation({
               {items.map((item, idx) => (
                 <tr key={idx} className="text-sm">
                   <td className="p-4">
-                    <Link href={`/product/${item.productId || item.id}`} className="text-primary hover:underline">
+                    <Link href={`/product/${item.slug || item.productSlug || item.productId || item.id}`} className="text-primary hover:underline">
                       {item.title}
                     </Link>
                   </td>
@@ -117,7 +117,7 @@ export function OrderConfirmation({
               {items.map((item, idx) => (
                 <tr key={idx} className="text-sm">
                   <td className="p-4 whitespace-nowrap">
-                    <Link href={`/product/${item.productId || item.id}`} className="text-primary hover:underline">
+                    <Link href={`/product/${item.slug || item.productSlug || item.productId || item.id}`} className="text-primary hover:underline">
                       {item.title}
                     </Link>
                     <span className="font-bold ml-1">× 1</span>

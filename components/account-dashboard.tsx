@@ -1134,7 +1134,7 @@ export function AccountDashboard({ initialTab = "dashboard" }: { initialTab?: st
                             <TableCell className="px-4 py-3">
                               <div className="flex items-center gap-3">
                                 <img src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${product.image}`} alt={product.title} className="w-12 h-12 rounded object-cover" />
-                                <a href={`/product/${product.id}`}>
+                                <a href={`/product/${product.slug}`}>
                                   <span className="font-medium text-sm line-clamp-2 md:line-clamp-1 hover:text-primary">{product.title}</span>
                                 </a>
                               </div>

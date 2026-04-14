@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useState } from "react"
 import { apiService, type ApiSlider } from "@/lib/api-service"
 import { Footer } from "@/components/footer"
@@ -72,7 +74,7 @@ export default function SliderDetailsPage({ params }: { params: { id: string } }
             />
             <div className="absolute inset-0 bg-black/50 bg-gradient-to-t from-background via-background/40 to-transparent" />
           </div>
-          
+
           <div className="relative h-full container mx-auto px-4 flex flex-col justify-end pb-12">
             <Button asChild variant="outline" className="w-fit mb-6 bg-background/50 backdrop-blur-sm border-white/10 hover:bg-background/80 transition-colors">
               <Link href="/">
@@ -80,17 +82,17 @@ export default function SliderDetailsPage({ params }: { params: { id: string } }
                 Back to Home
               </Link>
             </Button>
-            
+
             {slider.badge && (
               <span className="w-fit bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wider py-1 px-3 rounded-md mb-4 shadow-lg">
                 {slider.badge}
               </span>
             )}
-            
+
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white drop-shadow-xl mb-4 max-w-4xl tracking-tight">
               {slider.title}
             </h1>
-            
+
             {slider.description && (
               <p className="text-lg md:text-xl text-white/90 drop-shadow-md max-w-3xl leading-relaxed font-medium">
                 {slider.description}
@@ -108,14 +110,14 @@ export default function SliderDetailsPage({ params }: { params: { id: string } }
                   <Info className="h-5 w-5" />
                   <h2 className="text-xl font-bold text-card-foreground">Promotion Details</h2>
                 </div>
-                
+
                 <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none text-muted-foreground break-words flex flex-col gap-4">
                   {slider.description ? (
                     <p className="leading-relaxed whitespace-pre-line">{slider.description}</p>
                   ) : (
                     <p className="italic">No additional details are available for this promotion.</p>
                   )}
-                  
+
                   {slider.link && (
                     <div className="mt-8">
                       <Button asChild size="lg" className="w-full sm:w-auto font-semibold">
@@ -128,14 +130,14 @@ export default function SliderDetailsPage({ params }: { params: { id: string } }
                 </div>
               </div>
             </div>
-            
+
             <div className="space-y-6">
               <div className="bg-muted/30 border rounded-xl p-6 border-border/50">
                 <h3 className="font-semibold text-lg flex items-center gap-2 mb-4">
                   <Tag className="h-5 w-5 text-primary" />
                   Key Information
                 </h3>
-                
+
                 <dl className="space-y-4">
                   <div className="flex flex-col gap-1 border-b border-border/50 pb-3">
                     <dt className="text-sm font-medium text-muted-foreground">Status</dt>
@@ -144,7 +146,7 @@ export default function SliderDetailsPage({ params }: { params: { id: string } }
                       Active Promotion
                     </dd>
                   </div>
-                  
+
                   {(slider.price || slider.discount) && (
                     <div className="flex flex-col gap-1 border-b border-border/50 pb-3">
                       <dt className="text-sm font-medium text-muted-foreground">Special Offer</dt>
@@ -154,7 +156,7 @@ export default function SliderDetailsPage({ params }: { params: { id: string } }
                       </dd>
                     </div>
                   )}
-                  
+
                   <div className="flex flex-col gap-1">
                     <dt className="text-sm font-medium text-muted-foreground">Campaign ID</dt>
                     <dd className="font-medium font-mono text-sm">#{slider.id}</dd>
