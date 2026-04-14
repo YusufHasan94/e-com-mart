@@ -325,6 +325,7 @@ export interface ApiResponse<T> {
 export interface AppProduct {
     id: string
     title: string
+    slug: string
     category: string
     categoryId?: number  // Category ID for coupon validation
     categorySlug: string
@@ -2878,6 +2879,7 @@ export const apiService = {
         return {
             id: (apiProduct.id || 0).toString(),
             title: apiProduct.title || "Unknown Product",
+            slug: apiProduct.slug,
             category: categories[0]?.name,
             categoryId: categories[0]?.id,  // Extract category ID
             description: apiProduct.description || "",
@@ -3618,7 +3620,7 @@ export const apiService = {
 
     getProductBySlug: async (slug: string): Promise<ApiResponse<any>> => {
         try {
-            const res = await fetch(`${BASE_URL}/products/${slug}`, { headers: { "Accept": "application/json" } })
+            const res = await fetch(`${BASE_URL}/products/slug/${slug}`, { headers: { "Accept": "application/json" } })
             const result = await res.json()
             return res.ok ? { success: true, data: result.data } : { success: false, error: result.message }
         } catch (e) { return { success: false, error: String(e) } }

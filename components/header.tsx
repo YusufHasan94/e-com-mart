@@ -224,7 +224,7 @@ export function Header() {
           {apiSuggestions.map((product, index) => (
             <Link
               key={product.id}
-              href={`/product/${product.id}`}
+              href={`/product/${product.slug}`}
               onClick={() => { setSearchQuery(""); setShowSuggestions(false); setSelectedIndex(-1) }}
               className={`flex items-center gap-3 px-3 py-2 hover:bg-accent cursor-pointer transition-colors ${index === selectedIndex ? "bg-accent" : ""}`}
             >

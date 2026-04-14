@@ -29,6 +29,7 @@ export interface CustomerReview {
 export interface Product {
   id: string
   title: string
+  slug: string
   category: string
   description: string
   image: string
@@ -53,6 +54,7 @@ export interface Product {
 export const products: Product[] = [
   {
     id: "netflix-gift-card",
+    slug: "netflix-gift-card",
     title: "Netflix Gift Card",
     category: "Gift Cards",
     type: "gift-card",
@@ -138,6 +140,7 @@ export const products: Product[] = [
   },
   {
     id: "baldurs-gate-3",
+    slug: "baldurs-gate-3",
     title: "Baldur's Gate 3",
     category: "RPG",
     type: "game",
@@ -188,6 +191,7 @@ export const products: Product[] = [
   },
   {
     id: "cyberpunk-2077",
+    slug: "cyberpunk-2077",
     title: "Cyberpunk 2077",
     category: "RPG",
     type: "game",
@@ -250,6 +254,7 @@ export const products: Product[] = [
   },
   {
     id: "elden-ring",
+    slug: "elden-ring",
     title: "Elden Ring",
     category: "Action RPG",
     type: "game",
@@ -299,6 +304,7 @@ export const products: Product[] = [
   },
   {
     id: "microsoft-office-365",
+    slug: "microsoft-office-365",
     title: "Microsoft Office 365",
     category: "Software",
     type: "software",
@@ -349,6 +355,7 @@ export const products: Product[] = [
   },
   {
     id: "steam-gift-card",
+    slug: "steam-gift-card",
     title: "Steam Gift Card",
     category: "Gift Card",
     type: "gift-card",
@@ -399,6 +406,7 @@ export const products: Product[] = [
   },
   {
     id: "adobe-creative-suite",
+    slug: "adobe-creative-suite",
     title: "Adobe Creative Suite",
     category: "Software",
     type: "software",
@@ -448,6 +456,7 @@ export const products: Product[] = [
   },
   {
     id: "call-of-duty-mw3",
+    slug: "call-of-duty-mw3",
     title: "Call of Duty: MW3",
     category: "FPS",
     type: "game",
@@ -497,6 +506,7 @@ export const products: Product[] = [
   },
   {
     id: "gta-v",
+    slug: "gta-v",
     title: "Grand Theft Auto V",
     category: "Action",
     type: "game",
@@ -546,6 +556,7 @@ export const products: Product[] = [
   },
   {
     id: "photoshop-cc-2024",
+    slug: "photoshop-cc-2024",
     title: "Photoshop CC 2024",
     category: "Software",
     type: "software",
@@ -595,6 +606,7 @@ export const products: Product[] = [
   },
   {
     id: "fifa-24",
+    slug: "fifa-24",
     title: "FIFA 24",
     category: "Sports",
     type: "game",
@@ -644,6 +656,7 @@ export const products: Product[] = [
   },
   {
     id: "windows-11-pro",
+    slug: "windows-11-pro",
     title: "Windows 11 Pro",
     category: "Software",
     type: "software",

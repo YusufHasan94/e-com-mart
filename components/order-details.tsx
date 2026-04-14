@@ -176,7 +176,7 @@ export function OrderDetails({ orderId }: OrderDetailsProps) {
                                             </div>
                                             <div className="space-y-1">
                                                 <Link
-                                                    href={`/product/${item.product?.id}`}
+                                                    href={`/product/${item.product?.slug || item.product?.id}`}
                                                     className="font-semibold text-[15px] text-primary hover:underline block leading-tight"
                                                 >
                                                     {item.product?.title || "Unknown Product"}

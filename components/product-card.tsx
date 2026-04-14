@@ -56,7 +56,7 @@ export function ProductCard({
     const convertedOriginalPrice = useMemo(() => rawOriginalPrice * exchangeRate, [rawOriginalPrice, exchangeRate])
 
     return (
-        <Link href={`/product/${product.id}`} className="block h-full">
+        <Link href={`/product/${product.slug}`} className="block h-full">
             <Card
                 className={`card-premium group overflow-hidden h-full rounded-[8px] ${className}`}
                 style={style}
