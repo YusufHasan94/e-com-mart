@@ -17,8 +17,7 @@ export function ProductCatalog() {
   const [filters, setFilters] = useState({
     search: searchParams.get("search") || "",
     category: "",
-    priceRange: [0, 300],
-    rating: 0,
+    priceRange: [0, 1000],
     platform: "",
     type: "",
     region: "",
@@ -32,10 +31,13 @@ export function ProductCatalog() {
   // Update search filter when URL search param changes
   useEffect(() => {
     const searchQuery = searchParams.get("search") || ""
-    if (searchQuery !== filters.search) {
-      setFilters((prev) => ({ ...prev, search: searchQuery }))
-    }
-  }, [searchParams, filters.search])
+    setFilters((prev) => {
+      if (prev.search !== searchQuery) {
+        return { ...prev, search: searchQuery }
+      }
+      return prev
+    })
+  }, [searchParams])
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${theme === 'dark'
@@ -96,7 +98,7 @@ export function ProductCatalog() {
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Filters Sidebar */}
           <div className={`${showFilters ? "block" : "hidden"
-            } lg:block w-full lg:w-72 xl:w-80 flex-shrink-0`}>
+            } lg:block w-full lg:w-72 xl:w-80 shrink-0`}>
             <div className="sticky top-4">
               <ProductFilters filters={filters} onFiltersChange={setFilters} />
             </div>

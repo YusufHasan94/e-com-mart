@@ -96,6 +96,12 @@ export function LoginForm() {
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
             </div>
+            <Link
+              href="/forgot-password"
+              className="text-sm font-medium text-primary hover:underline text-right block"
+            >
+              Forgot password?
+            </Link>
           </div>
         </CardContent>
 
@@ -111,7 +117,7 @@ export function LoginForm() {
             )}
           </Button>
 
-          <div className="relative">
+          {/* <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
@@ -139,7 +145,7 @@ export function LoginForm() {
             >
               Demo Seller
             </Button>
-          </div>
+          </div> */}
 
           <div className="text-center text-sm">
             <span className="text-muted-foreground">Don't have an account? </span>

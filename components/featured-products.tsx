@@ -13,6 +13,7 @@ import 'swiper/css/navigation'
 
 import { apiService, type ApiProduct } from "@/lib/api-service"
 import { useState, useEffect } from "react"
+import { ProductCard } from "./product-card"
 
 export function FeaturedProducts() {
   const [productsList, setProductsList] = useState<any[]>([])
@@ -25,9 +26,9 @@ export function FeaturedProducts() {
       setIsLoading(true)
       const response = await apiService.getTrendingProducts()
       if (response.success && Array.isArray(response.data)) {
-        console.log("response.data", response.data);
+
         const mappedProducts = response.data.map(p => apiService.mapApiProductToProduct(p))
-        console.log("mappedProducts", mappedProducts);
+
         setProductsList(mappedProducts)
       }
       setIsLoading(false)
@@ -36,7 +37,7 @@ export function FeaturedProducts() {
     fetchProducts()
   }, [])
 
-  console.log("productsList", productsList);
+
 
   if (isLoading) {
     return (
@@ -101,46 +102,7 @@ export function FeaturedProducts() {
           >
             {productsList.map((product) => (
               <SwiperSlide key={product.id}>
-                <Link href={`/product/${product.id}`}>
-                  <Card className="group hover:shadow-xl transition-all duration-300 overflow-hidden dark:card-hover cursor-pointer h-full rounded-lg">
-                    <div className="relative">
-                      <img
-                        src={product.image || "/placeholder.svg"}
-                        alt={product.title}
-                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute top-3 left-3 flex gap-2">
-                        {product.isNew && <Badge className="bg-green-600 hover:bg-green-700 rounded-lg">New</Badge>}
-                        {product.isBestseller && <Badge className="bg-orange-600 hover:bg-orange-700 rounded-lg">Bestseller</Badge>}
-                        {product.discount > 0 && <Badge variant="destructive" className="rounded-lg">-{product.discount}%</Badge>}
-                      </div>
-                    </div>
-
-                    <CardContent className="p-4 space-y-3">
-                      <div className="space-y-1">
-                        <p className="text-sm text-muted-foreground">{product.category}</p>
-                        <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">{product.title}</h3>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          <span className="text-sm font-medium">{product.rating}</span>
-                        </div>
-                        <span className="text-sm text-muted-foreground">({product.reviews} reviews)</span>
-                      </div>
-
-                      <div className="flex flex-col gap-4 items-center justify-between">
-                        <div className="space-y-1 text-start w-full">
-                          <div className="flex items-start gap-0 flex-col">
-                            <span className="text-sm text-muted-foreground">from</span>
-                            <span className="text-xl font-bold text-primary">${product.salePrice}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                <ProductCard product={product} />
               </SwiperSlide>
             ))}
           </Swiper>

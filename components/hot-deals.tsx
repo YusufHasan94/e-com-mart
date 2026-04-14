@@ -157,20 +157,20 @@ export function BestDeals() {
                   <Sparkles className="absolute bottom-8 right-8 h-4 w-4 text-blue-200 opacity-60" />
                   <Sparkles className="absolute top-1/2 left-4 h-3 w-3 text-blue-300 opacity-30" />
                 </div>
-                
+
                 <div className="relative z-10">
                   <div className="text-white text-2xl font-bold mb-4">HURRY UP</div>
-                  
+
                   <div className="flex items-center gap-4 mb-6">
                     <div className="text-white text-lg font-semibold writing-mode-vertical transform rotate-180">
                       SAVE UP TO
                     </div>
                     <div className="text-white text-8xl font-black">80%</div>
                   </div>
-                  
+
                   <div className="text-white text-lg mb-8">THIS WEEK ONLY SHOPPING DAYS</div>
                 </div>
-                
+
                 <div className="relative z-10">
                   <div className="text-white text-6xl font-black tracking-wider" style={{
                     textShadow: '2px 2px 0px var(--primary), -2px -2px 0px var(--primary), 2px -2px 0px var(--primary), -2px 2px 0px var(--primary)',
@@ -189,7 +189,7 @@ export function BestDeals() {
               <div className="flex gap-4 overflow-x-auto pb-4">
                 {hotDealsProducts.map((product) => (
                   <Link key={product.id} href={`/product/${product.id}`}>
-                    <Card className="w-80 dark:glass-effect dark:card-hover cursor-pointer flex-shrink-0">
+                    <Card className="w-80 dark:glass-effect dark:card-hover cursor-pointer shrink-0">
                       <CardContent className="p-4">
                         <div className="relative mb-4">
                           <img
@@ -227,7 +227,7 @@ export function BestDeals() {
                               <span className="text-muted-foreground">Sold: {product.sold}/{product.total} Products</span>
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2">
-                              <div 
+                              <div
                                 className="bg-red-500 h-2 rounded-full transition-all duration-300"
                                 style={{ width: `${(product.sold / product.total) * 100}%` }}
                               ></div>
@@ -252,11 +252,11 @@ export function BestDeals() {
                   </Link>
                 ))}
               </div>
-              
+
               {/* Carousel Navigation */}
-              <Button 
-                variant="outline" 
-                size="icon" 
+              <Button
+                variant="outline"
+                size="icon"
                 className="absolute right-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-white/90 hover:bg-white"
               >
                 <ChevronRight className="h-4 w-4" />

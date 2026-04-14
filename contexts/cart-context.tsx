@@ -3,12 +3,14 @@
 import { createContext, useContext, useReducer, useEffect, useRef, type ReactNode, type Dispatch } from "react"
 
 export interface CartItem {
-  id: number
+  id: string | number  // Can be composite ID for cart uniqueness
+  productId?: number   // Actual product ID for API calls like coupon validation
   title: string
   price: number
   originalPrice?: number
   image: string
   category: string
+  categoryId?: number  // Category ID for coupon validation
   platform: string
   quantity: number
   discount?: number
@@ -18,22 +20,28 @@ interface CartState {
   items: CartItem[]
   total: number
   itemCount: number
+  couponCode: string | null
+  discount: number
 }
 
 type CartAction =
   | { type: "ADD_ITEM"; payload: Omit<CartItem, "quantity"> }
-  | { type: "REMOVE_ITEM"; payload: number }
-  | { type: "UPDATE_QUANTITY"; payload: { id: number; quantity: number } }
+  | { type: "REMOVE_ITEM"; payload: string | number }
+  | { type: "UPDATE_QUANTITY"; payload: { id: string | number; quantity: number } }
   | { type: "CLEAR_CART" }
   | { type: "LOAD_CART"; payload: CartItem[] }
+  | { type: "APPLY_COUPON"; payload: { code: string; discount: number } }
+  | { type: "REMOVE_COUPON" }
 
 const CartContext = createContext<{
   state: CartState
   dispatch: Dispatch<CartAction>
   addItem: (item: Omit<CartItem, "quantity">) => void
-  removeItem: (id: number) => void
-  updateQuantity: (id: number, quantity: number) => void
+  removeItem: (id: string | number) => void
+  updateQuantity: (id: string | number, quantity: number) => void
   clearCart: () => void
+  applyCoupon: (code: string, discount: number) => void
+  removeCoupon: () => void
   setOpenCartDrawer: (callback: () => void) => void
   openCartDrawer: () => void
 } | null>(null)
@@ -41,31 +49,31 @@ const CartContext = createContext<{
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case "ADD_ITEM": {
-      const existingItem = state.items.find((item) => item.id === action.payload.id)
+      const existingItem = state.items.find((item) => String(item.id) === String(action.payload.id))
 
       if (existingItem) {
         const updatedItems = state.items.map((item) =>
-          item.id === action.payload.id ? { ...item, quantity: item.quantity + 1 } : item,
+          String(item.id) === String(action.payload.id) ? { ...item, quantity: item.quantity + 1 } : item,
         )
         const total = updatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
         const itemCount = updatedItems.reduce((sum, item) => sum + item.quantity, 0)
 
-        return { items: updatedItems, total, itemCount }
+        return { items: updatedItems, total, itemCount, couponCode: state.couponCode, discount: state.discount }
       }
 
       const newItems = [...state.items, { ...action.payload, quantity: 1 }]
       const total = newItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
       const itemCount = newItems.reduce((sum, item) => sum + item.quantity, 0)
 
-      return { items: newItems, total, itemCount }
+      return { items: newItems, total, itemCount, couponCode: state.couponCode, discount: state.discount }
     }
 
     case "REMOVE_ITEM": {
-      const newItems = state.items.filter((item) => item.id !== action.payload)
+      const newItems = state.items.filter((item) => String(item.id) !== String(action.payload))
       const total = newItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
       const itemCount = newItems.reduce((sum, item) => sum + item.quantity, 0)
 
-      return { items: newItems, total, itemCount }
+      return { items: newItems, total, itemCount, couponCode: state.couponCode, discount: state.discount }
     }
 
     case "UPDATE_QUANTITY": {
@@ -74,23 +82,29 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       }
 
       const updatedItems = state.items.map((item) =>
-        item.id === action.payload.id ? { ...item, quantity: action.payload.quantity } : item,
+        String(item.id) === String(action.payload.id) ? { ...item, quantity: action.payload.quantity } : item,
       )
       const total = updatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
       const itemCount = updatedItems.reduce((sum, item) => sum + item.quantity, 0)
 
-      return { items: updatedItems, total, itemCount }
+      return { items: updatedItems, total, itemCount, couponCode: state.couponCode, discount: state.discount }
     }
 
     case "CLEAR_CART":
-      return { items: [], total: 0, itemCount: 0 }
+      return { items: [], total: 0, itemCount: 0, couponCode: null, discount: 0 }
 
     case "LOAD_CART": {
       const total = action.payload.reduce((sum, item) => sum + item.price * item.quantity, 0)
       const itemCount = action.payload.reduce((sum, item) => sum + item.quantity, 0)
 
-      return { items: action.payload, total, itemCount }
+      return { items: action.payload, total, itemCount, couponCode: state.couponCode, discount: state.discount }
     }
+
+    case "APPLY_COUPON":
+      return { ...state, couponCode: action.payload.code, discount: action.payload.discount }
+
+    case "REMOVE_COUPON":
+      return { ...state, couponCode: null, discount: 0 }
 
     default:
       return state
@@ -102,12 +116,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     items: [],
     total: 0,
     itemCount: 0,
+    couponCode: null,
+    discount: 0,
   })
   const openCartDrawerCallbackRef = useRef<(() => void) | null>(null)
 
   // Load cart from localStorage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem("cart")
+    const savedCoupon = localStorage.getItem("cart_coupon")
+
     if (savedCart) {
       try {
         const cartItems = JSON.parse(savedCart)
@@ -116,12 +134,30 @@ export function CartProvider({ children }: { children: ReactNode }) {
         console.error("Failed to load cart from localStorage:", error)
       }
     }
+
+    if (savedCoupon) {
+      try {
+        const couponData = JSON.parse(savedCoupon)
+        dispatch({ type: "APPLY_COUPON", payload: couponData })
+      } catch (error) {
+        console.error("Failed to load coupon from localStorage:", error)
+      }
+    }
   }, [])
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(state.items))
   }, [state.items])
+
+  // Save coupon to localStorage whenever it changes
+  useEffect(() => {
+    if (state.couponCode && state.discount > 0) {
+      localStorage.setItem("cart_coupon", JSON.stringify({ code: state.couponCode, discount: state.discount }))
+    } else {
+      localStorage.removeItem("cart_coupon")
+    }
+  }, [state.couponCode, state.discount])
 
   const addItem = (item: Omit<CartItem, "quantity">) => {
     dispatch({ type: "ADD_ITEM", payload: item })
@@ -135,16 +171,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const removeItem = (id: number) => {
+  const removeItem = (id: string | number) => {
     dispatch({ type: "REMOVE_ITEM", payload: id })
   }
 
-  const updateQuantity = (id: number, quantity: number) => {
+  const updateQuantity = (id: string | number, quantity: number) => {
     dispatch({ type: "UPDATE_QUANTITY", payload: { id, quantity } })
   }
 
   const clearCart = () => {
     dispatch({ type: "CLEAR_CART" })
+  }
+
+  const applyCoupon = (code: string, discount: number) => {
+    dispatch({ type: "APPLY_COUPON", payload: { code, discount } })
+  }
+
+  const removeCoupon = () => {
+    dispatch({ type: "REMOVE_COUPON" })
   }
 
   const setOpenCartDrawer = (callback: () => void) => {
@@ -170,6 +214,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         removeItem,
         updateQuantity,
         clearCart,
+        applyCoupon,
+        removeCoupon,
         setOpenCartDrawer,
         openCartDrawer,
       }}

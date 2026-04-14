@@ -1,123 +1,148 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { apiService } from "@/lib/api-service"
-import Link from "next/link"
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Calendar, User, Clock, ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
+import { apiService, AppBlog } from "@/lib/api-service"
+import { BlogCard } from "@/components/blog-card"
+import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { Search, Loader2 } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 export default function BlogPage() {
-    const [blogs, setBlogs] = useState<any[]>([])
-    const [categories, setCategories] = useState<any[]>([])
-    const [loading, setLoading] = useState(true)
+    const [blogs, setBlogs] = useState<AppBlog[]>([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+    const [searchQuery, setSearchQuery] = useState("")
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(1)
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [blogsRes, categoriesRes] = await Promise.all([
-                    apiService.getBlogs(),
-                    apiService.getBlogCategories()
-                ])
+        fetchBlogs()
+    }, [currentPage])
 
-                if (blogsRes.success && blogsRes.data) {
-                    const data = (blogsRes.data as any).data || blogsRes.data
-                    setBlogs(Array.isArray(data) ? data : [])
-                }
+    const fetchBlogs = async () => {
+        setIsLoading(true)
+        try {
+            const response = await apiService.getBlogs(currentPage)
+            if (response.success && response.data) {
+                // Based on the API structure observed earlier
+                // Correctly access the nested data array from the API response
+                const apiBlogs = response.data.data?.data || []
+                const mapped = apiBlogs.map((b: any) => apiService.mapApiBlogToBlog(b))
+                setBlogs(mapped)
 
-                if (categoriesRes.success && categoriesRes.data) {
-                    setCategories(Array.isArray(categoriesRes.data) ? categoriesRes.data : [])
+                // Handle pagination structure
+                const pagination = response.data.data
+                if (pagination) {
+                    setTotalPages(pagination.last_page || 1)
                 }
-            } catch (error) {
-                console.error("Failed to fetch blog data", error)
-            } finally {
-                setLoading(false)
+            } else {
+                setError(response.error || "Failed to load blogs")
             }
+        } catch (err) {
+            setError("An unexpected error occurred")
+        } finally {
+            setIsLoading(false)
         }
-        fetchData()
-    }, [])
+    }
+
+    const filteredBlogs = blogs.filter(blog =>
+        blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        blog.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        blog.category.toLowerCase().includes(searchQuery.toLowerCase())
+    )
 
     return (
-        <div className="min-h-screen bg-background flex flex-col">
-            <main className="flex-1 container mx-auto px-4 py-8">
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold tracking-tight mb-4">Latest News & Updates</h1>
-                    <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                        Stay updated with the latest trends in gaming, software, and digital products.
-                    </p>
+        <div className="min-h-screen flex flex-col">
+
+            <main className="flex-1 bg-background">
+                {/* Banner */}
+                <div className="bg-card py-16 sm:py-24 border-b border-border/50">
+                    <div className="container mx-auto px-4 text-center">
+                        <h1 className="text-4xl sm:text-5xl font-semibold text-foreground mb-6">
+                            GameHub <span className="text-primary">Blog</span>
+                        </h1>
+                        <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-8">
+                            Stay updated with the latest gaming news, tips, and updates from the GameHub community.
+                        </p>
+
+                        {/* Search Bar */}
+                        <div className="max-w-xl mx-auto relative">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                            <Input
+                                type="text"
+                                placeholder="Search articles..."
+                                className="pl-12 h-12 bg-background border-border focus:border-primary rounded-[8px] shadow-lg"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
+                    </div>
                 </div>
 
-                {/* Categories (Mock or Real) */}
-                <div className="flex flex-wrap gap-2 justify-center mb-12">
-                    <Button variant="default">All Posts</Button>
-                    {categories.map(cat => (
-                        <Button key={cat.id} variant="outline">{cat.name}</Button>
-                    ))}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {loading ? (
-                        [1, 2, 3, 4, 5, 6].map((i) => (
-                            <div key={i} className="space-y-4">
-                                <Skeleton className="h-48 w-full rounded-xl" />
-                                <Skeleton className="h-4 w-1/4" />
-                                <Skeleton className="h-8 w-full" />
-                                <Skeleton className="h-20 w-full" />
+                {/* Content */}
+                <div className="container mx-auto px-4 py-12 sm:py-16">
+                    {isLoading ? (
+                        <div className="flex flex-col items-center justify-center py-24">
+                            <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
+                            <p className="text-muted-foreground">Loading articles...</p>
+                        </div>
+                    ) : error ? (
+                        <div className="text-center py-24">
+                            <p className="text-red-500 mb-4">{error}</p>
+                            <Button onClick={() => fetchBlogs()}>Try Again</Button>
+                        </div>
+                    ) : filteredBlogs.length > 0 ? (
+                        <>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                                {filteredBlogs.map((blog) => (
+                                    <BlogCard key={blog.id} blog={blog} />
+                                ))}
                             </div>
-                        ))
-                    ) : blogs.length > 0 ? (
-                        blogs.map((post) => (
-                            <Card key={post.id} className="overflow-hidden flex flex-col h-full hover:shadow-lg transition-shadow">
-                                <div className="h-48 relative overflow-hidden">
-                                    <img
-                                        src={post.image || "/blog-placeholder.jpg"}
-                                        alt={post.title}
-                                        className="w-full h-full object-cover transition-transform hover:scale-105"
-                                    />
-                                    {post.category && (
-                                        <Badge className="absolute top-4 left-4">{post.category.name}</Badge>
-                                    )}
-                                </div>
-                                <CardHeader className="flex-1 pb-4">
-                                    <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
-                                        <div className="flex items-center gap-1">
-                                            <Calendar className="h-3.5 w-3.5" />
-                                            <span>{new Date(post.created_at).toLocaleDateString()}</span>
-                                        </div>
-                                        <div className="flex items-center gap-1">
-                                            <User className="h-3.5 w-3.5" />
-                                            <span>{post.author || "Admin"}</span>
-                                        </div>
-                                    </div>
-                                    <h2 className="text-xl font-bold line-clamp-2 hover:text-primary transition-colors">
-                                        <Link href={`/blog/${post.slug}`}>{post.title}</Link>
-                                    </h2>
-                                </CardHeader>
-                                <CardContent className="pb-4">
-                                    <p className="text-muted-foreground line-clamp-3 text-sm">
-                                        {post.short_description || post.description?.substring(0, 150) + "..."}
-                                    </p>
-                                </CardContent>
-                                <CardFooter className="pt-0 mt-auto">
-                                    <Link href={`/blog/${post.slug}`} className="w-full">
-                                        <Button variant="ghost" className="w-full justify-between group px-0 hover:bg-transparent hover:text-primary">
-                                            Read More
-                                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+
+                            {/* Pagination */}
+                            {totalPages > 1 && (
+                                <div className="flex justify-center mt-12 gap-2">
+                                    <Button
+                                        variant="outline"
+                                        disabled={currentPage === 1}
+                                        onClick={() => setCurrentPage(prev => prev - 1)}
+                                    >
+                                        Previous
+                                    </Button>
+                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                        <Button
+                                            key={page}
+                                            variant={currentPage === page ? "default" : "outline"}
+                                            onClick={() => setCurrentPage(page)}
+                                        >
+                                            {page}
                                         </Button>
-                                    </Link>
-                                </CardFooter>
-                            </Card>
-                        ))
+                                    ))}
+                                    <Button
+                                        variant="outline"
+                                        disabled={currentPage === totalPages}
+                                        onClick={() => setCurrentPage(prev => prev + 1)}
+                                    >
+                                        Next
+                                    </Button>
+                                </div>
+                            )}
+                        </>
                     ) : (
-                        <div className="col-span-full text-center py-12">
-                            <p className="text-muted-foreground">No blog posts found.</p>
+                        <div className="text-center py-24">
+                            <p className="text-muted-foreground text-lg mb-4">
+                                No articles found matching "{searchQuery}"
+                            </p>
+                            <Button variant="outline" onClick={() => setSearchQuery("")}>
+                                Clear Search
+                            </Button>
                         </div>
                     )}
                 </div>
             </main>
+
             <Footer />
         </div>
     )

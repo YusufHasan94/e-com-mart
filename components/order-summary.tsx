@@ -4,21 +4,26 @@ import { useCart } from "@/contexts/cart-context"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { CouponInput } from "@/components/coupon-input"
 
-export function OrderSummary() {
+interface OrderSummaryProps {
+  taxAmount?: number
+}
+
+export function OrderSummary({ taxAmount = 0 }: OrderSummaryProps) {
   const { state } = useCart()
 
   const subtotal = state.total
   const shipping = subtotal > 50 ? 0 : 9.99
-  const tax = subtotal * 0.08
-  const total = subtotal + shipping + tax
+  const discount = state.discount || 0
+  const total = subtotal + shipping + taxAmount - discount
 
   return (
     <Card className="sticky top-4">
-      <CardHeader>
+      <CardHeader className="p-3">
         <CardTitle>Order Summary</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-5 p-3 pt-0">
         <div className="space-y-3">
           {state.items.map((item) => (
             <div key={`${item.id}-${Math.random()}`} className="flex items-center gap-3">
@@ -38,7 +43,14 @@ export function OrderSummary() {
 
         <Separator />
 
-        <div className="space-y-2">
+        {/* Coupon Input */}
+        <div>
+          <CouponInput />
+        </div>
+
+        <Separator />
+
+        <div className="space-y-3">
           <div className="flex justify-between text-sm">
             <span>Subtotal ({state.itemCount} items)</span>
             <span>${subtotal.toFixed(2)}</span>
@@ -49,8 +61,14 @@ export function OrderSummary() {
           </div>
           <div className="flex justify-between text-sm">
             <span>Tax</span>
-            <span>${tax.toFixed(2)}</span>
+            <span>${taxAmount.toFixed(2)}</span>
           </div>
+          {discount > 0 && (
+            <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
+              <span>Discount</span>
+              <span>-${discount.toFixed(2)}</span>
+            </div>
+          )}
           <Separator />
           <div className="flex justify-between font-medium">
             <span>Total</span>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import {
   Card,
   CardContent,
@@ -52,6 +52,9 @@ import {
   LayoutGrid,
 } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
+import { useCurrency } from "@/contexts/currency-context"
+import { useAuth } from "@/contexts/auth-context"
+import { useToast } from "@/components/ui/use-toast"
 import { apiService, type AppProduct } from "@/lib/api-service"
 import Link from "next/link"
 import { RelatedProducts } from "./related-products"
@@ -68,6 +71,64 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
   const [showAllVariations, setShowAllVariations] = useState(false)
   const [showAllOffers, setShowAllOffers] = useState(false)
   const { addItem } = useCart()
+  const { selectedCurrency, currencySymbol } = useCurrency()
+  const { token } = useAuth()
+  const { toast } = useToast()
+  const [isSaving, setIsSaving] = useState(false)
+
+  // Tracks which productId has already been sent to the view-tracking endpoint
+  // so we never fire it more than once per product, regardless of token refreshes
+  const trackedProductRef = useRef<string | null>(null)
+
+  const handleAddToWishlist = async () => {
+    if (!token) {
+      toast({
+        title: "Authentication Required",
+        description: "Please login to add items to your wishlist.",
+        variant: "destructive"
+      })
+      return
+    }
+
+    if (!product) return
+
+    setIsSaving(true)
+    try {
+      const response = await apiService.addToWishlist(token, parseInt(product.id))
+      if (response.success) {
+        toast({
+          title: "Added to Wishlist",
+          description: response.message || `${product.title} has been added to your wishlist.`,
+        })
+      } else {
+        toast({
+          title: "Failed",
+          description: response.error || "Could not add to wishlist.",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  // Synchronous price conversion using exchange_rate (same approach as product-card)
+  const exchangeRate = useMemo(() => {
+    if (!selectedCurrency) return 1
+    const r = selectedCurrency.rate
+    const parsed = typeof r === "number" ? r : parseFloat(String(r))
+    return isNaN(parsed) || parsed <= 0 ? 1 : parsed
+  }, [selectedCurrency])
+
+
+  // Helper: convert + format a price
+  const cp = (price: number) => (price * exchangeRate).toFixed(2)
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -80,14 +141,21 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
       try {
         const response = await apiService.getProductById(productId)
         if (response.success && response.data) {
-          console.log("Raw Product API Response data:", response.data);
+
           try {
             const { product: apiProduct, offers: apiOffers } = response.data;
             const mappedProduct = apiService.mapApiProductToProduct(apiProduct, apiOffers)
-            console.log("Mapped Product:", mappedProduct);
+
             setProduct(mappedProduct)
             if (mappedProduct.variations && mappedProduct.variations.length > 0) {
               setSelectedVariation(mappedProduct.variations[0])
+            }
+
+            // Track this product view for recently viewed history
+            // Auth-gated + once-per-productId guard to avoid rate-limit hammering
+            if (token && trackedProductRef.current !== mappedProduct.id) {
+              trackedProductRef.current = mappedProduct.id
+              apiService.trackProductView(token, parseInt(mappedProduct.id)).catch(() => { })
             }
           } catch (mapError) {
             console.error("Mapping Error:", mapError);
@@ -104,7 +172,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
     }
 
     fetchProduct()
-  }, [productId])
+  }, [productId]) // token intentionally omitted — product data doesn't need to re-fetch on token refresh
 
   if (isLoading) {
     return (
@@ -129,11 +197,13 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
   const handleAddToCart = (vendor: any) => {
     addItem({
       id: parseInt(`${vendor.id}${selectedVariation.value.replace(/\D/g, '')}`) || vendor.id,
+      productId: parseInt(product.id),  // Store actual product ID for coupon validation
       title: `${product.title} ${selectedVariation.value}`,
       price: vendor.price,
       originalPrice: vendor.originalPrice,
       image: product.image,
       category: product.category,
+      categoryId: product.categoryId,
       platform: product.platform || selectedVariation.platform || 'Digital',
       discount: vendor.discount || 0
     })
@@ -184,11 +254,27 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
         {/* Product Header - First on mobile only */}
         <div className="mb-6 sm:mb-8 lg:hidden">
           <div className="flex flex-wrap items-start gap-2 mb-3 sm:mb-4">
-            <Badge className="bg-green-600 hover:bg-green-700 text-xs sm:text-sm">{product.category}</Badge>
+            {product.label && (
+              <Badge
+                className="text-xs sm:text-sm font-semibold border-0"
+                style={{
+                  backgroundColor: product.label.bg_color,
+                  color: product.label.text_color
+                }}
+              >
+                {product.label.name}
+              </Badge>
+            )}
+            <Badge variant="secondary" className="text-xs sm:text-sm">{product.category}</Badge>
             <Badge variant="outline" className="text-xs sm:text-sm">{product.type === 'gift-card' ? 'Digital Key' : 'Digital Product'}</Badge>
           </div>
 
-          <h1 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">{product.title} {selectedVariation?.value && selectedVariation.value !== 'Standard Edition' ? selectedVariation.value : ''}</h1>
+          <div className="flex items-center justify-between gap-4 mb-3 sm:mb-4">
+            <h1 className="text-xl sm:text-2xl font-bold">{product.title} {selectedVariation?.value && selectedVariation.value !== 'Standard Edition' ? selectedVariation.value : ''}</h1>
+            <Button variant="outline" size="icon" onClick={handleAddToWishlist} disabled={isSaving} className="shrink-0">
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className="h-5 w-5" />}
+            </Button>
+          </div>
 
           <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
             <div className="flex items-center gap-1">
@@ -229,13 +315,18 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                     <Badge className={`${featuredVendor.isPromoted ? 'bg-primary hover:bg-primary/80' : 'bg-primary hover:bg-primary/80'} text-xs uppercase tracking-wider`}>
                       {featuredVendor.isPromoted ? 'Promoted Deal' : 'Best Offer'}
                     </Badge>
-                    <div className="text-lg font-bold text-primary">${featuredVendor.price}</div>
+                    <div className="text-lg font-bold text-primary">
+                      {selectedCurrency?.symbol === "BDT" ?
+                        <span className="font-extrabold">{currencySymbol}</span> :
+                        <span>{currencySymbol}</span>} {cp(featuredVendor.price)}</div>
                   </div>
                   {featuredVendor.originalPrice && (
-                    <div className="text-xs text-muted-foreground line-through">${featuredVendor.originalPrice}</div>
+                    <div className="text-xs text-muted-foreground line-through">{selectedCurrency?.id === 4 ?
+                      <span className="font-extrabold">{currencySymbol}</span> :
+                      <span>{currencySymbol}</span>}{cp(featuredVendor.originalPrice)}</div>
                   )}
                 </div>
-                <Button size="lg" className="flex-shrink-0 gap-2 text-sm" onClick={() => handleAddToCart(featuredVendor)}>
+                <Button size="lg" className="shrink-0 gap-2 text-sm" onClick={() => handleAddToCart(featuredVendor)}>
                   <ShoppingCart className="h-4 w-4" />
                   Add to Cart
                 </Button>
@@ -251,11 +342,27 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
             {/* Product Header - Desktop Only */}
             <div className="hidden lg:block mb-6 sm:mb-8">
               <div className="flex flex-wrap items-start gap-2 mb-3 sm:mb-4">
-                <Badge className="bg-green-600 hover:bg-green-700 text-xs sm:text-sm">{product.category}</Badge>
+                {product.label && (
+                  <Badge
+                    className="text-xs sm:text-sm font-semibold border-0"
+                    style={{
+                      backgroundColor: product.label.bg_color,
+                      color: product.label.text_color
+                    }}
+                  >
+                    {product.label.name}
+                  </Badge>
+                )}
+                <Badge variant="secondary" className="text-xs sm:text-sm">{product.category}</Badge>
                 <Badge variant="outline" className="text-xs sm:text-sm">{product.type === 'gift-card' ? 'Digital Key' : 'Digital Product'}</Badge>
               </div>
 
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4">{product.title} {selectedVariation?.value && selectedVariation.value !== 'Standard Edition' ? selectedVariation.value : ''}</h1>
+              <div className="flex items-center justify-between gap-4 mb-3 sm:mb-4">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">{product.title} {selectedVariation?.value && selectedVariation.value !== 'Standard Edition' ? selectedVariation.value : ''}</h1>
+                <Button variant="outline" size="icon" onClick={handleAddToWishlist} disabled={isSaving} className="shrink-0">
+                  {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className="h-5 w-5" />}
+                </Button>
+              </div>
 
               <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
                 <div className="flex items-center gap-1">
@@ -409,7 +516,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                     <div className="flex items-center gap-2">
                       <div className="h-6 w-1 bg-purple-600 rounded-full" />
                       <h3 className="font-bold text-lg sm:text-xl">Promoted Offers</h3>
-                      <Badge variant="secondary" className="bg-primary text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                      <Badge variant="secondary" className="bg-primary/10 text-primary">
                         Top Choice
                       </Badge>
                     </div>
@@ -418,7 +525,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                         <Card key={vendor.id} className={`relative dark:glass-effect dark:card-hover border-primary dark:border-purple-900/30 ${vendor.id === featuredVendor?.id ? 'border-primary/50' : ''}`}>
                           <CardContent className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                             <div className="flex items-center gap-3 sm:gap-4 flex-1 w-full sm:w-auto">
-                              <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                              <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center shrink-0 relative overflow-hidden">
                                 {vendor.logo ? (
                                   <img src={vendor.logo} alt={vendor.name} className="w-full h-full object-cover" />
                                 ) : (
@@ -433,24 +540,26 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-center gap-2">
                                   <h3 className="font-semibold text-sm sm:text-base truncate">{vendor.name}</h3>
-                                  <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-primary text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                                  <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-primary/10 text-primary">
                                     Promoted
                                   </Badge>
                                 </div>
                                 <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
-                                  <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 flex-shrink-0" />
+                                  <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 shrink-0" />
                                   <span className="truncate">{vendor.rating} ({vendor.reviews} reviews)</span>
                                 </div>
                               </div>
                             </div>
                             <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
                               <div className="flex flex-col items-start sm:items-end">
-                                <div className="text-lg sm:text-xl font-bold text-primary">${vendor.price}</div>
+                                <div className="text-lg sm:text-xl font-bold text-primary">{selectedCurrency?.id === 4 ?
+                                  <span className="font-extrabold">{currencySymbol}</span> :
+                                  <span>{currencySymbol}</span>}{cp(vendor.price)}</div>
                                 {vendor.stock !== undefined && vendor.stock < 10 && (
                                   <span className="text-[10px] text-red-500 font-medium">Only {vendor.stock} left</span>
                                 )}
                               </div>
-                              <Button onClick={() => handleAddToCart(vendor)} className="flex-shrink-0 text-xs sm:text-sm bg-purple-600 hover:bg-purple-700">Add to Cart</Button>
+                              <Button onClick={() => handleAddToCart(vendor)} className="shrink-0 text-xs sm:text-sm">Add to Cart</Button>
                             </div>
                           </CardContent>
                         </Card>
@@ -472,7 +581,7 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                         <Card key={vendor.id} className={`relative dark:glass-effect dark:card-hover ${vendor.id === featuredVendor?.id ? 'border-primary/50' : ''}`}>
                           <CardContent className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                             <div className="flex items-center gap-3 sm:gap-4 flex-1 w-full sm:w-auto">
-                              <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                              <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center shrink-0 relative overflow-hidden">
                                 {vendor.logo ? (
                                   <img src={vendor.logo} alt={vendor.name} className="w-full h-full object-cover" />
                                 ) : (
@@ -487,19 +596,21 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                               <div className="min-w-0 flex-1">
                                 <h3 className="font-semibold text-sm sm:text-base truncate">{vendor.name}</h3>
                                 <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
-                                  <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 flex-shrink-0" />
+                                  <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400 shrink-0" />
                                   <span className="truncate">{vendor.rating} ({vendor.reviews} reviews)</span>
                                 </div>
                               </div>
                             </div>
                             <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
                               <div className="flex flex-col items-start sm:items-end">
-                                <div className="text-lg sm:text-xl font-bold text-primary">${vendor.price}</div>
+                                <div className="text-lg sm:text-xl font-bold text-primary">{selectedCurrency?.id === 4 ?
+                                  <span className="font-extrabold">{currencySymbol}</span> :
+                                  <span>{currencySymbol}</span>}{cp(vendor.price)}</div>
                                 {vendor.stock !== undefined && vendor.stock < 10 && (
                                   <span className="text-[10px] text-red-500 font-medium">Only {vendor.stock} left</span>
                                 )}
                               </div>
-                              <Button onClick={() => handleAddToCart(vendor)} className="flex-shrink-0 text-xs sm:text-sm">Add to Cart</Button>
+                              <Button onClick={() => handleAddToCart(vendor)} className="shrink-0 text-xs sm:text-sm">Add to Cart</Button>
                             </div>
                           </CardContent>
                         </Card>
@@ -525,23 +636,23 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                 <div className="bg-muted/30 dark:bg-muted/10 rounded-xl p-6 border border-border">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-12 text-sm">
                     <div className="flex items-center gap-4">
-                      <span className="font-bold w-28 flex-shrink-0">Developer:</span>
+                      <span className="font-bold w-28 shrink-0">Developer:</span>
                       <span className="text-muted-foreground">{product.developer?.name || 'N/A'}</span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="font-bold w-28 flex-shrink-0">Publisher:</span>
+                      <span className="font-bold w-28 shrink-0">Publisher:</span>
                       <span className="text-muted-foreground">{product.publisher?.name || 'N/A'}</span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="font-bold w-28 flex-shrink-0">Release date:</span>
+                      <span className="font-bold w-28 shrink-0">Release date:</span>
                       <span className="text-muted-foreground">{product.releaseDate}</span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="font-bold w-28 flex-shrink-0">Restrictions:</span>
+                      <span className="font-bold w-28 shrink-0">Restrictions:</span>
                       <Badge variant="outline" className="text-[10px] py-0 h-5 font-bold">ESRB TEEN</Badge>
                     </div>
                     <div className="flex items-center gap-4 col-span-1 md:col-span-2">
-                      <span className="font-bold w-28 flex-shrink-0">Languages:</span>
+                      <span className="font-bold w-28 shrink-0">Languages:</span>
                       <div className="flex flex-wrap gap-2 text-muted-foreground">
                         {product.languages && product.languages.length > 0
                           ? product.languages.join(', ')
@@ -709,10 +820,14 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
                   <Badge className={`${featuredVendor.isPromoted ? 'bg-primary hover:bg-primary/80' : 'bg-blue-600 hover:bg-blue-700'} mb-2 text-xs sm:text-sm uppercase tracking-wider`}>
                     {featuredVendor.isPromoted ? 'Promoted Deal' : 'Featured Offer'}
                   </Badge>
-                  <div className="text-2xl sm:text-3xl font-bold text-primary mb-1">${featuredVendor.price}</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-primary mb-1">{selectedCurrency?.id === 4 ?
+                    <span className="font-extrabold">{currencySymbol}</span> :
+                    <span>{currencySymbol}</span>}{cp(featuredVendor.price)}</div>
                   {featuredVendor.originalPrice && (
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm sm:text-lg text-muted-foreground line-through">${featuredVendor.originalPrice}</span>
+                      <span className="text-sm sm:text-lg text-muted-foreground line-through">{selectedCurrency?.id === 4 ?
+                        <span className="font-extrabold">{currencySymbol}</span> :
+                        <span>{currencySymbol}</span>}{cp(featuredVendor.originalPrice)}</span>
                       <Badge variant="destructive" className="text-xs">
                         {Math.round(((featuredVendor.originalPrice - featuredVendor.price) / featuredVendor.originalPrice) * 100)}% off
                       </Badge>
@@ -743,7 +858,9 @@ export function MultivendorProductPage({ productId }: MultivendorProductPageProp
 
                 {otherVendors.length > 0 && (
                   <div className="text-xs sm:text-sm text-muted-foreground mb-4">
-                    +{otherVendors.length} other offers starting at ${Math.min(...otherVendors.map(v => v.price))}
+                    +{otherVendors.length} other offers starting at {selectedCurrency?.id === 4 ?
+                      <span className="font-extrabold">{currencySymbol}</span> :
+                      <span>{currencySymbol}</span>}{cp(Math.min(...otherVendors.map(v => v.price)))}
                   </div>
                 )}
 

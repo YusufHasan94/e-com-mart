@@ -82,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    console.log("Login attempt:", { email })
+
     setIsLoading(true)
 
     const response = await apiService.login(email, password)
@@ -93,7 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data: any = response.data
       const accessToken = data.access_token || data.token || data.accessToken || (data.data && (data.data.access_token || data.data.token))
 
-      console.log("Login successful, token found:", accessToken ? "Yes" : "No")
+
 
       if (accessToken) {
         localStorage.setItem("token", accessToken)
@@ -125,7 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    console.log("Login failed:", response.error)
+
     setIsLoading(false)
     return false
   }
@@ -183,25 +183,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const response = await apiService.register(email, password, password_confirmation, name, role)
 
     if (response.success) {
-      console.log("Registration successful")
+
       // No auto-login as per request
       setIsLoading(false)
       return true
     }
 
-    console.log("Registration failed:", response.error)
+
     setIsLoading(false)
     return false
   }
 
   const logout = async () => {
-    console.log("Logout called")
+
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
 
     if (token) {
       try {
         await apiService.logout(token)
-        console.log("Logged out from API")
+
       } catch (error) {
         console.error("Logout API failed", error)
       }
@@ -212,7 +212,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (typeof window !== "undefined") {
       localStorage.removeItem("user")
       localStorage.removeItem("token")
-      console.log("User and token removed from localStorage")
+
     }
   }
 

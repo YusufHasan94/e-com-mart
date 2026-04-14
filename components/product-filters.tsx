@@ -25,7 +25,6 @@ interface ProductFiltersProps {
     search: string
     category: string
     priceRange: number[]
-    rating: number
     platform: string
     type: string
     region: string
@@ -59,38 +58,22 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
     regions: true,
     languages: true,
     worksOn: true,
-    developers: true,
-    counts: true
+    developers: true
   })
 
   useEffect(() => {
     const fetchData = async () => {
-      // Fetch all products for count calculation
-      const productsRes = await apiService.getAllProducts(200)
-      const allProducts = productsRes.success && productsRes.data ? productsRes.data : []
-
-      const counts: Record<string, Record<string, number>> = {
-        categories: {},
-        platforms: {},
-        types: {},
-        regions: {},
-        languages: {},
-        worksOn: {},
-        developers: {}
-      }
-
-      allProducts.forEach(p => {
-        const attrs = p.product_attributes || {}
-        attrs.categories?.forEach(attr => counts.categories[attr.slug] = (counts.categories[attr.slug] || 0) + 1)
-        attrs.platforms?.forEach(attr => counts.platforms[attr.slug] = (counts.platforms[attr.slug] || 0) + 1)
-        attrs.types?.forEach(attr => counts.types[attr.slug] = (counts.types[attr.slug] || 0) + 1)
-        attrs.regions?.forEach(attr => counts.regions[attr.slug] = (counts.regions[attr.slug] || 0) + 1)
-        attrs.languages?.forEach(attr => counts.languages[attr.slug] = (counts.languages[attr.slug] || 0) + 1)
-        attrs.works_on?.forEach(attr => counts.worksOn[attr.slug] = (counts.worksOn[attr.slug] || 0) + 1)
-        if (attrs.developer?.slug) counts.developers[attrs.developer.slug] = (counts.developers[attrs.developer.slug] || 0) + 1
+      setIsLoading({
+        categories: true,
+        platforms: true,
+        types: true,
+        regions: true,
+        languages: true,
+        worksOn: true,
+        developers: true
       })
 
-      // Fetch attribute metadata
+      // Fetch metadata from cached API service
       const [catRes, platRes, typeRes, regRes, langRes, worksRes, devRes] = await Promise.all([
         apiService.getCategories(),
         apiService.getPlatforms(),
@@ -105,7 +88,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
         setCategories(catRes.data.map((cat: ApiCategory) => ({
           id: cat.slug,
           label: cat.name,
-          count: counts.categories[cat.slug] || 0
+          count: cat.products_count || 0
         })))
       }
       setIsLoading(prev => ({ ...prev, categories: false }))
@@ -114,7 +97,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
         setPlatforms(platRes.data.map((plat: ApiPlatform) => ({
           id: plat.slug,
           label: plat.name,
-          count: counts.platforms[plat.slug] || 0
+          count: plat.products_count || 0
         })))
       }
       setIsLoading(prev => ({ ...prev, platforms: false }))
@@ -123,7 +106,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
         setTypes(typeRes.data.map((t: ApiType) => ({
           id: t.slug,
           label: t.name,
-          count: counts.types[t.slug] || 0
+          count: t.products_count || 0
         })))
       }
       setIsLoading(prev => ({ ...prev, types: false }))
@@ -132,7 +115,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
         setRegions(regRes.data.map((r: ApiRegion) => ({
           id: r.slug,
           label: r.name,
-          count: counts.regions[r.slug] || 0
+          count: r.products_count || 0
         })))
       }
       setIsLoading(prev => ({ ...prev, regions: false }))
@@ -141,7 +124,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
         setLanguages(langRes.data.map((l: ApiLanguage) => ({
           id: l.slug,
           label: l.name,
-          count: counts.languages[l.slug] || 0
+          count: l.products_count || 0
         })))
       }
       setIsLoading(prev => ({ ...prev, languages: false }))
@@ -150,7 +133,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
         setWorksOn(worksRes.data.map((w: ApiWorksOn) => ({
           id: w.slug,
           label: w.name,
-          count: counts.worksOn[w.slug] || 0
+          count: w.products_count || 0
         })))
       }
       setIsLoading(prev => ({ ...prev, worksOn: false }))
@@ -159,7 +142,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
         setDevelopers(devRes.data.map((d: ApiDeveloper) => ({
           id: d.slug,
           label: d.name,
-          count: counts.developers[d.slug] || 0
+          count: d.products_count || 0
         })))
       }
       setIsLoading(prev => ({ ...prev, developers: false }))
@@ -174,7 +157,7 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
 
   const FilterCard = ({ title, options, filterKey, loading }: { title: string, options: FilterOption[], filterKey: string, loading: boolean }) => (
     <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] flex flex-col custom-scrollbar">
-      <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4 flex-shrink-0">
+      <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4 shrink-0">
         <CardTitle className="text-sm sm:text-base font-semibold text-card-foreground">
           {title}
         </CardTitle>
@@ -234,63 +217,63 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
         </CardContent>
       </Card>
 
-      {/* Categories */}
-      <FilterCard title="Categories" options={categories} filterKey="category" loading={isLoading.categories} />
-
       {/* Price Range */}
-      <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] flex flex-col custom-scrollbar">
-        <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4 flex-shrink-0">
+      <Card className="border-border/50 shadow-sm flex flex-col">
+        <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4 shrink-0">
           <CardTitle className="text-sm sm:text-base font-semibold text-card-foreground">
             Price Range
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 pt-3 px-3 sm:px-4 pb-3 sm:pb-4 flex-1 overflow-y-auto">
+        <CardContent className="space-y-4 pt-3 px-3 sm:px-4 pb-3 sm:pb-4 flex-1">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="min-price" className="text-[14px] text-muted-foreground capitalize font-base">Min</Label>
+              <div className="relative">
+                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">$</span>
+                <Input
+                  id="min-price"
+                  type="number"
+                  value={filters.priceRange[0]}
+                  onChange={(e) => {
+                    const val = Math.min(Number(e.target.value), filters.priceRange[1] - 1)
+                    updateFilters("priceRange", [val, filters.priceRange[1]])
+                  }}
+                  className="pl-5 h-8 text-xs appearance-none"
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="max-price" className="text-[14px] text-muted-foreground capitalize font-base">Max</Label>
+              <div className="relative">
+                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">$</span>
+                <Input
+                  id="max-price"
+                  type="number"
+                  value={filters.priceRange[1]}
+                  onChange={(e) => {
+                    const val = Math.max(Number(e.target.value), filters.priceRange[0] + 1)
+                    updateFilters("priceRange", [filters.priceRange[0], val])
+                  }}
+                  className="pl-5 h-8 text-xs"
+                />
+              </div>
+            </div>
+          </div>
+
           <Slider
             value={filters.priceRange}
             onValueChange={(value) => updateFilters("priceRange", value)}
-            max={300}
-            step={5}
+            max={1000}
+            step={1}
             className="w-full"
           />
-          <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground font-medium">
-            <span>${filters.priceRange[0]}</span>
-            <span>${filters.priceRange[1]}</span>
-          </div>
         </CardContent>
       </Card>
 
-      {/* Rating */}
-      <Card className="border-border/50 shadow-sm max-h-[200px] sm:max-h-[250px] lg:max-h-[300px] flex flex-col custom-scrollbar">
-        <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4 flex-shrink-0">
-          <CardTitle className="text-sm sm:text-base font-semibold text-card-foreground">
-            Customer Rating
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0 px-3 sm:px-4 pb-3 sm:pb-4 flex-1 overflow-y-auto">
-          <RadioGroup
-            value={filters.rating.toString()}
-            onValueChange={(value) => updateFilters("rating", Number.parseInt(value))}
-            className="space-y-1.5 sm:space-y-2"
-          >
-            {[4, 3, 2, 1].map((rating) => (
-              <div key={rating} className="flex items-center space-x-2 sm:space-x-3 py-0.5 sm:py-1">
-                <RadioGroupItem value={rating.toString()} id={`rating-${rating}`} className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                <Label htmlFor={`rating-${rating}`} className="flex items-center gap-1 cursor-pointer text-card-foreground hover:text-primary transition-colors">
-                  <div className="flex">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-2.5 w-2.5 sm:h-3 sm:w-3 ${i < rating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-xs sm:text-sm font-medium">& Up</span>
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
-        </CardContent>
-      </Card>
+      {/* Categories */}
+      <FilterCard title="Categories" options={categories} filterKey="category" loading={isLoading.categories} />
+
+
 
       {/* Platforms */}
       <FilterCard title="Platforms" options={platforms} filterKey="platform" loading={isLoading.platforms} />

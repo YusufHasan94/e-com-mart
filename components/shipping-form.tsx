@@ -2,29 +2,48 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, ArrowLeft } from "lucide-react"
 
 interface ShippingFormProps {
   onSubmit: (data: any) => void
+  initialData?: any
+  onBack?: () => void
 }
 
-export function ShippingForm({ onSubmit }: ShippingFormProps) {
+export function ShippingForm({ onSubmit, initialData, onBack }: ShippingFormProps) {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    address: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    country: "US",
+    firstName: initialData?.firstName || "",
+    lastName: initialData?.lastName || "",
+    email: initialData?.email || "",
+    phone: initialData?.phone || "",
+    address: initialData?.address || "",
+    city: initialData?.city || "",
+    state: initialData?.state || "",
+    zipCode: initialData?.zipCode || "",
+    country: initialData?.country || "US",
   })
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData((prev) => ({
+        ...prev,
+        firstName: initialData.firstName || prev.firstName,
+        lastName: initialData.lastName || prev.lastName,
+        email: initialData.email || prev.email,
+        phone: initialData.phone || prev.phone,
+        address: initialData.address || prev.address,
+        city: initialData.city || prev.city,
+        state: initialData.state || prev.state,
+        zipCode: initialData.zipCode || prev.zipCode,
+        country: initialData.country || prev.country || "US",
+      }))
+    }
+  }, [initialData])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,14 +55,15 @@ export function ShippingForm({ onSubmit }: ShippingFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
         <div className="space-y-2">
           <Label htmlFor="firstName">First Name</Label>
           <Input
             id="firstName"
             value={formData.firstName}
             onChange={(e) => handleChange("firstName", e.target.value)}
+            className="h-9"
             required
           />
         </div>
@@ -53,12 +73,13 @@ export function ShippingForm({ onSubmit }: ShippingFormProps) {
             id="lastName"
             value={formData.lastName}
             onChange={(e) => handleChange("lastName", e.target.value)}
+            className="h-9"
             required
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input
@@ -66,6 +87,7 @@ export function ShippingForm({ onSubmit }: ShippingFormProps) {
             type="email"
             value={formData.email}
             onChange={(e) => handleChange("email", e.target.value)}
+            className="h-9"
             required
           />
         </div>
@@ -76,6 +98,7 @@ export function ShippingForm({ onSubmit }: ShippingFormProps) {
             type="tel"
             value={formData.phone}
             onChange={(e) => handleChange("phone", e.target.value)}
+            className="h-9"
             required
           />
         </div>
@@ -87,18 +110,19 @@ export function ShippingForm({ onSubmit }: ShippingFormProps) {
           id="address"
           value={formData.address}
           onChange={(e) => handleChange("address", e.target.value)}
+          className="h-9"
           required
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
         <div className="space-y-2">
           <Label htmlFor="city">City</Label>
-          <Input id="city" value={formData.city} onChange={(e) => handleChange("city", e.target.value)} required />
+          <Input id="city" value={formData.city} onChange={(e) => handleChange("city", e.target.value)} required className="h-9" />
         </div>
         <div className="space-y-2">
           <Label htmlFor="state">State</Label>
-          <Input id="state" value={formData.state} onChange={(e) => handleChange("state", e.target.value)} required />
+          <Input id="state" value={formData.state} onChange={(e) => handleChange("state", e.target.value)} required className="h-9" />
         </div>
         <div className="space-y-2">
           <Label htmlFor="zipCode">ZIP Code</Label>
@@ -106,6 +130,7 @@ export function ShippingForm({ onSubmit }: ShippingFormProps) {
             id="zipCode"
             value={formData.zipCode}
             onChange={(e) => handleChange("zipCode", e.target.value)}
+            className="h-9"
             required
           />
         </div>
@@ -114,7 +139,7 @@ export function ShippingForm({ onSubmit }: ShippingFormProps) {
       <div className="space-y-2">
         <Label htmlFor="country">Country</Label>
         <Select value={formData.country} onValueChange={(value) => handleChange("country", value)}>
-          <SelectTrigger>
+          <SelectTrigger className="h-9">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -127,10 +152,18 @@ export function ShippingForm({ onSubmit }: ShippingFormProps) {
         </Select>
       </div>
 
-      <Button type="submit" className="w-full">
-        Continue to Payment
-        <ArrowRight className="ml-2 h-4 w-4" />
-      </Button>
+      <div className="flex gap-4">
+        {onBack && (
+          <Button type="button" variant="outline" onClick={onBack} className="flex-1 h-9 text-base">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+        )}
+        <Button type="submit" className="flex-1 h-9 text-base">
+          Continue to Payment
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
     </form>
   )
 }
